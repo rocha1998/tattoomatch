@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Frontend JWT</title>
+</head>
+<body>
+    <h1>Frontend simples para JWT</h1>
+
+    <h2>Cadastro</h2>
+    <input type="text" id="regUsuario" placeholder="Usuário">
+    <input type="password" id="regSenha" placeholder="Senha">
+    <button onclick="cadastrar()">Cadastrar</button>
+    <p id="regMsg"></p>
+
+    <h2>Login</h2>
+    <input type="text" id="logUsuario" placeholder="Usuário">
+    <input type="password" id="logSenha" placeholder="Senha">
+    <button onclick="logar()">Login</button>
+    <p id="logMsg"></p>
+
+    <h2>Perfil</h2>
+    <button onclick="verPerfil()">Ver Perfil</button>
+    <button onclick="deletarPerfil()">Deletar Perfil</button>
+
+    <p id="perfilMsg"></p>
+    <button onclick="logout()">Logout</button>
+    
+    <h3>Atualizar Perfil</h3>
+<input id="novoUsuario" placeholder="Novo usuário">
+<input id="novaSenha" type="password" placeholder="Nova senha">
+<button onclick="atualizarPerfil()">Atualizar</button>
+
+    <script src="app.js"></script>
+</body>
+</html>
