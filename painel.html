@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Painel do Tatuador</title>
+
+<style>
+body{
+  font-family: Arial;
+  background:#111;
+  color:white;
+  padding:40px;
+}
+
+.card{
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+
+button{
+  padding:8px 12px;
+  margin-right:10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.aprovar{background:#00c853;color:white;}
+.concluir{background:#2962ff;color:white;}
+.sugerir{background:#ff9800;color:white;}
+</style>
+</head>
+
+<body>
+
+<h1>📅 Agendamentos Recebidos</h1>
+
+<div id="listaAgendamentos"></div>
+
+<script>
+const token = localStorage.getItem("token")
+
+// 🔥 pegar id do tatuador do token
+const payload = JSON.parse(atob(token.split('.')[1]))
+const tatuadorId = payload.id
+
+async function carregarAgendamentos(){
+  const res = await fetch(`http://localhost:3000/tatuador/${tatuadorId}/agendamentos`)
+  const agendamentos = await res.json()
+
+  const lista = document.getElementById("listaAgendamentos")
+  lista.innerHTML = ""
+
+  agendamentos.forEach(ag => {
+
+    const card = document.createElement("div")
+    card.className = "card"
+
+    card.innerHTML = `
+      <h3>${ag.cliente_nome}</h3>
+      <p>📱 ${ag.cliente_whatsapp}</p>
+      <p>📝 ${ag.descricao}</p>
+      <p>📅 ${new Date(ag.data_solicitada).toLocaleString("pt-BR")}</p>
+      <p>Status: <b>${ag.status}</b></p>
+
+      <button class="aprovar" onclick="aprovar(${ag.id})">Aprovar</button>
+      <button class="sugerir" onclick="sugerir(${ag.id})">Sugerir nova data</button>
+      <button class="concluir" onclick="concluir(${ag.id})">Concluir</button>
+    `
+
+    lista.appendChild(card)
+  })
+}
+
+async function aprovar(id){
+  await fetch(`http://localhost:3000/agendamentos/${id}/aprovar`, {
+    method:"PATCH",
+    headers:{ "Authorization":"Bearer "+token }
+  })
+  carregarAgendamentos()
+}
+
+async function concluir(id){
+  await fetch(`http://localhost:3000/agendamentos/${id}/concluir`, {
+    method:"PATCH",
+    headers:{ "Authorization":"Bearer "+token }
+  })
+  carregarAgendamentos()
+}
+
+async function sugerir(id){
+  const novaData = prompt("Digite nova data (AAAA-MM-DD)")
+  if(!novaData) return
+
+  await fetch(`http://localhost:3000/agendamentos/${id}/sugerir-data`, {
+    method:"PATCH",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+token
+    },
+    body: JSON.stringify({ nova_data: novaData })
+  })
+
+  carregarAgendamentos()
+}
+
+carregarAgendamentos()
+</script>
+</body>
+</html>

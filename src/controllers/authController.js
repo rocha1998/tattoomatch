@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const pool = require('../config/db')
@@ -47,8 +48,25 @@ async function login(req, res) {
             return res.status(401).json({ mensagem: "Login inválido ❌" })
         }
 
+        // 🔥 VERIFICAR SE É TATUADOR
+        const tatuador = await pool.query(
+            'SELECT id FROM tatuadores WHERE usuario_id = $1',
+            [usuarioBanco.id]
+        )
+
+        let tipo = "cliente"
+
+        if (tatuador.rows.length > 0) {
+            tipo = "tatuador"
+        }
+
+        // 🔥 AGORA CRIAMOS O TOKEN COM O TIPO
         const token = jwt.sign(
-            { id: usuarioBanco.id, usuario: usuarioBanco.usuario },
+            { 
+                id: usuarioBanco.id, 
+                usuario: usuarioBanco.usuario,
+                tipo: tipo
+            },
             SECRET_KEY,
             { expiresIn: '1h' }
         )

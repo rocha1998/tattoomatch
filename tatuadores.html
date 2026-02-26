@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tatuadores</title>
+
+<style>
+body{
+  background:#111;
+  color:white;
+  font-family:Arial;
+  margin:0;
+}
+
+.container{
+  padding:40px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.card img{
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.card button{
+  margin-top:10px;
+  padding:10px;
+  background:#25D366;
+  border:none;
+  border-radius:6px;
+  color:white;
+  cursor:pointer;
+}
+.busca{
+  padding:0 40px 30px 40px;
+  display:flex;
+  gap:10px;
+}
+
+.busca input{
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  background:#1c1c1c;
+  color:white;
+  width:200px;
+}
+
+.busca button{
+  padding:12px 20px;
+  border:none;
+  border-radius:8px;
+  background:#25D366;
+  color:white;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h1 style="padding:40px;">Tatuadores</h1>
+
+<div class="busca">
+  <input id="cidadeInput" placeholder="📍 Cidade">
+  <input id="estiloInput" placeholder="🎨 Estilo">
+  <button onclick="buscar()">Buscar</button>
+</div>
+
+<div class="container" id="lista"></div>
+
+<script>
+async function carregarTatuadores(url="http://localhost:3000/tatuadores"){
+  const res = await fetch(url)
+  const data = await res.json()
+
+  const container = document.getElementById("lista")
+  container.innerHTML = ""
+
+  data.forEach(tatuador => {
+    const card = document.createElement("div")
+    card.className = "card"
+
+   card.innerHTML = `
+  <img src="http://localhost:3000/uploads/${tatuador.foto_perfil}">
+  <h2>${tatuador.nome_artistico}</h2>
+
+  <p>⭐ ${Number(tatuador.media).toFixed(1)} 
+     (${tatuador.total_avaliacoes} avaliações)</p>
+
+  <p>📍 ${tatuador.cidade}</p>
+  <p>🎨 ${tatuador.estilos}</p>
+
+  <a href="perfil.html?user=${tatuador.id}">
+  <button>Ver Perfil</button>
+</a>
+`
+
+    container.appendChild(card)
+  })
+}
+
+function buscar(){
+  const cidade = document.getElementById("cidadeInput").value
+  const estilo = document.getElementById("estiloInput").value
+
+  let url = "http://localhost:3000/tatuadores?"
+
+  if(cidade) url += `cidade=${cidade}&`
+  if(estilo) url += `estilo=${estilo}`
+
+  carregarTatuadores(url)
+}
+
+carregarTatuadores()
+</script>
+
+</body>
+</html>

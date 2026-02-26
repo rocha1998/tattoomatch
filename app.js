@@ -18,22 +18,34 @@ async function cadastrar() {
 
 // Função de login
 async function logar() {
-    const usuario = document.getElementById('logUsuario').value
-    const senha = document.getElementById('logSenha').value
+    const usuario = document.getElementById("logUsuario").value
+    const senha = document.getElementById("logSenha").value
 
-    const res = await fetch('http://localhost:3000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usuario, senha })
     })
 
     const data = await res.json()
-    document.getElementById('logMsg').innerText = JSON.stringify(data, null, 2)
 
-    if (data.token) {
-        localStorage.setItem('token', data.token) // salva no navegador
-        token = data.token
-        alert("Login realizado com sucesso 🚀")
+    if(!data.token){
+        alert("Erro no login")
+        return
+    }
+
+    // 🔥 salva token
+    localStorage.setItem("token", data.token)
+
+    // 🔥 lê o conteúdo do token (payload)
+    const payload = JSON.parse(atob(data.token.split('.')[1]))
+    console.log("Usuário logado:", payload)
+
+    // 🔥 redirecionamento inteligente
+    if(payload.tipo === "tatuador"){
+        window.location.href = "painel.html"
+    }else{
+        window.location.href = "tatuadores.html"
     }
 }
 

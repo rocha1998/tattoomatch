@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Perfil do Tatuador</title>
+
+<style>
+body{
+  font-family: Arial;
+  margin:0;
+  background:#111;
+  color:#fff;
+}
+
+.header{
+  display:flex;
+  gap:20px;
+  padding:40px;
+  background:#1c1c1c;
+}
+
+.header img{
+  width:140px;
+  height:140px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.portfolio{
+  padding:40px;
+  display:grid;
+  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+.portfolio div{
+  position:relative;
+}
+
+.portfolio img{
+  width:100%;
+  height:250px;
+  object-fit:cover;
+  border-radius:10px;
+  display:block;
+}
+
+.btn-orcamento{
+  background:#ff4d6d;
+  color:white;
+  border:none;
+  padding:12px 20px;
+  font-size:16px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-top:20px;
+}
+
+.btn-orcamento:hover{
+  background:#ff2e55;
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+}
+
+.modal-content{
+  background:#1c1c1c;
+  padding:30px;
+  width:400px;
+  margin:5% auto;
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.modal input,
+.modal textarea{
+  padding:10px;
+  border-radius:6px;
+  border:none;
+}
+
+.modal button{
+  padding:10px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <img id="fotoPerfil">
+  <div>
+    <h1 id="nome"></h1>
+    <p id="bio"></p>
+    <p>📍 <span id="cidade"></span></p>
+    <p>🎨 <span id="estilos"></span></p>
+    <a id="btnWhatsapp" target="_blank">
+  <button style="padding:12px 20px;background:#25D366;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;margin-top:10px;">
+    💬 Agendar pelo WhatsApp
+  </button>
+</a>
+
+<br>
+
+<button class="btn-orcamento" onclick="abrirModalAgendamento()">
+  Solicitar orçamento 💉
+</button>
+</a>
+<div id="uploadArea" style="margin-top:20px; display:none;">
+  <h3>Adicionar nova tatuagem</h3>
+  <input type="file" id="imagemInput"><br><br>
+  <input type="text" id="estiloInput" placeholder="Estilo"><br><br>
+  <input type="text" id="descricaoInput" placeholder="Descrição"><br><br>
+  <button onclick="enviarTatuagem()">Enviar</button>
+</div>
+  </div>
+</div>
+
+<h2 style="padding-left:40px">Portfólio</h2>
+<div class="portfolio" id="portfolio"></div>
+
+<h3>Deixar avaliação</h3>
+
+<select id="notaInput">
+  <option value="5">⭐ 5</option>
+  <option value="4">⭐ 4</option>
+  <option value="3">⭐ 3</option>
+  <option value="2">⭐ 2</option>
+  <option value="1">⭐ 1</option>
+</select>
+
+<br><br>
+
+<input id="comentarioInput" placeholder="Escreva um comentário">
+
+<br><br>
+
+<button onclick="enviarAvaliacao()">Enviar avaliação</button>
+
+<h2 style="padding-left:40px">Avaliações</h2>
+<div id="avaliacoes" style="padding:40px;"></div>
+
+<div id="modalAgendamento" class="modal">
+  <div class="modal-content">
+    <h2>Solicitar orçamento 💉</h2>
+
+    <form id="formAgendamento">
+
+  <input type="text" id="nomeCliente" placeholder="Seu nome" required>
+  <input type="email" id="emailCliente" placeholder="Seu email" required>
+  <input type="text" id="whatsappCliente" placeholder="WhatsApp">
+
+  <textarea id="descricaoCliente" placeholder="Descreva sua tattoo" required></textarea>
+
+  <input type="text" id="parte_corpoCliente" placeholder="Parte do corpo">
+  <input type="text" id="tamanhoCliente" placeholder="Tamanho aproximado">
+
+  <input type="date" id="dataCliente" required>
+
+  <button type="submit">Enviar pedido</button>
+  <button type="button" onclick="fecharModal()">Cancelar</button>
+
+</form>
+  </div>
+</div>
+
+<script>
+  let usuarioPerfil = null;
+  
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const token = localStorage.getItem("token")
+  console.log("TOKEN NO PERFIL:", token)
+  
+
+if(token){
+  document.getElementById("uploadArea").style.display = "block"
+}
+
+  const params = new URLSearchParams(window.location.search)
+  const usuario = params.get("user")
+
+  const res = await fetch(`http://localhost:3000/tatuador/${usuario}`)
+const data = await res.json()
+
+// 🔒 proteção pra evitar erro se API falhar
+if (!data.tatuador) {
+  alert("Tatuador não encontrado")
+  return
+}
+
+const tatuador = data.tatuador
+
+document.getElementById("nome").innerText = tatuador.nome_artistico
+document.getElementById("bio").innerText = tatuador.bio
+document.getElementById("cidade").innerText = tatuador.cidade
+document.getElementById("estilos").innerText = tatuador.estilos
+
+document.getElementById("fotoPerfil").src =
+  "http://localhost:3000/uploads/" + tatuador.foto_perfil
+
+document.getElementById("btnWhatsapp").href =
+  "https://wa.me/" + tatuador.whatsapps
+
+  const divPortfolio = document.getElementById("portfolio")
+
+  data.portfolio.forEach(tattoo => {
+
+    const container = document.createElement("div")
+    container.style.position = "relative"
+
+    const img = document.createElement("img")
+    img.src = "http://localhost:3000/uploads/" + tattoo.imagem
+    img.style.width = "300px"
+    img.style.margin = "10px"
+    container.appendChild(img)
+
+    if(token){
+      const btn = document.createElement("button")
+      btn.innerText = "🗑️"
+      btn.style.position = "absolute"
+      btn.style.top = "10px"
+      btn.style.right = "10px"
+      btn.style.background = "red"
+      btn.style.color = "white"
+      btn.style.border = "none"
+      btn.style.padding = "5px 10px"
+      btn.style.cursor = "pointer"
+
+      btn.onclick = async () => {
+        await fetch("http://localhost:3000/tatuagens/" + tattoo.id, {
+          method: "DELETE",
+          headers: { "Authorization": "Bearer " + token }
+        })
+        location.reload()
+      }
+
+      container.appendChild(btn)
+    }
+
+    divPortfolio.appendChild(container)
+  })
+
+  const divAvaliacoes = document.getElementById("avaliacoes")
+
+  data.avaliacoes.forEach(av => {
+    const p = document.createElement("p")
+    p.innerText = `⭐ ${av.nota} - ${av.comentario}`
+    divAvaliacoes.appendChild(p)
+  })
+
+})
+async function enviarTatuagem() {
+
+  const token = localStorage.getItem("token")
+
+  const imagem = document.getElementById("imagemInput").files[0]
+  const estilo = document.getElementById("estiloInput").value
+  const descricao = document.getElementById("descricaoInput").value
+
+  const formData = new FormData()
+  formData.append("imagem", imagem)
+  formData.append("estilo", estilo)
+  formData.append("descricao", descricao)
+
+  const res = await fetch("http://localhost:3000/tatuagens", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + token
+    },
+    body: formData
+  })
+
+  const data = await res.json()
+  alert(data.mensagem)
+
+  location.reload()
+}
+
+async function enviarAvaliacao() {
+
+  const nota = document.getElementById("notaInput").value
+  const comentario = document.getElementById("comentarioInput").value
+
+  const res = await fetch("http://localhost:3000/avaliar/" + tatuadorId, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nota: nota,
+      comentario: comentario
+    })
+  })
+
+  const data = await res.json()
+  alert(data.mensagem)
+
+  location.reload()
+}
+
+function abrirModalAgendamento(){
+  document.getElementById("modalAgendamento").style.display="block";
+}
+
+function fecharModal(){
+  document.getElementById("modalAgendamento").style.display="none";
+}
+
+// 🔥 ENVIO DO FORM DE AGENDAMENTO
+// 🔥 ENVIO DO FORM DE AGENDAMENTO (CORRIGIDO)
+document.getElementById("formAgendamento")
+.addEventListener("submit", async (e) => {
+
+  e.preventDefault()
+
+  const params = new URLSearchParams(window.location.search)
+  const usuario = params.get("user")
+
+  const dados = {
+    cliente_nome: document.getElementById("nomeCliente").value,
+    cliente_email: document.getElementById("emailCliente").value,
+    cliente_whatsapp: document.getElementById("whatsappCliente").value,
+    descricao: document.getElementById("descricaoCliente").value,
+    parte_corpo: document.getElementById("parte_corpoCliente").value,
+    tamanho: document.getElementById("tamanhoCliente").value,
+    data_solicitada: document.getElementById("dataCliente").value,
+    tatuador_id: usuario
+  }
+
+  const res = await fetch("http://localhost:3000/agendamentos", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(dados)
+  })
+
+  const resposta = await res.json()
+
+  alert("Agendamento enviado com sucesso 💉")
+
+  fecharModal()
+})
+
+
+</script>
+
+</body>
+</html>
