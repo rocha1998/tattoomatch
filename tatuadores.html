@@ -1,130 +1,300 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Tatuadores</title>
-
-<style>
-body{
-  background:#111;
-  color:white;
-  font-family:Arial;
-  margin:0;
-}
-
-.container{
-  padding:40px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
-  gap:20px;
-}
-
-.card{
-  background:#1c1c1c;
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
-}
-
-.card img{
-  width:100%;
-  height:200px;
-  object-fit:cover;
-  border-radius:10px;
-}
-
-.card button{
-  margin-top:10px;
-  padding:10px;
-  background:#25D366;
-  border:none;
-  border-radius:6px;
-  color:white;
-  cursor:pointer;
-}
-.busca{
-  padding:0 40px 30px 40px;
-  display:flex;
-  gap:10px;
-}
-
-.busca input{
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  background:#1c1c1c;
-  color:white;
-  width:200px;
-}
-
-.busca button{
-  padding:12px 20px;
-  border:none;
-  border-radius:8px;
-  background:#25D366;
-  color:white;
-  cursor:pointer;
-}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tatuadores | TattooMatch</title>
+<meta name="description" content="Busque tatuadores dispon&iacute;veis por cidade, estilo e proximidade no TattooMatch.">
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/tatuadores.css">
 </head>
 
 <body>
+<div id="navbar"></div>
 
-<h1 style="padding:40px;">Tatuadores</h1>
+<main>
+  <section class="hero">
+    <h1>Descubra tatuadores com mais contexto e menos achismo.</h1>
+    <p>
+      Filtre por localiza&ccedil;&atilde;o e estilo, veja destaque por plano e encontre artistas
+      com portf&oacute;lio, reputa&ccedil;&atilde;o e presen&ccedil;a mais clara dentro da plataforma.
+    </p>
 
-<div class="busca">
-  <input id="cidadeInput" placeholder="📍 Cidade">
-  <input id="estiloInput" placeholder="🎨 Estilo">
-  <button onclick="buscar()">Buscar</button>
-</div>
+    <div class="hero-actions">
+      <button class="button" onclick="buscar()">Aplicar filtros</button>
+      <a class="button-secondary" href="/ranking.html">Ver ranking</a>
+    </div>
+  </section>
 
-<div class="container" id="lista"></div>
+  <section class="filters">
+    <input id="estadoInput" placeholder="Estado">
+    <input id="cidadeInput" placeholder="Cidade">
+    <input id="municipioInput" placeholder="Munic&iacute;pio">
+    <input id="estiloInput" placeholder="Estilo">
+    <button onclick="buscar()">Buscar</button>
+  </section>
 
+  <p class="status" id="statusBusca">Carregando tatuadores...</p>
+
+  <div class="stack">
+    <section class="section-shell" id="patrocinadosSection" hidden>
+      <div class="section-head">
+        <div>
+          <h2>Patrocinados</h2>
+          <p>Perfis com patroc&iacute;nio semanal ativo aparecem primeiro na vitrine.</p>
+        </div>
+        <div class="section-tools">
+          <span class="pill" id="patrocinadosCount">0 patrocinados</span>
+          <button class="carousel-arrow" type="button" onclick="moverCarousel('patrocinadosLista', -1)">&lsaquo;</button>
+          <button class="carousel-arrow" type="button" onclick="moverCarousel('patrocinadosLista', 1)">&rsaquo;</button>
+        </div>
+      </div>
+      <div class="carousel-shell">
+        <div class="carousel-track" id="patrocinadosLista"></div>
+      </div>
+    </section>
+
+    <section class="section-shell" id="destaquesSection">
+      <div class="section-head">
+        <div>
+          <h2>Tatuadores em destaque</h2>
+          <p>Perfis com plano Premium ativo ganham uma vitrine pr&oacute;pria, sem depender de patroc&iacute;nio.</p>
+        </div>
+        <div class="section-tools">
+          <span class="pill">Vitrine da plataforma</span>
+          <button class="carousel-arrow" type="button" onclick="moverCarousel('destaquesLista', -1)">&lsaquo;</button>
+          <button class="carousel-arrow" type="button" onclick="moverCarousel('destaquesLista', 1)">&rsaquo;</button>
+        </div>
+      </div>
+      <div class="carousel-shell">
+        <div class="carousel-track" id="destaquesLista"></div>
+      </div>
+      <div class="empty-block" id="destaquesEmpty" hidden>Nenhum destaque dispon&iacute;vel neste momento.</div>
+    </section>
+
+    <section class="section-shell">
+      <div class="section-head">
+        <div>
+          <h2>Tatuadores dispon&iacute;veis</h2>
+          <p>Explore a base por localiza&ccedil;&atilde;o, estilo, reputa&ccedil;&atilde;o e proximidade.</p>
+        </div>
+        <span class="pill" id="geralCount">0 artistas</span>
+      </div>
+      <div class="container" id="lista"></div>
+      <div class="empty-block" id="listaEmpty" hidden>Nenhum tatuador encontrado com esses filtros.</div>
+    </section>
+  </div>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
 <script>
-async function carregarTatuadores(url="http://localhost:3000/tatuadores"){
-  const res = await fetch(url)
-  const data = await res.json()
+const { API_BASE, buildPublicProfileUrl, escapeHtml, fetchJson, loadFooter, loadNavbar } = window.FrontendUtils;
 
-  const container = document.getElementById("lista")
-  container.innerHTML = ""
+const fallbackImage =
+  "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'><rect width='600' height='400' fill='%2316161a'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23f5f1e8' font-family='Trebuchet MS, sans-serif' font-size='34'>TattooMatch</text></svg>";
 
-  data.forEach(tatuador => {
-    const card = document.createElement("div")
-    card.className = "card"
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await loadFooter();
+  await carregarDestaques();
+  await detectarProximidade();
+});
 
-   card.innerHTML = `
-  <img src="http://localhost:3000/uploads/${tatuador.foto_perfil}">
-  <h2>${tatuador.nome_artistico}</h2>
+function formatarDistancia(distanciaKm) {
+  const valor = Number(distanciaKm);
+  if (!Number.isFinite(valor)) {
+    return "Dist\u00e2ncia indispon\u00edvel";
+  }
 
-  <p>⭐ ${Number(tatuador.media).toFixed(1)} 
-     (${tatuador.total_avaliacoes} avaliações)</p>
-
-  <p>📍 ${tatuador.cidade}</p>
-  <p>🎨 ${tatuador.estilos}</p>
-
-  <a href="perfil.html?user=${tatuador.id}">
-  <button>Ver Perfil</button>
-</a>
-`
-
-    container.appendChild(card)
-  })
+  return `${valor.toFixed(1)} km de voc\u00ea`;
 }
 
-function buscar(){
-  const cidade = document.getElementById("cidadeInput").value
-  const estilo = document.getElementById("estiloInput").value
+function criarCardTatuador(tatuador, { destaque = false } = {}) {
+  const card = document.createElement("article");
+  card.className = "card";
 
-  let url = "http://localhost:3000/tatuadores?"
+  const badges = [];
 
-  if(cidade) url += `cidade=${cidade}&`
-  if(estilo) url += `estilo=${estilo}`
+  if (tatuador.patrocinado) {
+    badges.push(`<span class="badge patrocinado">Patrocinado</span>`);
+  }
 
-  carregarTatuadores(url)
+  if (tatuador.premium_ativo || destaque) {
+    badges.push(`<span class="badge premium">Premium</span>`);
+  }
+
+  if (tatuador.highlight_ativo) {
+    badges.push(`<span class="badge destaque">Destaque semanal</span>`);
+  }
+
+  if (!tatuador.premium_ativo && (tatuador.plano === "Premium" || tatuador.verificado)) {
+    badges.push(`<span class="badge verificado">Verificado</span>`);
+  } else if (tatuador.plano === "Pro") {
+    badges.push(`<span class="badge pro">Plano Pro</span>`);
+  }
+
+  const foto = tatuador.foto_perfil
+    ? `${API_BASE}/uploads/${encodeURIComponent(tatuador.foto_perfil)}`
+    : fallbackImage;
+
+  const nota = Number(tatuador.media || 0).toFixed(1);
+  const totalAvaliacoes = Number(tatuador.total_avaliacoes || 0);
+  const distancia = tatuador.distancia_km
+    ? `<div class="meta">${formatarDistancia(tatuador.distancia_km)}</div>`
+    : "";
+
+  card.innerHTML = `
+    <img src="${foto}" alt="${escapeHtml(tatuador.nome_artistico || "Tatuador")}">
+    <div class="card-body">
+      <div class="badge-row">${badges.join("")}</div>
+      <h2>${escapeHtml(tatuador.nome_artistico || "Artista sem nome")}</h2>
+      <div class="rating">&#9733; ${nota} (${totalAvaliacoes} avalia&ccedil;&otilde;es)</div>
+      <div class="location">${escapeHtml(tatuador.estado || "Estado n&atilde;o informado")} &bull; ${escapeHtml(tatuador.cidade || "Cidade n&atilde;o informada")}</div>
+      <div class="meta">
+        Bairro: ${escapeHtml(tatuador.bairro || tatuador.municipio || "N&atilde;o informado")}<br>
+        Estilos: ${escapeHtml(tatuador.estilos || "N&atilde;o informado")}
+      </div>
+      ${distancia}
+      <a class="button-secondary" href="${buildPublicProfileUrl(tatuador)}">Ver perfil</a>
+    </div>
+  `;
+
+  return card;
 }
 
-carregarTatuadores()
+function moverCarousel(id, direction) {
+  const track = document.getElementById(id);
+  if (!track) {
+    return;
+  }
+
+  const firstCard = track.querySelector(".card");
+  const scrollAmount = firstCard ? firstCard.offsetWidth + 18 : 320;
+  track.scrollBy({ left: scrollAmount * direction, behavior: "smooth" });
+}
+
+async function carregarDestaques() {
+  const result = await fetchJson("/tatuadores-destaque");
+  const lista = document.getElementById("destaquesLista");
+  const empty = document.getElementById("destaquesEmpty");
+
+  lista.innerHTML = "";
+
+  if (!result.ok || !Array.isArray(result.data) || !result.data.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+
+  result.data.forEach((tatuador) => {
+    lista.appendChild(criarCardTatuador(tatuador, { destaque: true }));
+  });
+}
+
+async function detectarProximidade() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const url = `${API_BASE}/tatuadores?latitude=${encodeURIComponent(coords.latitude)}&longitude=${encodeURIComponent(coords.longitude)}`;
+        carregarTatuadores(url, "Mostrando artistas ordenados por proximidade.");
+      },
+      async () => {
+        await detectarCidade();
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 300000 }
+    );
+    return;
+  }
+
+  await detectarCidade();
+}
+
+async function detectarCidade() {
+  const result = await fetchJson("/localizacao");
+  const data = result.data || {};
+  const cidade = data.cidade;
+
+  if (cidade) {
+    document.getElementById("cidadeInput").value = cidade;
+    const cidadeEncoded = encodeURIComponent(cidade);
+    const url = `${API_BASE}/tatuadores?cidade=${cidadeEncoded}`;
+    carregarTatuadores(url, `Mostrando artistas pr\u00f3ximos de ${cidade}.`);
+    return;
+  }
+
+  carregarTatuadores();
+}
+
+async function carregarTatuadores(
+  url = `${API_BASE}/tatuadores`,
+  statusInicial = "Explorando artistas na plataforma."
+) {
+  const status = document.getElementById("statusBusca");
+  const patrocinadosSection = document.getElementById("patrocinadosSection");
+  const patrocinadosLista = document.getElementById("patrocinadosLista");
+  const patrocinadosCount = document.getElementById("patrocinadosCount");
+  const container = document.getElementById("lista");
+  const listaEmpty = document.getElementById("listaEmpty");
+  const geralCount = document.getElementById("geralCount");
+
+  status.textContent = "Carregando resultados...";
+  patrocinadosLista.innerHTML = "";
+  container.innerHTML = "";
+  listaEmpty.hidden = true;
+  patrocinadosSection.hidden = true;
+
+  const result = await fetchJson(url.replace(API_BASE, ""));
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    status.textContent = result.error || "N\u00e3o foi poss\u00edvel carregar os tatuadores agora.";
+    geralCount.textContent = "0 artistas";
+    patrocinadosCount.textContent = "0 patrocinados";
+    return;
+  }
+
+  const data = result.data;
+  const patrocinados = data.filter((item) => item.patrocinado);
+  const gerais = data.filter((item) => !item.patrocinado);
+
+  status.textContent = `${statusInicial} ${data.length} resultado(s) encontrado(s).`;
+  patrocinadosCount.textContent = `${patrocinados.length} patrocinado(s)`;
+  geralCount.textContent = `${gerais.length} artista(s)`;
+
+  if (patrocinados.length) {
+    patrocinadosSection.hidden = false;
+    patrocinados.forEach((tatuador) => {
+      patrocinadosLista.appendChild(criarCardTatuador(tatuador));
+    });
+  }
+
+  if (!gerais.length) {
+    listaEmpty.hidden = false;
+    return;
+  }
+
+  gerais.forEach((tatuador) => {
+    container.appendChild(criarCardTatuador(tatuador));
+  });
+}
+
+function buscar() {
+  const params = new URLSearchParams();
+  const estado = document.getElementById("estadoInput").value.trim();
+  const cidade = document.getElementById("cidadeInput").value.trim();
+  const municipio = document.getElementById("municipioInput").value.trim();
+  const estilo = document.getElementById("estiloInput").value.trim();
+
+  if (estado) params.append("estado", estado);
+  if (cidade) params.append("cidade", cidade);
+  if (municipio) params.append("municipio", municipio);
+  if (estilo) params.append("estilo", estilo);
+
+  const url = `${API_BASE}/tatuadores?${params.toString()}`;
+  carregarTatuadores(url, "Resultados atualizados.");
+}
 </script>
-
 </body>
 </html>

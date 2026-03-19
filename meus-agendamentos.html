@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meus Agendamentos | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/meus-agendamentos.css">
+</head>
+
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <h1>Meus pedidos</h1>
+    <p>
+      Acompanhe o andamento dos seus agendamentos e converse com o tatuador dentro da plataforma.
+    </p>
+    <div class="context-links" id="contextLinks"></div>
+  </section>
+
+  <section class="list" id="lista"></section>
+  <div class="empty-state" id="emptyState" hidden>Você ainda não fez nenhum agendamento.</div>
+</main>
+
+<div class="modal" id="modalChat">
+  <div class="modal-sheet">
+    <div class="chat-header">
+      <div>
+        <h2 id="chatTitulo">Conversa do agendamento</h2>
+        <p id="chatResumo">Carregando conversa...</p>
+      </div>
+      <button class="secondary" type="button" onclick="fecharModalChat()">Fechar</button>
+    </div>
+    <div class="chat-list" id="chatLista"></div>
+    <form class="form-stack" id="formChat">
+      <textarea id="chatMensagem" rows="4" maxlength="1000" placeholder="Escreva sua mensagem para o tatuador..." required></textarea>
+      <div class="actions">
+        <button class="primary" type="submit">Enviar mensagem</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { escapeHtml, fetchJson, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+let auth = null;
+let chatAgendamentoId = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  auth = requireAuth();
+  if (!auth) {
+    return;
+  }
+
+  await loadNavbar();
+  renderizarContextoConta();
+  await carregarAgendamentos();
+});
+
+function formatarData(valor) {
+  if (!valor) {
+    return "Não informada";
+  }
+
+  const data = new Date(valor);
+  if (Number.isNaN(data.getTime())) {
+    return "Data inválida";
+  }
+
+  return data.toLocaleDateString("pt-BR");
+}
+
+function renderizarContextoConta() {
+  const contexto = document.getElementById("contextLinks");
+
+  if (!contexto || auth.payload.tipo !== "tatuador") {
+    return;
+  }
+
+  contexto.innerHTML = `
+    <a class="context-link" href="/painel.html">Painel profissional</a>
+    <a class="context-link current" href="/meus-agendamentos.html">Painel pessoal</a>
+  `;
+}
+
+async function carregarAgendamentos() {
+  const { token } = auth;
+  const result = await fetchJson("/meus-agendamentos", {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    document.getElementById("emptyState").hidden = false;
+    document.getElementById("emptyState").textContent =
+      result.error || "Não foi possível carregar seus agendamentos agora.";
+    return;
+  }
+
+  const agendamentos = result.data;
+  const container = document.getElementById("lista");
+  const empty = document.getElementById("emptyState");
+  container.innerHTML = "";
+
+  if (!agendamentos.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+
+  agendamentos.forEach((ag) => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const badgeChat = Number(ag.mensagens_nao_lidas) > 0
+      ? `<span class="chat-badge">${ag.mensagens_nao_lidas} nova(s)</span>`
+      : "";
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div>
+          <h2>${escapeHtml(ag.descricao || "Pedido sem descrição")}</h2>
+          <p>Tatuador: ${escapeHtml(ag.tatuador_nome || "Não identificado")}</p>
+        </div>
+        <div class="card-status">
+          ${badgeChat}
+          <span class="status ${escapeHtml(ag.status || "PENDENTE")}">${escapeHtml(ag.status || "PENDENTE")}</span>
+        </div>
+      </div>
+      <p>Parte do corpo: ${escapeHtml(ag.parte_corpo || "Não informada")}</p>
+      <p>Tamanho: ${escapeHtml(ag.tamanho || "Não informado")}</p>
+      <p>Data solicitada: ${formatarData(ag.data_solicitada)}</p>
+      ${ag.imagem_referencia ? `<p>Imagem enviada: <a href="/uploads/${encodeURIComponent(ag.imagem_referencia)}" target="_blank" rel="noopener noreferrer">abrir referência</a></p>` : ""}
+      ${ag.data_sugerida ? `<p>Nova data sugerida: ${formatarData(ag.data_sugerida)}</p>` : ""}
+      <div class="actions">
+        <button class="secondary" type="button" data-chat-id="${ag.id}">Abrir conversa</button>
+      </div>
+    `;
+
+    card.querySelector("[data-chat-id]").addEventListener("click", () => abrirModalChat(ag.id, ag.tatuador_nome));
+    container.appendChild(card);
+  });
+}
+
+async function abrirModalChat(id, tatuadorNome) {
+  chatAgendamentoId = id;
+  document.getElementById("chatTitulo").textContent = `Conversa com ${tatuadorNome || "tatuador"}`;
+  document.getElementById("chatResumo").textContent = "Carregando conversa...";
+  document.getElementById("chatLista").innerHTML = '<div class="chat-empty">Carregando mensagens...</div>';
+  document.getElementById("modalChat").classList.add("open");
+  await carregarChat();
+}
+
+function fecharModalChat() {
+  chatAgendamentoId = null;
+  document.getElementById("formChat").reset();
+  document.getElementById("modalChat").classList.remove("open");
+}
+
+async function carregarChat() {
+  if (!chatAgendamentoId) {
+    return;
+  }
+
+  const result = await fetchJson(`/agendamentos/${chatAgendamentoId}/chat`, {
+    headers: {
+      Authorization: "Bearer " + auth.token,
+    },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok || !result.data) {
+    document.getElementById("chatLista").innerHTML = `<div class="chat-empty">${escapeHtml(result.error || "Não foi possível carregar a conversa.")}</div>`;
+    return;
+  }
+
+  const { agendamento, mensagens } = result.data;
+  document.getElementById("chatResumo").textContent = `${agendamento.status} - ${formatarData(agendamento.data_sugerida || agendamento.data_solicitada)}`;
+
+  const lista = document.getElementById("chatLista");
+  lista.innerHTML = "";
+
+  if (!mensagens.length) {
+    lista.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Use este espaco para alinhar detalhes com o tatuador.</div>';
+  } else {
+    mensagens.forEach((item) => {
+      const bubble = document.createElement("article");
+      bubble.className = `chat-bubble ${item.remetente_tipo === "cliente" ? "mine" : "theirs"}`;
+      bubble.innerHTML = `
+        <strong>${item.remetente_tipo === "cliente" ? "Você" : escapeHtml(agendamento.tatuador_nome || "Tatuador")}</strong>
+        <p>${escapeHtml(item.mensagem || "")}</p>
+        <span>${formatarData(item.criado_em)} ${new Date(item.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+      `;
+      lista.appendChild(bubble);
+    });
+  }
+
+  lista.scrollTop = lista.scrollHeight;
+  await carregarAgendamentos();
+}
+
+document.getElementById("formChat").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!chatAgendamentoId) {
+    return;
+  }
+
+  const mensagem = document.getElementById("chatMensagem").value.trim();
+  if (!mensagem) {
+    return;
+  }
+
+  const result = await fetchJson(`/agendamentos/${chatAgendamentoId}/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + auth.token,
+    },
+    body: JSON.stringify({ mensagem }),
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok) {
+    document.getElementById("chatResumo").textContent = result.error || "Nao foi possivel enviar a mensagem.";
+  return;
+}
+
+  document.getElementById("chatMensagem").value = "";
+  await carregarChat();
+});
+</script>
+</body>
+</html>

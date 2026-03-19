@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minha Conta | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/home.css">
+</head>
+
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <div class="panel">
+      <div class="painel-hero" id="painelHero">
+        <div class="painel-hero-content">
+          <span class="eyebrow" id="eyebrow">Minha conta</span>
+          <h1 id="headline">Sua area no TattooMatch</h1>
+          <p id="lead">
+            Acompanhe seus proximos passos dentro da plataforma e use sua conta para
+            transformar descoberta em contato real.
+          </p>
+
+          <div class="quick-links">
+            <a class="link-button secondary" href="/tatuadores.html">Explorar artistas</a>
+            <a class="link-button secondary" href="/meus-agendamentos.html">Pedidos enviados</a>
+            <a class="link-button secondary" href="/planos.html">Ver planos</a>
+            <button class="secondary" onclick="logout()">Sair</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-grid" id="destaques"></div>
+  </section>
+
+  <section class="cards" id="areaUsuario"></section>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { buildPublicProfileUrl, escapeHtml, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const auth = requireAuth({ redirectTo: "/" });
+
+if (!auth) {
+  throw new Error("Autenticacao obrigatoria");
+}
+
+const { token, payload } = auth;
+const area = document.getElementById("areaUsuario");
+const eyebrow = document.getElementById("eyebrow");
+const headline = document.getElementById("headline");
+const lead = document.getElementById("lead");
+const painelHero = document.getElementById("painelHero");
+
+if (payload.tipo === "cliente") {
+  eyebrow.textContent = "Conta de cliente";
+  headline.textContent = `Bem-vindo, ${payload.usuario}`;
+  lead.textContent =
+    "Use sua conta para encontrar artistas, acompanhar pedidos e transformar interesse em agendamento.";
+
+  area.innerHTML = `
+    <article class="card">
+      <h2>Descobrir tatuadores</h2>
+      <p>Encontre artistas por cidade, municipio, estilo e destaque dentro da plataforma.</p>
+      <div class="card-actions">
+        <a class="link-button" href="/tatuadores.html">Buscar tatuadores</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Meus pedidos</h2>
+      <p>Acompanhe seus agendamentos e veja o andamento dos seus pedidos.</p>
+      <div class="card-actions">
+        <a class="link-button secondary" href="/meus-agendamentos.html">Ver agendamentos</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Quero ser tatuador</h2>
+      <p>Crie seu perfil profissional, entre nas buscas da plataforma e comece a receber contatos.</p>
+      <div class="card-actions">
+        <button onclick="confirmarTatuador()">Criar perfil de tatuador</button>
+      </div>
+    </article>
+  `;
+}
+
+if (payload.tipo === "tatuador") {
+  eyebrow.textContent = "Conta de tatuador";
+  headline.textContent = `Painel do artista ${payload.usuario}`;
+  lead.textContent =
+    "Gerencie sua presenca profissional e acompanhe tambem os pedidos que voce faz como cliente em outros perfis.";
+
+  carregarHeroTatuador();
+
+  area.innerHTML = `
+    <article class="card">
+      <h2>Painel profissional</h2>
+      <p>Veja pedidos recebidos, aprove solicitacoes e acompanhe o fluxo de atendimento como tatuador.</p>
+      <div class="card-actions">
+        <a class="link-button" href="/painel.html">Abrir pedidos recebidos</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Painel pessoal</h2>
+      <p>Acompanhe os pedidos que voce mesmo enviou para outros tatuadores, com status e conversa.</p>
+      <div class="card-actions">
+        <a class="link-button secondary" href="/meus-agendamentos.html">Abrir pedidos enviados</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Meu perfil profissional</h2>
+      <p>Atualize bio, cidade, estilos, foto e fortaleça sua presença na busca.</p>
+      <div class="card-actions">
+        <a class="link-button secondary" href="/editar-perfil.html">Editar perfil</a>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Marketplace</h2>
+      <p>Acompanhe como outros artistas aparecem na plataforma e inspire melhorias no seu perfil.</p>
+      <div class="card-actions">
+        <a class="link-button secondary" href="/tatuadores.html">Ver listagem</a>
+      </div>
+    </article>
+  `;
+}
+
+async function carregarHeroTatuador() {
+  const result = await fetchJson("/perfil-profissional", {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (!result.ok || !result.data || !result.data.foto_perfil) {
+    return;
+  }
+
+  const fotoPerfil = `${window.FrontendUtils.API_BASE}/uploads/${encodeURIComponent(result.data.foto_perfil)}`;
+  painelHero.style.backgroundImage =
+    `linear-gradient(135deg, rgba(8, 8, 10, 0.8), rgba(8, 8, 10, 0.52)), url("${fotoPerfil}")`;
+  painelHero.classList.add("has-cover");
+}
+
+if (payload.is_admin === true) {
+  area.insertAdjacentHTML(
+    "beforeend",
+    `
+      <article class="card admin-card">
+        <h2>Administracao interna</h2>
+        <p>Acompanhe o dashboard, os analytics da plataforma e controle quem possui acesso administrativo.</p>
+        <div class="card-actions">
+          <a class="link-button" href="/admin-dashboard.html">Abrir dashboard</a>
+          <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
+          <a class="link-button secondary" href="/admin-usuarios.html">Gerenciar admins</a>
+        </div>
+      </article>
+    `
+  );
+}
+
+async function confirmarTatuador() {
+  const confirmar = confirm(
+    `Criar perfil de tatuador?\n\nCom um perfil voce podera:\n\n- Mostrar seu portfolio\n- Receber pedidos de orcamento\n- Aparecer nas buscas da sua cidade\n- Receber avaliacoes de clientes`
+  );
+
+  if (!confirmar) {
+    return;
+  }
+
+  await virarTatuador();
+}
+
+async function virarTatuador() {
+  const result = await fetchJson("/tornar-tatuador", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = result.data || {};
+
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+  }
+
+  alert(data.mensagem || data.erro || "Nao foi possivel criar seu perfil de tatuador.");
+
+  if (result.ok) {
+    location.reload();
+  }
+}
+
+async function carregarDestaques() {
+  const result = await fetchJson("/tatuadores-destaque");
+
+  if (!result.ok) {
+    document.getElementById("destaques").innerHTML = `
+      <article class="highlight">
+        <small>Destaque da plataforma</small>
+        <h2>Indisponivel agora</h2>
+        <p>Nao foi possivel carregar os artistas em destaque neste momento.</p>
+      </article>
+    `;
+    return;
+  }
+
+  const tatuadores = Array.isArray(result.data) ? result.data : [];
+  const div = document.getElementById("destaques");
+
+  div.innerHTML = "";
+
+  if (!tatuadores.length) {
+    div.innerHTML = `
+      <article class="highlight">
+        <small>Destaque da plataforma</small>
+        <h2>Nenhum destaque ainda</h2>
+        <p>Assim que houver artistas em destaque, eles vao aparecer aqui.</p>
+      </article>
+    `;
+    return;
+  }
+
+  tatuadores.forEach((t) => {
+    const card = document.createElement("article");
+    card.className = "highlight";
+    card.innerHTML = `
+      <small>Destaque da plataforma</small>
+      <h2>${escapeHtml(t.nome_artistico || "Artista sem nome")}</h2>
+      <p>${escapeHtml(t.cidade || "Cidade nao informada")} - ${escapeHtml(t.plano || "Sem plano")}</p>
+      <a class="link-button secondary" href="${buildPublicProfileUrl(t)}">Ver perfil</a>
+    `;
+    div.appendChild(card);
+  });
+}
+
+carregarDestaques();
+loadNavbar();
+loadFooter();
+</script>
+</body>
+</html>

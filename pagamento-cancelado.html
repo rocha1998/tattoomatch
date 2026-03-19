@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento cancelado | TattooMatch</title>
+<meta name="description" content="Seu pagamento foi cancelado. Volte para os planos do TattooMatch quando quiser tentar novamente.">
+<link rel="stylesheet" href="/styles/theme.css">
+</head>
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero" style="max-width:760px;margin:48px auto;padding:0 20px;">
+    <span class="eyebrow">Pagamento cancelado</span>
+    <h1>Seu pagamento não foi concluído</h1>
+    <p>Sem problema. Seu plano atual continua como está e você pode tentar novamente quando quiser.</p>
+
+    <div class="hero-actions" style="margin-top:24px;">
+      <a class="button" href="/planos.html">Tentar novamente</a>
+      <a class="button-secondary" href="/planos.html">Voltar aos planos</a>
+    </div>
+  </section>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  await window.FrontendUtils.loadNavbar();
+  await window.FrontendUtils.loadFooter();
+});
+</script>
+</body>
+</html>

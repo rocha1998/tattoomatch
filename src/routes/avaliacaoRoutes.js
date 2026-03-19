@@ -1,9 +1,9 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
 
-const { avaliarTatuador } = require('../controllers/avaliacaoController')
+const { avaliarTatuador } = require("../controllers/avaliacaoController");
 
-router.post('/avaliar/:usuario', avaliarTatuador)
+const router = express.Router();
 
-module.exports = router
+router.post("/avaliar/:usuario", avaliarTatuador);
 
+module.exports = router;

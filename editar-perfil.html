@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editar Perfil Profissional | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/editar-perfil.css">
+</head>
+
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <h1>Editar perfil profissional</h1>
+    <p>
+      Atualize as informacoes que ajudam clientes a encontrarem voce: nome artistico,
+      bio, localizacao, estilos, contato e foto do perfil.
+    </p>
+  </section>
+
+  <section class="form-card">
+    <div class="form-grid">
+      <div class="field">
+        <label for="nome">Nome artistico</label>
+        <input id="nome" placeholder="Seu nome artistico">
+      </div>
+
+      <div class="field">
+        <label for="whatsapp">WhatsApp</label>
+        <input id="whatsapp" placeholder="Ex: 31999999999">
+      </div>
+
+      <div class="field">
+        <label for="estado">Estado</label>
+        <input id="estado" placeholder="Ex: MG">
+      </div>
+
+      <div class="field">
+        <label for="cidade">Cidade</label>
+        <input id="cidade" placeholder="Sua cidade">
+      </div>
+
+      <div class="field">
+        <label for="bairro">Bairro</label>
+        <input id="bairro" placeholder="Seu bairro">
+      </div>
+
+      <div class="field">
+        <label for="municipio">Municipio / regiao</label>
+        <input id="municipio" placeholder="Bairro, regiao ou municipio">
+      </div>
+
+      <div class="field">
+        <label for="logradouro">Rua / avenida</label>
+        <input id="logradouro" placeholder="Somente para uso interno">
+      </div>
+
+      <div class="field">
+        <label for="numero">Numero</label>
+        <input id="numero" placeholder="Numero">
+      </div>
+
+      <div class="field">
+        <label for="complemento">Complemento</label>
+        <input id="complemento" placeholder="Sala, bloco, referencia">
+      </div>
+
+      <div class="field">
+        <label for="cep">CEP</label>
+        <input id="cep" placeholder="00000-000">
+      </div>
+
+      <div class="field">
+        <label for="estilos">Estilos</label>
+        <input id="estilos" placeholder="Ex: Realismo, Blackwork">
+      </div>
+
+      <div class="field">
+        <label for="disponivel">Disponivel para novos projetos</label>
+        <select id="disponivel">
+          <option value="true">Sim</option>
+          <option value="false">Nao</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="latitude">Latitude</label>
+        <input id="latitude" placeholder="-23.5505">
+      </div>
+
+      <div class="field">
+        <label for="longitude">Longitude</label>
+        <input id="longitude" placeholder="-46.6333">
+      </div>
+
+      <div class="field-full">
+        <label for="bio">Bio</label>
+        <textarea id="bio" placeholder="Conte quem voce e, sua experiencia e o tipo de trabalho que faz."></textarea>
+      </div>
+
+      <div class="field-full">
+        <label for="foto">Foto de perfil</label>
+        <input type="file" id="foto" accept="image/*">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button onclick="salvar()">Salvar perfil</button>
+      <a class="link-button" href="/home.html">Voltar para minha conta</a>
+    </div>
+
+    <p id="status">Carregando dados do seu perfil...</p>
+  </section>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await loadFooter();
+  await carregarPerfil();
+});
+
+function atualizarStatus(message) {
+  document.getElementById("status").textContent = message;
+}
+
+async function carregarPerfil() {
+  const auth = requireAuth();
+  if (!auth) {
+    return;
+  }
+
+  const { token } = auth;
+  const result = await fetchJson("/perfil-profissional", {
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = result.data || {};
+
+  if (!result.ok) {
+    atualizarStatus(data.erro || "Nao foi possivel carregar seu perfil.");
+    return;
+  }
+
+  document.getElementById("nome").value = data.nome_artistico || "";
+  document.getElementById("bio").value = data.bio || "";
+  document.getElementById("estado").value = data.estado || "";
+  document.getElementById("cidade").value = data.cidade || "";
+  document.getElementById("bairro").value = data.bairro || "";
+  document.getElementById("municipio").value = data.municipio || "";
+  document.getElementById("logradouro").value = data.logradouro || "";
+  document.getElementById("numero").value = data.numero || "";
+  document.getElementById("complemento").value = data.complemento || "";
+  document.getElementById("cep").value = data.cep || "";
+  document.getElementById("estilos").value = data.estilos || "";
+  document.getElementById("whatsapp").value = data.whatsapp || "";
+  document.getElementById("disponivel").value = data.disponivel === false ? "false" : "true";
+  document.getElementById("latitude").value = data.latitude || "";
+  document.getElementById("longitude").value = data.longitude || "";
+
+  atualizarStatus("Atualize os campos que quiser e salve as mudancas.");
+}
+
+async function salvar() {
+  const auth = requireAuth();
+  if (!auth) {
+    return;
+  }
+
+  const { token } = auth;
+  atualizarStatus("Salvando perfil...");
+
+  const formData = new FormData();
+  formData.append("nome_artistico", document.getElementById("nome").value);
+  formData.append("bio", document.getElementById("bio").value);
+  formData.append("estado", document.getElementById("estado").value);
+  formData.append("cidade", document.getElementById("cidade").value);
+  formData.append("bairro", document.getElementById("bairro").value);
+  formData.append("municipio", document.getElementById("municipio").value);
+  formData.append("logradouro", document.getElementById("logradouro").value);
+  formData.append("numero", document.getElementById("numero").value);
+  formData.append("complemento", document.getElementById("complemento").value);
+  formData.append("cep", document.getElementById("cep").value);
+  formData.append("estilos", document.getElementById("estilos").value);
+  formData.append("whatsapp", document.getElementById("whatsapp").value);
+  formData.append("disponivel", document.getElementById("disponivel").value);
+  formData.append("latitude", document.getElementById("latitude").value);
+  formData.append("longitude", document.getElementById("longitude").value);
+
+  const foto = document.getElementById("foto").files[0];
+  if (foto) {
+    formData.append("foto_perfil", foto);
+  }
+
+  const result = await fetchJson("/perfil-profissional", {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    body: formData,
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = result.data || {};
+  atualizarStatus(data.mensagem || data.erro || "Nao foi possivel salvar o perfil.");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Termos de uso | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/legal.css">
+</head>
+<body>
+<div id="navbar"></div>
+<main class="legal-shell">
+  <section class="legal-card">
+    <span class="eyebrow">Termos de uso</span>
+    <h1>Regras essenciais da plataforma</h1>
+    <div class="legal-stack">
+      <p>O TattooMatch conecta clientes e tatuadores para descoberta, reputacao e solicitacao de agendamentos.</p>
+      <p>Ao usar a plataforma, voce concorda em manter informacoes verdadeiras, nao publicar conteudo ofensivo e respeitar a seguranca das contas.</p>
+      <p>Tatuadores sao responsaveis pelas informacoes publicadas em seus perfis, portfolios, disponibilidade e canais de atendimento.</p>
+      <p>Clientes sao responsaveis pelas informacoes enviadas em pedidos, avaliacoes e arquivos de referencia compartilhados.</p>
+      <p>A plataforma pode remover conteudos, bloquear contas e moderar perfis quando houver abuso, fraude, spam ou violacao destas regras.</p>
+    </div>
+  </section>
+</main>
+<div id="footer"></div>
+<script src="/scripts/frontend.js"></script>
+<script>
+const { loadFooter, loadNavbar } = window.FrontendUtils;
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await loadFooter();
+});
+</script>
+</body>
+</html>

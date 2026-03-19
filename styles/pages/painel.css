@@ -1,0 +1,404 @@
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(239, 131, 84, 0.18), transparent 28%),
+    linear-gradient(180deg, #0b0b0c 0%, #101116 100%);
+  color: var(--text);
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.hero,
+.card,
+.empty-state,
+.modal-sheet,
+.agenda-board,
+.agenda-day {
+  border: 1px solid var(--line);
+  background: rgba(18, 18, 22, 0.84);
+  box-shadow: var(--shadow);
+}
+
+.hero,
+.agenda-board {
+  display: grid;
+  gap: 16px;
+  padding: 30px;
+  border-radius: 32px;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+
+.hero p,
+.section-header p,
+.agenda-top p,
+.agenda-items p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.hero-badges,
+.agenda-tags,
+.context-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.context-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.context-link.current {
+  background: rgba(239, 131, 84, 0.16);
+  border-color: rgba(239, 131, 84, 0.35);
+}
+
+.badge,
+.agenda-tags span,
+.chat-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.badge.alert {
+  background: rgba(239, 131, 84, 0.16);
+  color: #ffd8c8;
+}
+
+.badge.neutral,
+.agenda-tags span {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.chat-badge {
+  background: rgba(119, 180, 255, 0.18);
+  color: #dbeaff;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.section-header h2,
+.agenda-top h3,
+.modal-sheet h2 {
+  margin: 0 0 8px;
+}
+
+.section-spacing {
+  margin-top: 24px;
+}
+
+.agenda-grid,
+.list {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.agenda-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.agenda-day,
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 28px;
+}
+
+.agenda-top,
+.card-top,
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.agenda-items {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda-items li {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.agenda-items li div,
+.card-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+
+.card p,
+.modal-sheet p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.reference-link {
+  color: #ffd8c8;
+}
+
+.reference-link:hover {
+  color: var(--text);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.status.PENDENTE {
+  background: rgba(255, 183, 77, 0.14);
+  color: #ffd499;
+}
+
+.status.APROVADO {
+  background: rgba(156, 197, 161, 0.14);
+  color: #dff6e2;
+}
+
+.status.DATA_SUGERIDA {
+  background: rgba(111, 185, 255, 0.14);
+  color: #dbeaff;
+}
+
+.status.CONCLUIDO {
+  background: rgba(189, 181, 166, 0.14);
+  color: #f2eadc;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aprovar {
+  background: linear-gradient(135deg, #9cc5a1, #7dbd86);
+  color: #102313;
+}
+
+.concluir {
+  background: linear-gradient(135deg, #77b4ff, #4e91f4);
+  color: #081a37;
+}
+
+.sugerir {
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  color: #140f0c;
+}
+
+.secondary {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+}
+
+.empty-state {
+  padding: 24px;
+  border-radius: 24px;
+  color: var(--muted);
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  padding: 20px;
+  background: rgba(4, 4, 6, 0.74);
+  backdrop-filter: blur(12px);
+}
+
+.modal.open {
+  display: grid;
+  place-items: center;
+}
+
+.modal-sheet {
+  width: min(100%, 520px);
+  padding: 24px;
+  border-radius: 28px;
+}
+
+.modal-chat-sheet {
+  width: min(100%, 760px);
+}
+
+.form-stack {
+  display: grid;
+  gap: 12px;
+}
+
+input[type="date"],
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 50px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+}
+
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.chat-list {
+  display: grid;
+  gap: 12px;
+  min-height: 260px;
+  max-height: 420px;
+  margin: 18px 0;
+  padding-right: 4px;
+  overflow-y: auto;
+}
+
+.chat-bubble,
+.chat-empty {
+  max-width: 85%;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.chat-bubble.mine {
+  margin-left: auto;
+  background: rgba(239, 131, 84, 0.18);
+}
+
+.chat-bubble.theirs {
+  margin-right: auto;
+}
+
+.chat-bubble strong,
+.chat-bubble p,
+.chat-bubble span {
+  display: block;
+}
+
+.chat-bubble p {
+  margin: 6px 0 8px;
+}
+
+.chat-bubble span {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+#toast {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 90;
+  max-width: 320px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(18, 18, 22, 0.92);
+  border: 1px solid var(--line);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  display: none;
+}
+
+#toast.show {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  main {
+    padding: 0 14px 36px;
+  }
+
+  .hero,
+  .agenda-board,
+  .card,
+  .agenda-day,
+  .empty-state,
+  .modal-sheet {
+    border-radius: 24px;
+    padding: 18px;
+  }
+
+  .section-header,
+  .agenda-top,
+  .card-top,
+  .chat-header,
+  .agenda-items li div,
+  .card-status {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chat-bubble,
+  .chat-empty {
+    max-width: 100%;
+  }
+}

@@ -1,13 +1,19 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
 
-const { getTatuadorPublico } = require('../controllers/publicController')
-const { listarTatuadores } = require('../controllers/publicController')
+const {
+  getTatuadorPublico,
+  getSitemapXml,
+  listarTatuadores,
+  listarTatuadoresPorCidadeSeo,
+  listarTatuadoresPorEstiloSeo,
+} = require("../controllers/publicController");
 
-// 🔥 ROTA DO PERFIL PÚBLICO
-router.get('/tatuador/:id', getTatuadorPublico)
+const router = express.Router();
 
-// Rota pública do tatuador
-router.get('/tatuadores', listarTatuadores)
+router.get("/sitemap.xml", getSitemapXml);
+router.get("/tatuador/:slugOrId", getTatuadorPublico);
+router.get("/tatuadores/estilo/:estilo", listarTatuadoresPorEstiloSeo);
+router.get("/tatuadores/:cidade", listarTatuadoresPorCidadeSeo);
+router.get("/tatuadores", listarTatuadores);
 
-module.exports = router
+module.exports = router;

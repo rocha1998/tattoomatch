@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrar | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/login.css">
+</head>
+
+<body>
+<div class="shell">
+  <section class="panel">
+    <span class="eyebrow">Acesse sua conta</span>
+    <h1>Seu próximo cliente ou artista pode estar aqui.</h1>
+    <p>
+      Entre para acompanhar pedidos, editar seu perfil, ver agendamentos ou começar
+      sua presença como tatuador dentro da plataforma.
+    </p>
+
+    <ul>
+      <li>Clientes acompanham pedidos e encontram artistas com mais clareza.</li>
+      <li>Tatuadores organizam portfólio, reputação e destaque.</li>
+      <li>O mesmo login acompanha sua evolução dentro do marketplace.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2 id="titulo">Entrar</h2>
+    <p id="subtitulo">Use sua conta para acessar sua área no TattooMatch.</p>
+
+    <div class="field">
+      <label for="usuario">Usuário</label>
+      <input id="usuario" placeholder="Seu usuário">
+    </div>
+
+    <div class="field" id="emailField" hidden>
+      <label for="email">Email</label>
+      <input id="email" type="email" placeholder="seuemail@exemplo.com">
+    </div>
+
+    <div class="field">
+      <label for="senha">Senha</label>
+      <input id="senha" type="password" placeholder="Sua senha">
+    </div>
+
+    <div class="actions">
+      <button onclick="acao()" id="btn">Entrar</button>
+      <button class="switch" onclick="alternar()" id="switch">Criar conta</button>
+    </div>
+
+    <p class="message">
+      <a href="/forgot-password.html">Esqueci minha senha</a>
+    </p>
+
+    <div class="message" id="msg"></div>
+  </section>
+</div>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { API_BASE, fetchJson, loadFooter } = window.FrontendUtils;
+let modo = "login";
+
+loadFooter();
+
+function alternar() {
+  const emailField = document.getElementById("emailField");
+  const titulo = document.getElementById("titulo");
+  const subtitulo = document.getElementById("subtitulo");
+  const btn = document.getElementById("btn");
+  const switchTxt = document.getElementById("switch");
+  const msg = document.getElementById("msg");
+
+  msg.textContent = "";
+
+  if (modo === "login") {
+    modo = "registro";
+    emailField.hidden = false;
+    titulo.innerText = "Criar conta";
+    subtitulo.innerText = "Cadastre-se para começar a usar a plataforma.";
+    btn.innerText = "Cadastrar";
+    switchTxt.innerText = "Já tenho conta";
+  } else {
+    modo = "login";
+    emailField.hidden = true;
+    titulo.innerText = "Entrar";
+    subtitulo.innerText = "Use sua conta para acessar sua área no TattooMatch.";
+    btn.innerText = "Entrar";
+    switchTxt.innerText = "Criar conta";
+  }
+}
+
+async function acao() {
+  const usuario = document.getElementById("usuario").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const senha = document.getElementById("senha").value;
+  const msg = document.getElementById("msg");
+
+  msg.textContent = "Carregando...";
+
+  let url = "";
+  let body = {};
+
+  if (modo === "login") {
+    url = `${API_BASE}/login`;
+    body = { usuario, senha };
+  } else {
+    url = `${API_BASE}/register`;
+    body = { usuario, email, senha };
+  }
+
+  try {
+    const result = await fetchJson(url.replace(API_BASE, ""), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = result.data || {};
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      window.location.href = "/home.html";
+      return;
+    }
+
+    if (result.ok && modo === "registro") {
+      msg.textContent = "Conta criada com sucesso. Agora faça login.";
+      alternar();
+      document.getElementById("senha").value = "";
+      return;
+    }
+
+    msg.textContent = data.mensagem || data.erro || "Não foi possível concluir a ação.";
+  } catch (error) {
+    msg.textContent = "Não foi possível conectar ao servidor.";
+  }
+}
+</script>
+</body>
+</html>

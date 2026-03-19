@@ -1,0 +1,20 @@
+:root {
+  --bg: #0b0b0c;
+  --surface: rgba(18, 18, 22, 0.84);
+  --surface-soft: #17181d;
+  --text: #f5f1e8;
+  --muted: #bdb5a6;
+  --line: rgba(255, 255, 255, 0.08);
+  --primary: #ef8354;
+  --primary-strong: #ff6b35;
+  --accent: #9cc5a1;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}

@@ -1,15 +1,33 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
 
-const autenticarToken = require('../middlewares/auth')
-const upload = require('../config/upload')
-const { atualizarPerfilProfissional } = require('../controllers/perfilProfissionalController')
+const upload = require("../config/upload");
+const autenticarToken = require("../middlewares/auth");
+const {
+  alterarPlano,
+  confirmarCheckoutPagamento,
+  criarCheckoutPagamento,
+  atualizarPerfilProfissional,
+  getMeuPerfilProfissional,
+  listarPlanos,
+  meuPlano,
+  tornarTatuador,
+} = require("../controllers/perfilProfissionalController");
+
+const router = express.Router();
 
 router.put(
-  '/perfil-profissional',
+  "/perfil-profissional",
   autenticarToken,
-  upload.single('foto_perfil'),
+  upload.single("foto_perfil"),
   atualizarPerfilProfissional
-)
+);
 
-module.exports = router
+router.get("/perfil-profissional", autenticarToken, getMeuPerfilProfissional);
+router.post("/tornar-tatuador", autenticarToken, tornarTatuador);
+router.get("/planos", listarPlanos);
+router.get("/meu-plano", autenticarToken, meuPlano);
+router.post("/meu-plano", autenticarToken, alterarPlano);
+router.post("/checkout/plan", autenticarToken, criarCheckoutPagamento);
+router.post("/checkout/confirm", autenticarToken, confirmarCheckoutPagamento);
+
+module.exports = router;

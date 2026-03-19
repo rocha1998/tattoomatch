@@ -1,0 +1,158 @@
+:root {
+  --bg: #0b0b0c;
+  --surface: rgba(17, 17, 20, 0.86);
+  --surface-strong: #16161a;
+  --surface-soft: #202028;
+  --text: #f5f1e8;
+  --muted: #bdb5a6;
+  --line: rgba(255, 255, 255, 0.08);
+  --primary: #ef8354;
+  --primary-strong: #ff6b35;
+  --accent: #9cc5a1;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 26px;
+  margin: 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+    var(--surface);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand-header {
+  min-height: 56px;
+}
+
+.brand-logo-shell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 156px;
+}
+
+.brand-logo {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  image-rendering: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 18px rgba(255, 107, 53, 0.12));
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1px;
+  line-height: 0.95;
+}
+
+.brand-copy strong {
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: -0.028em;
+  text-wrap: nowrap;
+}
+
+.brand-copy small {
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.01em;
+  text-wrap: nowrap;
+}
+
+.menu {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.menu a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.menu a:hover {
+  transform: translateY(-1px);
+  border-color: rgba(239, 131, 84, 0.35);
+  background: rgba(239, 131, 84, 0.12);
+}
+
+@media (max-width: 720px) {
+  .navbar {
+    margin: 12px;
+    padding: 14px 18px;
+    border-radius: 24px;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .menu {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .brand {
+    gap: 6px;
+  }
+
+  .brand-header {
+    min-height: 50px;
+  }
+
+  .brand-logo-shell {
+    width: 126px;
+  }
+
+  .brand-copy strong {
+    font-size: 0.98rem;
+  }
+
+  .brand-copy small {
+    font-size: 0.63rem;
+  }
+
+  .menu a {
+    padding: 0 14px;
+  }
+}

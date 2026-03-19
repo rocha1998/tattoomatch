@@ -2,110 +2,546 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Painel do Tatuador</title>
-
-<style>
-body{
-  font-family: Arial;
-  background:#111;
-  color:white;
-  padding:40px;
-}
-
-.card{
-  background:#1c1c1c;
-  padding:20px;
-  border-radius:10px;
-  margin-bottom:20px;
-}
-
-button{
-  padding:8px 12px;
-  margin-right:10px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-.aprovar{background:#00c853;color:white;}
-.concluir{background:#2962ff;color:white;}
-.sugerir{background:#ff9800;color:white;}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Tatuador | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/painel.css">
 </head>
 
 <body>
+<div id="navbar"></div>
 
-<h1>📅 Agendamentos Recebidos</h1>
+<main>
+  <section class="hero">
+    <h1>Pedidos recebidos</h1>
+    <p>
+      Acompanhe novos contatos, aprove agendamentos e mantenha seu fluxo de atendimento
+      organizado dentro da plataforma.
+    </p>
+    <div class="context-links">
+      <a class="context-link current" href="/painel.html">Painel profissional</a>
+      <a class="context-link" href="/meus-agendamentos.html">Painel pessoal</a>
+    </div>
+    <div class="hero-badges">
+      <span class="badge alert" id="notificacao">Carregando notifica&ccedil;&otilde;es...</span>
+      <span class="badge neutral" id="resumo">Atualizando painel...</span>
+    </div>
+  </section>
 
-<div id="listaAgendamentos"></div>
+  <section class="agenda-board">
+    <div class="section-header">
+      <div>
+        <h2>Agenda por dia</h2>
+        <p>Veja seus pedidos organizados por data para decidir o que confirmar primeiro.</p>
+      </div>
+      <button class="secondary" type="button" id="atualizarAgendaBtn">Atualizar agenda</button>
+    </div>
+    <div class="agenda-grid" id="agendaLista"></div>
+    <div class="empty-state" id="agendaEmpty" hidden>Nenhum item na agenda por enquanto.</div>
+  </section>
 
+  <section class="section-header section-spacing">
+    <div>
+      <h2>Todos os pedidos</h2>
+      <p>Abra a conversa de cada agendamento e responda pelo painel.</p>
+    </div>
+  </section>
+  <section class="list" id="listaAgendamentos"></section>
+  <div class="empty-state" id="emptyState" hidden>Nenhum agendamento recebido at&eacute; agora.</div>
+</main>
+
+<div class="modal" id="modalSugestao">
+  <div class="modal-sheet">
+    <h2>Sugerir nova data</h2>
+    <p>Escolha uma nova data para este pedido. O cliente vai ver essa sugest&atilde;o em seus agendamentos.</p>
+
+    <form class="form-stack" id="formSugestao">
+      <input type="date" id="novaDataInput" required>
+      <div class="actions">
+        <button class="sugerir" type="submit">Enviar sugest&atilde;o</button>
+        <button class="secondary" type="button" onclick="fecharModalSugestao()">Cancelar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="modalChat">
+  <div class="modal-sheet modal-chat-sheet">
+    <div class="chat-header">
+      <div>
+        <h2 id="chatTitulo">Conversa do agendamento</h2>
+        <p id="chatResumo">Carregando conversa...</p>
+      </div>
+      <button class="secondary" type="button" onclick="fecharModalChat()">Fechar</button>
+    </div>
+    <div class="chat-list" id="chatLista"></div>
+    <form class="form-stack" id="formChat">
+      <textarea id="chatMensagem" rows="4" maxlength="1000" placeholder="Escreva uma mensagem para o cliente..." required></textarea>
+      <div class="actions">
+        <button class="sugerir" type="submit">Enviar mensagem</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="/scripts/frontend.js"></script>
 <script>
-const token = localStorage.getItem("token")
+const { escapeHtml, fetchJson, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const auth = requireAuth();
 
-// 🔥 pegar id do tatuador do token
-const payload = JSON.parse(atob(token.split('.')[1]))
-const tatuadorId = payload.id
+if (!auth) {
+  throw new Error("Autenticacao obrigatoria");
+}
 
-async function carregarAgendamentos(){
-  const res = await fetch(`http://localhost:3000/tatuador/${tatuadorId}/agendamentos`)
-  const agendamentos = await res.json()
+const { token } = auth;
+let tatuadorId = null;
+let agendamentoSelecionadoId = null;
+let chatAgendamentoId = null;
+let agendamentosCache = [];
 
-  const lista = document.getElementById("listaAgendamentos")
-  lista.innerHTML = ""
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  document.getElementById("atualizarAgendaBtn").addEventListener("click", carregarAgenda);
+  await carregarAgendamentos();
+  await carregarNotificacoes();
+});
 
-  agendamentos.forEach(ag => {
+function formatarData(valor) {
+  if (!valor) {
+    return "N\u00e3o informada";
+  }
 
-    const card = document.createElement("div")
-    card.className = "card"
+  const data = new Date(valor);
+  if (Number.isNaN(data.getTime())) {
+    return "Data inv\u00e1lida";
+  }
+
+  return data.toLocaleDateString("pt-BR");
+}
+
+function obterMensagemErro(data, fallback) {
+  return data?.erro || data?.mensagem || fallback;
+}
+
+async function carregarAgendamentos() {
+  const perfilRes = await fetchJson("/perfil-profissional", {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (perfilRes.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!perfilRes.ok || !perfilRes.data || typeof perfilRes.data !== "object") {
+    showToast(perfilRes.error || "N\u00e3o foi poss\u00edvel carregar seu perfil profissional.");
+    return;
+  }
+
+  const tatuador = perfilRes.data;
+  tatuadorId = tatuador.id;
+
+  if (!tatuadorId) {
+    showToast("Seu perfil profissional ainda n\u00e3o est\u00e1 dispon\u00edvel.");
+    return;
+  }
+
+  const result = await fetchJson(`/tatuador/${tatuadorId}/agendamentos`, {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (result.status === 403) {
+    showToast("Voc\u00ea n\u00e3o tem permiss\u00e3o para ver esses agendamentos.");
+    return;
+  }
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    showToast(result.error || "N\u00e3o foi poss\u00edvel carregar os agendamentos.");
+    return;
+  }
+
+  agendamentosCache = result.data;
+  renderizarAgendamentos(agendamentosCache);
+  await carregarAgenda();
+}
+
+function renderizarAgendamentos(agendamentos) {
+  const lista = document.getElementById("listaAgendamentos");
+  const empty = document.getElementById("emptyState");
+  const resumo = document.getElementById("resumo");
+
+  lista.innerHTML = "";
+
+  if (!agendamentos.length) {
+    empty.hidden = false;
+    resumo.textContent = "Nenhum pedido ativo";
+    return;
+  }
+
+  empty.hidden = true;
+  resumo.textContent = `${agendamentos.length} pedido(s) carregado(s)`;
+
+  agendamentos.forEach((ag) => {
+    const card = document.createElement("article");
+    card.className = "card";
+
+    const tagChat = Number(ag.mensagens_nao_lidas) > 0
+      ? `<span class="chat-badge">${ag.mensagens_nao_lidas} nova(s) mensagem(ns)</span>`
+      : "";
 
     card.innerHTML = `
-      <h3>${ag.cliente_nome}</h3>
-      <p>📱 ${ag.cliente_whatsapp}</p>
-      <p>📝 ${ag.descricao}</p>
-      <p>📅 ${new Date(ag.data_solicitada).toLocaleString("pt-BR")}</p>
-      <p>Status: <b>${ag.status}</b></p>
+      <div class="card-top">
+        <div>
+          <h2>${escapeHtml(ag.cliente_nome || "Cliente sem nome")}</h2>
+          <p>${escapeHtml(ag.descricao || "Pedido sem descri&ccedil;&atilde;o.")}</p>
+        </div>
+        <div class="card-status">
+          ${tagChat}
+          <span class="status ${escapeHtml(ag.status || "PENDENTE")}">${escapeHtml(ag.status || "PENDENTE")}</span>
+        </div>
+      </div>
 
-      <button class="aprovar" onclick="aprovar(${ag.id})">Aprovar</button>
-      <button class="sugerir" onclick="sugerir(${ag.id})">Sugerir nova data</button>
-      <button class="concluir" onclick="concluir(${ag.id})">Concluir</button>
-    `
+      <p>WhatsApp: ${escapeHtml(ag.cliente_whatsapp || "N&atilde;o informado")}</p>
+      <p>Parte do corpo: ${escapeHtml(ag.parte_corpo || "N&atilde;o informada")}</p>
+      <p>Tamanho: ${escapeHtml(ag.tamanho || "N&atilde;o informado")}</p>
+      <p>Data solicitada: ${formatarData(ag.data_solicitada)}</p>
+      ${ag.imagem_referencia ? `<p>Imagem de refer&ecirc;ncia: <a class="reference-link" href="/uploads/${encodeURIComponent(ag.imagem_referencia)}" target="_blank" rel="noopener noreferrer">abrir imagem enviada</a></p>` : ""}
+      ${ag.data_sugerida ? `<p>Nova data sugerida: ${formatarData(ag.data_sugerida)}</p>` : ""}
+      <div class="actions"></div>
+    `;
 
-    lista.appendChild(card)
-  })
+    const actions = card.querySelector(".actions");
+
+    if (ag.status === "PENDENTE") {
+      const aprovarBtn = document.createElement("button");
+      aprovarBtn.className = "aprovar";
+      aprovarBtn.textContent = "Aprovar";
+      aprovarBtn.addEventListener("click", () => aprovar(ag.id));
+      actions.appendChild(aprovarBtn);
+
+      const sugerirBtn = document.createElement("button");
+      sugerirBtn.className = "sugerir";
+      sugerirBtn.textContent = "Sugerir nova data";
+      sugerirBtn.addEventListener("click", () => abrirModalSugestao(ag.id, ag.data_sugerida || ""));
+      actions.appendChild(sugerirBtn);
+    }
+
+    if (ag.status === "APROVADO" || ag.status === "DATA_SUGERIDA") {
+      const atualizarBtn = document.createElement("button");
+      atualizarBtn.className = "sugerir";
+      atualizarBtn.textContent = "Atualizar data";
+      atualizarBtn.addEventListener("click", () => abrirModalSugestao(ag.id, ag.data_sugerida || ag.data_solicitada || ""));
+      actions.appendChild(atualizarBtn);
+    }
+
+    if (ag.status === "APROVADO") {
+      const concluirBtn = document.createElement("button");
+      concluirBtn.className = "concluir";
+      concluirBtn.textContent = "Concluir";
+      concluirBtn.addEventListener("click", () => concluir(ag.id));
+      actions.appendChild(concluirBtn);
+    }
+
+    const chatBtn = document.createElement("button");
+    chatBtn.className = "secondary";
+    chatBtn.textContent = "Abrir conversa";
+    chatBtn.addEventListener("click", () => abrirModalChat(ag.id, ag.cliente_nome));
+    actions.appendChild(chatBtn);
+
+    lista.appendChild(card);
+  });
 }
 
-async function aprovar(id){
-  await fetch(`http://localhost:3000/agendamentos/${id}/aprovar`, {
-    method:"PATCH",
-    headers:{ "Authorization":"Bearer "+token }
-  })
-  carregarAgendamentos()
+async function carregarAgenda() {
+  if (!tatuadorId) {
+    return;
+  }
+
+  const result = await fetchJson(`/tatuador/${tatuadorId}/agenda`, {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok || !Array.isArray(result.data?.dias)) {
+    showToast(result.error || "N\u00e3o foi poss\u00edvel carregar a agenda.");
+    return;
+  }
+
+  const agendaLista = document.getElementById("agendaLista");
+  const agendaEmpty = document.getElementById("agendaEmpty");
+  agendaLista.innerHTML = "";
+
+  if (!result.data.dias.length) {
+    agendaEmpty.hidden = false;
+    return;
+  }
+
+  agendaEmpty.hidden = true;
+
+  result.data.dias.forEach((dia) => {
+    const bloco = document.createElement("article");
+    bloco.className = "agenda-day";
+
+    const itensHtml = dia.itens.map((item) => `
+      <li>
+        <div>
+          <strong>${escapeHtml(item.cliente_nome || "Cliente")}</strong>
+          <span>${escapeHtml(item.status || "PENDENTE")}</span>
+        </div>
+          <p>${escapeHtml(item.descricao || "Sem descri&ccedil;&atilde;o")}</p>
+      </li>
+    `).join("");
+
+    bloco.innerHTML = `
+      <div class="agenda-top">
+        <div>
+          <h3>${dia.data === "sem-data" ? "Sem data definida" : formatarData(dia.data)}</h3>
+          <p>${dia.totais.total} pedido(s) nesse dia</p>
+        </div>
+        <div class="agenda-tags">
+          ${dia.totais.pendentes ? `<span>${dia.totais.pendentes} pendente(s)</span>` : ""}
+          ${dia.totais.sugeridos ? `<span>${dia.totais.sugeridos} sugerido(s)</span>` : ""}
+          ${dia.totais.aprovados ? `<span>${dia.totais.aprovados} aprovado(s)</span>` : ""}
+          ${dia.totais.concluidos ? `<span>${dia.totais.concluidos} conclu&iacute;do(s)</span>` : ""}
+        </div>
+      </div>
+      <ul class="agenda-items">${itensHtml}</ul>
+    `;
+
+    agendaLista.appendChild(bloco);
+  });
 }
 
-async function concluir(id){
-  await fetch(`http://localhost:3000/agendamentos/${id}/concluir`, {
-    method:"PATCH",
-    headers:{ "Authorization":"Bearer "+token }
-  })
-  carregarAgendamentos()
+async function aprovar(id) {
+  const result = await fetchJson(`/agendamentos/${id}/aprovar`, {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  showToast(obterMensagemErro(result.data || {}, "Agendamento aprovado."));
+
+  if (result.ok) {
+    await carregarAgendamentos();
+    await carregarNotificacoes();
+  }
 }
 
-async function sugerir(id){
-  const novaData = prompt("Digite nova data (AAAA-MM-DD)")
-  if(!novaData) return
+async function concluir(id) {
+  const result = await fetchJson(`/agendamentos/${id}/concluir`, {
+    method: "PATCH",
+    headers: { Authorization: "Bearer " + token },
+  });
 
-  await fetch(`http://localhost:3000/agendamentos/${id}/sugerir-data`, {
-    method:"PATCH",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer "+token
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  showToast(obterMensagemErro(result.data || {}, "Agendamento conclu\u00eddo."));
+
+  if (result.ok) {
+    await carregarAgendamentos();
+  }
+}
+
+function abrirModalSugestao(id, dataAtual) {
+  agendamentoSelecionadoId = id;
+  const input = document.getElementById("novaDataInput");
+  input.value = dataAtual ? String(dataAtual).slice(0, 10) : "";
+  document.getElementById("modalSugestao").classList.add("open");
+}
+
+function fecharModalSugestao() {
+  agendamentoSelecionadoId = null;
+  document.getElementById("formSugestao").reset();
+  document.getElementById("modalSugestao").classList.remove("open");
+}
+
+async function abrirModalChat(id, clienteNome) {
+  chatAgendamentoId = id;
+  document.getElementById("chatTitulo").textContent = `Conversa com ${clienteNome || "cliente"}`;
+  document.getElementById("chatResumo").textContent = "Carregando conversa...";
+  document.getElementById("chatLista").innerHTML = '<div class="chat-empty">Carregando mensagens...</div>';
+  document.getElementById("modalChat").classList.add("open");
+  await carregarChat();
+}
+
+function fecharModalChat() {
+  chatAgendamentoId = null;
+  document.getElementById("formChat").reset();
+  document.getElementById("modalChat").classList.remove("open");
+}
+
+async function carregarChat() {
+  if (!chatAgendamentoId) {
+    return;
+  }
+
+  const result = await fetchJson(`/agendamentos/${chatAgendamentoId}/chat`, {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok || !result.data) {
+    document.getElementById("chatLista").innerHTML = `<div class="chat-empty">${escapeHtml(result.error || "N&atilde;o foi poss&iacute;vel carregar a conversa.")}</div>`;
+    return;
+  }
+
+  const { agendamento, mensagens } = result.data;
+  document.getElementById("chatResumo").textContent = `${agendamento.status} - ${formatarData(agendamento.data_sugerida || agendamento.data_solicitada)}`;
+
+  const chatLista = document.getElementById("chatLista");
+  chatLista.innerHTML = "";
+
+  if (!mensagens.length) {
+    chatLista.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Comece a conversa para alinhar detalhes.</div>';
+  } else {
+    mensagens.forEach((item) => {
+      const bubble = document.createElement("article");
+      bubble.className = `chat-bubble ${item.remetente_tipo === "tatuador" ? "mine" : "theirs"}`;
+      bubble.innerHTML = `
+        <strong>${item.remetente_tipo === "tatuador" ? "Voc&ecirc;" : escapeHtml(agendamento.cliente_nome || "Cliente")}</strong>
+        <p>${escapeHtml(item.mensagem || "")}</p>
+        <span>${formatarData(item.criado_em)} ${new Date(item.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+      `;
+      chatLista.appendChild(bubble);
+    });
+  }
+
+  chatLista.scrollTop = chatLista.scrollHeight;
+  await carregarAgendamentos();
+}
+
+document.getElementById("formSugestao").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!agendamentoSelecionadoId) {
+    showToast("Selecione um agendamento antes de sugerir uma data.");
+    return;
+  }
+
+  const novaData = document.getElementById("novaDataInput").value;
+  if (!novaData) {
+    showToast("Escolha uma data para continuar.");
+    return;
+  }
+
+  const result = await fetchJson(`/agendamentos/${agendamentoSelecionadoId}/sugerir-data`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
     },
-    body: JSON.stringify({ nova_data: novaData })
-  })
+    body: JSON.stringify({ nova_data: novaData }),
+  });
 
-  carregarAgendamentos()
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  showToast(obterMensagemErro(result.data || {}, "Nova data sugerida."));
+
+  if (result.ok) {
+    fecharModalSugestao();
+    await carregarAgendamentos();
+  }
+});
+
+document.getElementById("formChat").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!chatAgendamentoId) {
+    showToast("Selecione um agendamento antes de conversar.");
+    return;
+  }
+
+  const mensagem = document.getElementById("chatMensagem").value.trim();
+  if (!mensagem) {
+    showToast("Digite uma mensagem antes de enviar.");
+    return;
+  }
+
+  const result = await fetchJson(`/agendamentos/${chatAgendamentoId}/chat`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: "Bearer " + token,
+    },
+    body: JSON.stringify({ mensagem }),
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok) {
+    showToast(result.error || "N\u00e3o foi poss\u00edvel enviar a mensagem.");
+    return;
+  }
+
+  document.getElementById("chatMensagem").value = "";
+  await carregarChat();
+  showToast(result.data?.mensagem || "Mensagem enviada com sucesso.");
+});
+
+async function carregarNotificacoes() {
+  const result = await fetchJson("/agendamentos/novos", {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  if (!result.ok || !result.data) {
+    document.getElementById("notificacao").textContent = "N\u00e3o foi poss\u00edvel carregar notifica\u00e7\u00f5es";
+    return;
+  }
+
+  const data = result.data;
+  const notificacao = document.getElementById("notificacao");
+
+  if (Number(data.novos) > 0) {
+    notificacao.textContent = `Voc\u00ea tem ${data.novos} novo(s) pedido(s)`;
+    return;
+  }
+
+  notificacao.textContent = "Nenhum pedido novo no momento";
 }
 
-carregarAgendamentos()
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3200);
+}
 </script>
 </body>
 </html>

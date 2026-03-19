@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planos | TattooMatch</title>
+<meta name="description" content="Escolha o plano ideal para atrair mais clientes, ganhar visibilidade e pagar com Mercado Pago no TattooMatch.">
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/planos.css">
+</head>
+
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <div>
+      <span class="eyebrow">Planos para tatuadores</span>
+      <h1>Escolha o plano para atrair mais clientes</h1>
+      <p>
+        Comece grátis e evolua conforme quiser mais visibilidade na plataforma.
+      </p>
+    </div>
+    <div class="hero-panel" id="planoAtual">
+      <strong>Seu plano atual</strong>
+      <p id="planoAtualTexto">Faça login como tatuador para ver sua assinatura.</p>
+    </div>
+  </section>
+
+  <section class="plans-grid">
+    <article class="plan-card">
+      <span class="plan-tag">Para começar</span>
+      <h2>Para começar</h2>
+      <p class="price">R$0</p>
+      <p class="copy">Entre na vitrine da plataforma, publique seus primeiros trabalhos e comece a receber descobertas locais.</p>
+      <ul>
+        <li>7 fotos para montar seu portfólio inicial</li>
+        <li>1 vídeo para mostrar seu processo ou resultado</li>
+        <li>Perfil público ativo e presença normal na busca</li>
+      </ul>
+      <button class="button-secondary" type="button" onclick="ativarPlanoGratis(event)">Começar agora</button>
+    </article>
+
+    <article class="plan-card featured">
+      <span class="plan-tag">Para crescer</span>
+      <h2>Para crescer</h2>
+      <p class="price">R$39,90</p>
+      <p class="copy">Ganhe mais espaço para vender seu estilo com mais profundidade e apareça melhor para quem já está buscando tatuar.</p>
+      <ul>
+        <li>20 fotos para ampliar prova visual do seu trabalho</li>
+        <li>7 vídeos para reforçar confiança e autoridade</li>
+        <li>Badge Pro e prioridade leve na busca</li>
+        <li>Pagamento via Mercado Pago com Pix, cartão ou boleto</li>
+      </ul>
+      <button class="button" type="button" onclick="iniciarCheckoutPlano(event, 2)">Ativar plano</button>
+    </article>
+
+    <article class="plan-card">
+      <span class="plan-tag">Para dominar</span>
+      <h2>Para dominar</h2>
+      <p class="price">R$79,90</p>
+      <p class="copy">Transforme seu perfil em vitrine principal da plataforma, fortaleça marca e mostre volume sem limite para converter mais.</p>
+      <ul>
+        <li>Fotos ilimitadas</li>
+        <li>Vídeos ilimitados</li>
+        <li>Badge verificado e destaque de autoridade</li>
+        <li>Seção Tatuadores em destaque com Mercado Pago</li>
+      </ul>
+      <button class="button-secondary" type="button" onclick="iniciarCheckoutPlano(event, 3)">Ativar plano</button>
+    </article>
+
+    <article class="plan-card spotlight">
+      <span class="plan-tag">Para aparecer no topo</span>
+      <h2>Patrocínio semanal</h2>
+      <p class="price">R$25</p>
+      <p class="copy">Use quando quiser abrir agenda, lançar campanha ou acelerar sua visibilidade máxima por alguns dias sem trocar de plano.</p>
+      <ul>
+        <li>Aparece na seção Patrocinados</li>
+        <li>Fica no topo da busca por 7 dias</li>
+        <li>Prioridade máxima sem depender do Premium</li>
+        <li>Pagamento via Mercado Pago com Pix, cartão ou boleto</li>
+      </ul>
+      <button class="button-secondary" type="button" onclick="iniciarCheckoutPatrocinio(event)">Ativar plano</button>
+    </article>
+  </section>
+
+  <p class="status" id="statusPlanos">Escolha o plano ideal para seu momento e conclua o pagamento com segurança.</p>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { fetchJson, loadFooter, loadNavbar, requireAuth } = window.FrontendUtils;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await loadFooter();
+  await carregarMeuPlano();
+});
+
+async function carregarMeuPlano() {
+  const auth = requireAuth({ redirectTo: "/login.html" });
+  if (!auth) {
+    return;
+  }
+
+  const result = await fetchJson("/meu-plano", {
+    headers: { Authorization: `Bearer ${auth.token}` },
+  });
+
+  if (!result.ok || !result.data) {
+    document.getElementById("planoAtualTexto").textContent =
+      result.error || "Não foi possível carregar sua assinatura agora.";
+    return;
+  }
+
+  const data = result.data;
+  const limiteFotos = data.limite_fotos == null ? "ilimitadas" : `${Number(data.limite_fotos || 0)} foto(s)`;
+  const limiteVideos = data.limite_videos == null ? "ilimitados" : `${Number(data.limite_videos || 0)} vídeo(s)`;
+  const usadasFotos = Number(data.usadas_fotos || 0);
+  const usadosVideos = Number(data.usados_videos || 0);
+  const destaque = data.destaque_ativo ? "com destaque semanal ativo" : "sem destaque ativo";
+  const validadeDestaque = data.highlight_until
+    ? ` até ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}`
+    : "";
+
+  document.getElementById("planoAtualTexto").textContent =
+    `${data.plano || "Plano"} - ${usadasFotos} foto(s) usadas de ${limiteFotos} - ${usadosVideos} vídeo(s) usados de ${limiteVideos} - assinatura ${data.status_assinatura || "ativa"} - ${destaque}${validadeDestaque}`;
+}
+
+async function ativarPlanoGratis(event) {
+  const auth = requireAuth({ redirectTo: "/login.html" });
+  if (!auth) {
+    return;
+  }
+
+  const button = event?.currentTarget;
+  setButtonLoading(button, true, "Ativando...");
+  atualizarStatus("Ativando plano gratuito...");
+
+  const result = await fetchJson("/meu-plano", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify({ plan_id: 1 }),
+  });
+
+  setButtonLoading(button, false);
+  atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "Assinatura atualizada.");
+
+  if (result.ok) {
+    await carregarMeuPlano();
+  }
+}
+
+async function iniciarCheckoutPlano(event, planId) {
+  const auth = requireAuth({ redirectTo: "/login.html" });
+  if (!auth) {
+    return;
+  }
+
+  const button = event?.currentTarget;
+  setButtonLoading(button, true, "Criando checkout...");
+  atualizarStatus("Preparando pagamento no Mercado Pago...");
+
+  const result = await fetchJson("/checkout/plan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify({ plan_id: planId }),
+  });
+
+  setButtonLoading(button, false);
+
+  if (!result.ok || !result.data?.checkout_url) {
+    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "Não foi possível iniciar o pagamento.");
+    return;
+  }
+
+  atualizarStatus(result.data.mensagem || "Redirecionando para o pagamento...");
+  window.location.href = result.data.checkout_url;
+}
+
+async function iniciarCheckoutPatrocinio(event) {
+  const auth = requireAuth({ redirectTo: "/login.html" });
+  if (!auth) {
+    return;
+  }
+
+  const button = event?.currentTarget;
+  setButtonLoading(button, true, "Criando checkout...");
+  atualizarStatus("Preparando pagamento do patrocínio no Mercado Pago...");
+
+  const result = await fetchJson("/checkout/plan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify({ highlight: true }),
+  });
+
+  setButtonLoading(button, false);
+
+  if (!result.ok || !result.data?.checkout_url) {
+    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "Não foi possível iniciar o pagamento.");
+    return;
+  }
+
+  atualizarStatus(result.data.mensagem || "Redirecionando para o pagamento...");
+  window.location.href = result.data.checkout_url;
+}
+
+function atualizarStatus(message) {
+  document.getElementById("statusPlanos").textContent = message;
+}
+
+function setButtonLoading(button, isLoading, loadingText = "Carregando...") {
+  if (!button) {
+    return;
+  }
+
+  if (isLoading) {
+    button.dataset.originalText = button.textContent;
+    button.textContent = loadingText;
+    button.disabled = true;
+    return;
+  }
+
+  button.textContent = button.dataset.originalText || button.textContent;
+  button.disabled = false;
+}
+</script>
+</body>
+</html>

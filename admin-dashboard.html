@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/admin-dashboard.css">
+</head>
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow">Moderacao administrativa</span>
+    <h1>Dashboard do TattooMatch</h1>
+    <p id="statusMensagem">
+      Carregando os principais indicadores operacionais da plataforma.
+    </p>
+    <div class="hero-actions">
+      <a class="link-button" href="/admin-usuarios.html">Gerenciar usuarios</a>
+      <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
+    </div>
+  </section>
+
+  <section class="stats-grid" aria-label="Indicadores administrativos">
+    <article class="stat-card">
+      <span class="stat-label">Usuarios</span>
+      <strong id="totalUsuarios">--</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Tatuadores</span>
+      <strong id="totalTatuadores">--</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Agendamentos</span>
+      <strong id="totalAgendamentos">--</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Avaliacoes</span>
+      <strong id="totalAvaliacoes">--</strong>
+    </article>
+  </section>
+</main>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { fetchJson, loadNavbar, requireAuth, logout } = window.FrontendUtils;
+
+loadNavbar();
+
+const auth = requireAuth();
+
+if (!auth) {
+  throw new Error("Autenticacao obrigatoria");
+}
+
+if (auth.payload.is_admin !== true) {
+  logout("/home.html");
+}
+
+carregarDashboard();
+
+async function carregarDashboard() {
+  const result = await fetchJson("/admin/dashboard", {
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+    },
+  });
+
+  if (result.status === 401 || result.status === 403) {
+    logout("/home.html");
+    return;
+  }
+
+  if (!result.ok || !result.data) {
+    document.getElementById("statusMensagem").textContent =
+      result.error || "Nao foi possivel carregar o dashboard agora.";
+    return;
+  }
+
+  const data = result.data;
+  document.getElementById("statusMensagem").textContent =
+    "Resumo rapido da operacao, com foco em usuarios, tatuadores, agendamentos e avaliacoes.";
+  document.getElementById("totalUsuarios").textContent = Number(data.totalUsuarios || 0);
+  document.getElementById("totalTatuadores").textContent = Number(data.totalTatuadores || 0);
+  document.getElementById("totalAgendamentos").textContent = Number(data.totalAgendamentos || 0);
+  document.getElementById("totalAvaliacoes").textContent = Number(data.totalAvaliacoes || 0);
+}
+</script>
+</body>
+</html>

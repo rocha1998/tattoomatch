@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking de Tatuadores | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/ranking.css">
+</head>
+
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <h1>Ranking de tatuadores</h1>
+    <p>
+      Veja os artistas mais bem posicionados com base em avaliacoes e prioridade
+      de plano dentro da plataforma.
+    </p>
+  </section>
+
+  <section class="list" id="ranking"></section>
+  <div class="empty-state" id="emptyState" hidden>Nenhum artista apareceu no ranking ainda.</div>
+</main>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { escapeHtml, fetchJson, loadNavbar } = window.FrontendUtils;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await carregarRanking();
+});
+
+async function carregarRanking() {
+  const result = await fetchJson("/ranking");
+  const div = document.getElementById("ranking");
+  const empty = document.getElementById("emptyState");
+
+  div.innerHTML = "";
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    empty.hidden = false;
+    empty.textContent = result.error || "Nao foi possivel carregar o ranking agora.";
+    return;
+  }
+
+  const tatuadores = result.data;
+
+  if (!tatuadores.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+
+  tatuadores.forEach((t, index) => {
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="position">#${index + 1}</div>
+      <div class="info">
+        <h2>${escapeHtml(t.nome_artistico || "Artista sem nome")}</h2>
+        <p>${escapeHtml(t.cidade || "Cidade nao informada")} • ${escapeHtml(t.plano || "Sem plano")}</p>
+        <p>${Number(t.total_avaliacoes || 0)} avaliacao(oes) registradas</p>
+      </div>
+      <div class="score">
+        <strong>${Number(t.media || 0).toFixed(1)}</strong>
+        <span>Media geral</span>
+      </div>
+    `;
+
+    div.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>

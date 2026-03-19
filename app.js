@@ -1,119 +1,122 @@
-// Recupera token salvo quando a página carrega
-let token = localStorage.getItem('token')
+// Script legado de demonstracao do frontend.
+// O backend real sobe por `server.js`, que carrega `src/app.js`.
+const { API_BASE, fetchJson, logout: sharedLogout, parseTokenPayload } = window.FrontendUtils || {};
 
-// Função de cadastro
+// Recupera token salvo quando a pagina carrega
+let token = localStorage.getItem("token");
+
+// Funcao de cadastro
 async function cadastrar() {
-    const usuario = document.getElementById('regUsuario').value
-    const senha = document.getElementById('regSenha').value
+  const usuario = document.getElementById("regUsuario").value;
+  const email = document.getElementById("regEmail").value;
+  const senha = document.getElementById("regSenha").value;
 
-    const res = await fetch('http://localhost:3000/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario, senha })
-    })
+  const result = await fetchJson("/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario, email, senha }),
+  });
 
-    const data = await res.json()
-    document.getElementById('regMsg').innerText = JSON.stringify(data, null, 2)
+  const data = result.data || {};
+  document.getElementById("regMsg").innerText = JSON.stringify(data, null, 2);
 }
 
-// Função de login
+// Funcao de login
 async function logar() {
-    const usuario = document.getElementById("logUsuario").value
-    const senha = document.getElementById("logSenha").value
+  const usuario = document.getElementById("logUsuario").value;
+  const senha = document.getElementById("logSenha").value;
 
-    const res = await fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuario, senha })
-    })
+  const result = await fetchJson("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ usuario, senha }),
+  });
 
-    const data = await res.json()
+  const data = result.data || {};
 
-    if(!data.token){
-        alert("Erro no login")
-        return
-    }
+  if (!data.token) {
+    alert("Erro no login");
+    return;
+  }
 
-    // 🔥 salva token
-    localStorage.setItem("token", data.token)
+  localStorage.setItem("token", data.token);
 
-    // 🔥 lê o conteúdo do token (payload)
-    const payload = JSON.parse(atob(data.token.split('.')[1]))
-    console.log("Usuário logado:", payload)
+  const payload = parseTokenPayload ? parseTokenPayload(data.token) : null;
+  console.log("Usuario logado:", payload);
 
-    // 🔥 redirecionamento inteligente
-    if(payload.tipo === "tatuador"){
-        window.location.href = "painel.html"
-    }else{
-        window.location.href = "tatuadores.html"
-    }
+  window.location.href = "home.html";
 }
 
-// Função para ver perfil
+// Funcao para ver perfil
 async function verPerfil() {
-    if (!token) {
-        document.getElementById('perfilMsg').innerText = "Você precisa logar primeiro!"
-        return
-    }
+  if (!token) {
+    document.getElementById("perfilMsg").innerText = "Voce precisa logar primeiro!";
+    return;
+  }
 
-    const res = await fetch('http://localhost:3000/perfil', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
+  const result = await fetchJson("/perfil", {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    const data = await res.json()
-    document.getElementById('perfilMsg').innerText = JSON.stringify(data, null, 2)
+  const data = result.data || {};
+  document.getElementById("perfilMsg").innerText = JSON.stringify(data, null, 2);
 }
 
 // Logout
 function logout() {
-    localStorage.removeItem('token')
-    token = null
-    alert("Você saiu da conta 🚪")
+  if (sharedLogout) {
+    sharedLogout();
+    return;
+  }
+
+  localStorage.removeItem("token");
+  token = null;
+  alert("Voce saiu da conta");
 }
+
 async function atualizarPerfil() {
-    const novoUsuario = document.getElementById('novoUsuario').value
-    const novaSenha = document.getElementById('novaSenha').value
+  const novoUsuario = document.getElementById("novoUsuario").value;
+  const novaSenha = document.getElementById("novaSenha").value;
 
-    const res = await fetch('http://localhost:3000/perfil', {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            usuario: novoUsuario || undefined,
-            senha: novaSenha || undefined
-        })
-    })
+  const result = await fetchJson("/perfil", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      usuario: novoUsuario || undefined,
+      senha: novaSenha || undefined,
+    }),
+  });
 
-    const data = await res.json()
-    alert(data.mensagem)
+  const data = result.data || {};
+  alert(data.mensagem);
 }
 
 async function deletarPerfil() {
-    const token = localStorage.getItem('token')
+  const tokenAtual = localStorage.getItem("token");
 
-    if (!token) {
-        document.getElementById('perfilMsg').innerText = "Você precisa logar primeiro!"
-        return
-    }
+  if (!tokenAtual) {
+    document.getElementById("perfilMsg").innerText = "Voce precisa logar primeiro!";
+    return;
+  }
 
-    const res = await fetch('http://localhost:3000/perfil', {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
+  const result = await fetchJson("/perfil", {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${tokenAtual}`,
+    },
+  });
 
-    const data = await res.json()
+  const data = result.data || {};
 
-    document.getElementById('perfilMsg').innerText = JSON.stringify(data, null, 2)
+  document.getElementById("perfilMsg").innerText = JSON.stringify(data, null, 2);
 
-    if (res.ok) {
-        localStorage.removeItem('token')
-    }
+  if (result.ok) {
+    localStorage.removeItem("token");
+  }
 }
-

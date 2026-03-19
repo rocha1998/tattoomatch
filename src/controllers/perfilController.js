@@ -1,62 +1,59 @@
-const pool = require('../config/db')
-const bcrypt = require('bcrypt')
+const bcrypt = require("bcrypt");
 
-// GET /perfil
+const pool = require("../config/db");
+
 async function getPerfil(req, res) {
-    const { id, usuario } = req.usuario
-    res.json({ id, usuario })
+  const { id, usuario, email, tipo, is_admin, is_blocked } = req.usuario;
+  res.json({
+    id,
+    usuario,
+    email,
+    tipo,
+    is_admin: is_admin === true,
+    is_blocked: is_blocked === true,
+  });
 }
 
-// PUT /perfil
 async function updatePerfil(req, res) {
-    const { usuario, senha } = req.body
-    const id = req.usuario.id
+  const { usuario, senha } = req.body;
+  const id = req.usuario.id;
 
-    if (!usuario && !senha) {
-        return res.status(400).json({ mensagem: "Nada para atualizar ⚠️" })
+  if (!usuario && !senha) {
+    return res.status(400).json({ mensagem: "Nada para atualizar" });
+  }
+
+  try {
+    let senhaCriptografada = null;
+
+    if (senha) {
+      senhaCriptografada = await bcrypt.hash(senha, 10);
     }
 
-    try {
-        let senhaCriptografada
+    await pool.query(
+      `UPDATE usuarios
+       SET usuario = COALESCE($1, usuario),
+           senha = COALESCE($2, senha)
+       WHERE id = $3`,
+      [usuario, senhaCriptografada, id]
+    );
 
-        if (senha) {
-            senhaCriptografada = await bcrypt.hash(senha, 10)
-        }
-
-        await pool.query(
-            `UPDATE usuarios 
-             SET usuario = COALESCE($1, usuario),
-                 senha = COALESCE($2, senha)
-             WHERE id = $3`,
-            [usuario, senhaCriptografada, id]
-        )
-
-        res.json({ mensagem: "Perfil atualizado com sucesso ✅" })
-
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ mensagem: "Erro ao atualizar perfil ❌" })
-    }
+    res.json({ mensagem: "Perfil atualizado com sucesso" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensagem: "Erro ao atualizar perfil" });
+  }
 }
-
-module.exports = { getPerfil, updatePerfil }
 
 async function deletePerfil(req, res) {
-    const id = req.usuario.id
+  const id = req.usuario.id;
 
-    try {
-        await pool.query(
-            'DELETE FROM usuarios WHERE id = $1',
-            [id]
-        )
-
-        res.json({ mensagem: "Usuário deletado com sucesso 🗑️" })
-
-    } catch (error) {
-        console.error(error)
-        res.status(500).json({ mensagem: "Erro ao deletar usuário ❌" })
-    }
+  try {
+    await pool.query("DELETE FROM usuarios WHERE id = $1", [id]);
+    res.json({ mensagem: "Usuario deletado com sucesso" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensagem: "Erro ao deletar usuario" });
+  }
 }
 
-
-module.exports = { getPerfil, updatePerfil, deletePerfil }
+module.exports = { getPerfil, updatePerfil, deletePerfil };

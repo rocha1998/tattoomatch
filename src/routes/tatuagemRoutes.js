@@ -1,16 +1,23 @@
-const express = require('express')
-const router = express.Router()
+const express = require("express");
 
-const autenticarToken = require('../middlewares/auth')
-const upload = require('../config/upload')
-const { criarTatuagem } = require('../controllers/tatuagemController')
-const { deletarTatuagem } = require('../controllers/tatuagemController')
+const { portfolioUpload } = require("../config/upload");
+const autenticarToken = require("../middlewares/auth");
+const {
+  criarTatuagem,
+  deletarTatuagem,
+} = require("../controllers/tatuagemController");
 
-router.delete('/tatuagens/:id', autenticarToken, deletarTatuagem)
+const router = express.Router();
 
+router.post(
+  "/tatuagens",
+  autenticarToken,
+  portfolioUpload.fields([
+    { name: "arquivo", maxCount: 1 },
+    { name: "imagem", maxCount: 1 },
+  ]),
+  criarTatuagem
+);
+router.delete("/tatuagens/:id", autenticarToken, deletarTatuagem);
 
-router.post('/tatuagens', autenticarToken, upload.single('imagem'), criarTatuagem)
-
-module.exports = router
-
-
+module.exports = router;

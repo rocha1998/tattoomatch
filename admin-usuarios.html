@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administradores | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/admin-usuarios.css">
+</head>
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow">Administracao</span>
+    <h1>Gerenciar acesso administrativo</h1>
+    <p id="statusMensagem">
+      Carregando usuarios da plataforma para promover ou rebaixar administradores.
+    </p>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Usuarios</h2>
+        <p>Somente administradores podem alterar esse controle.</p>
+      </div>
+    </div>
+
+    <div class="filters">
+      <label class="field">
+        <span>Buscar</span>
+        <input id="buscaInput" type="search" placeholder="Nome de usuario ou email">
+      </label>
+
+      <label class="field">
+        <span>Tipo</span>
+        <select id="tipoFiltro">
+          <option value="todos">Todos</option>
+          <option value="cliente">Clientes</option>
+          <option value="tatuador">Tatuadores</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Papel</span>
+        <select id="adminFiltro">
+          <option value="todos">Todos</option>
+          <option value="admins">Admins</option>
+          <option value="nao-admins">Nao admins</option>
+        </select>
+      </label>
+    </div>
+
+    <p id="contadorResultados" class="results-copy">Carregando usuarios...</p>
+
+    <div id="listaUsuarios" class="user-list"></div>
+    <p id="emptyState" class="empty-state" hidden>Nenhum usuario encontrado.</p>
+  </section>
+</main>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { escapeHtml, fetchJson, loadNavbar, requireAuth, logout } = window.FrontendUtils;
+
+loadNavbar();
+
+const auth = requireAuth();
+
+if (!auth) {
+  throw new Error("Autenticacao obrigatoria");
+}
+
+if (auth.payload.is_admin !== true) {
+  logout("/home.html");
+}
+
+let usuariosCache = [];
+
+document.getElementById("buscaInput").addEventListener("input", aplicarFiltros);
+document.getElementById("tipoFiltro").addEventListener("change", aplicarFiltros);
+document.getElementById("adminFiltro").addEventListener("change", aplicarFiltros);
+
+carregarUsuarios();
+
+async function carregarUsuarios() {
+  const result = await fetchJson("/admin/usuarios", {
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+    },
+  });
+
+  if (result.status === 401 || result.status === 403) {
+    logout("/home.html");
+    return;
+  }
+
+  if (!result.ok || !Array.isArray(result.data)) {
+    document.getElementById("statusMensagem").textContent =
+      result.error || "Nao foi possivel carregar os usuarios agora.";
+    return;
+  }
+
+  document.getElementById("statusMensagem").textContent =
+    "Acesse os usuarios da plataforma e ajuste quem pode operar as areas administrativas.";
+
+  usuariosCache = result.data;
+  aplicarFiltros();
+}
+
+function aplicarFiltros() {
+  const busca = document.getElementById("buscaInput").value.trim().toLowerCase();
+  const tipoFiltro = document.getElementById("tipoFiltro").value;
+  const adminFiltro = document.getElementById("adminFiltro").value;
+
+  const filtrados = usuariosCache.filter((item) => {
+    const termo = `${item.usuario} ${item.email}`.toLowerCase();
+    const correspondeBusca = !busca || termo.includes(busca);
+    const correspondeTipo = tipoFiltro === "todos" || item.tipo === tipoFiltro;
+    const correspondeAdmin =
+      adminFiltro === "todos" ||
+      (adminFiltro === "admins" && item.is_admin === true) ||
+      (adminFiltro === "nao-admins" && item.is_admin !== true);
+
+    return correspondeBusca && correspondeTipo && correspondeAdmin;
+  });
+
+  atualizarContador(filtrados.length, usuariosCache.length);
+  renderUsuarios(filtrados);
+}
+
+function atualizarContador(totalFiltrado, totalGeral) {
+  const contador = document.getElementById("contadorResultados");
+
+  if (!totalGeral) {
+    contador.textContent = "Nenhum usuario cadastrado ainda.";
+    return;
+  }
+
+  if (totalFiltrado === totalGeral) {
+    contador.textContent = `${totalGeral} usuario(s) exibido(s).`;
+    return;
+  }
+
+  contador.textContent = `${totalFiltrado} de ${totalGeral} usuario(s) exibido(s).`;
+}
+
+function renderUsuarios(usuarios) {
+  const lista = document.getElementById("listaUsuarios");
+  const empty = document.getElementById("emptyState");
+
+  lista.innerHTML = "";
+
+  if (!usuarios.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+
+  usuarios.forEach((item) => {
+    const article = document.createElement("article");
+    article.className = "user-card";
+
+    const isSelf = Number(item.id) === Number(auth.payload.id);
+    const adminButtonLabel = item.is_admin ? "Remover admin" : "Tornar admin";
+    const adminDisabled = isSelf && item.is_admin;
+    const blockDisabled = isSelf || item.is_blocked === true;
+    const badgeClass = item.is_admin ? "badge admin" : "badge neutral";
+    const tipoClass = item.tipo === "tatuador" ? "badge tatuador" : "badge cliente";
+
+    article.innerHTML = `
+      <div class="user-copy">
+        <div class="user-top">
+          <h2>${escapeHtml(item.usuario)}</h2>
+          <div class="badge-row">
+            <span class="${badgeClass}">${item.is_admin ? "Administrador" : "Usuario"}</span>
+            <span class="${tipoClass}">${escapeHtml(item.tipo)}</span>
+            ${item.is_blocked ? '<span class="badge blocked">Bloqueado</span>' : ""}
+            ${isSelf ? '<span class="badge neutral">Voce</span>' : ""}
+          </div>
+        </div>
+        <p>${escapeHtml(item.email)}</p>
+      </div>
+      <div class="action-stack">
+        <button class="action-button ${item.is_admin ? "danger" : "primary"}" data-action="admin" ${adminDisabled ? "disabled" : ""}>
+          ${adminButtonLabel}
+        </button>
+        <button class="action-button warning" data-action="block" ${blockDisabled ? "disabled" : ""}>
+          ${item.is_blocked ? "Bloqueado" : "Bloquear"}
+        </button>
+      </div>
+    `;
+
+    const adminButton = article.querySelector('[data-action="admin"]');
+    const blockButton = article.querySelector('[data-action="block"]');
+    adminButton.addEventListener("click", () => atualizarAdmin(item));
+    blockButton.addEventListener("click", () => bloquearUsuario(item));
+    lista.appendChild(article);
+  });
+}
+
+async function atualizarAdmin(item) {
+  const tornarAdmin = item.is_admin !== true;
+  const confirmacao = confirm(
+    tornarAdmin
+      ? `Conceder acesso administrativo para ${item.usuario}?`
+      : `Remover acesso administrativo de ${item.usuario}?`
+  );
+
+  if (!confirmacao) {
+    return;
+  }
+
+  const result = await fetchJson(`/admin/usuarios/${encodeURIComponent(item.id)}/admin`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify({ is_admin: tornarAdmin }),
+  });
+
+  if (result.status === 401 || result.status === 403) {
+    logout("/home.html");
+    return;
+  }
+
+  if (!result.ok) {
+    alert(result.error || "Nao foi possivel atualizar a permissao.");
+    return;
+  }
+
+  alert((result.data && result.data.mensagem) || "Permissao atualizada.");
+  carregarUsuarios();
+}
+
+async function bloquearUsuario(item) {
+  const confirmacao = confirm(`Bloquear ${item.usuario} na plataforma?`);
+
+  if (!confirmacao) {
+    return;
+  }
+
+  const result = await fetchJson(`/admin/usuarios/bloquear/${encodeURIComponent(item.id)}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${auth.token}`,
+    },
+  });
+
+  if (result.status === 401 || result.status === 403) {
+    logout("/home.html");
+    return;
+  }
+
+  if (!result.ok) {
+    alert(result.error || "Nao foi possivel bloquear o usuario.");
+    return;
+  }
+
+  alert((result.data && result.data.mensagem) || "Usuario bloqueado.");
+  carregarUsuarios();
+}
+</script>
+</body>
+</html>

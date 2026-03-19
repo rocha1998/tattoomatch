@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamento confirmado | TattooMatch</title>
+<meta name="description" content="Seu pagamento foi confirmado e o plano do TattooMatch está sendo ativado.">
+<link rel="stylesheet" href="/styles/theme.css">
+</head>
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero" style="max-width:760px;margin:48px auto;padding:0 20px;">
+    <span class="eyebrow">Pagamento confirmado</span>
+    <h1>Seu pagamento foi aprovado</h1>
+    <p id="statusMensagem">Estamos confirmando sua assinatura e ativando tudo para você.</p>
+
+    <div class="hero-panel" style="margin-top:20px;">
+      <strong>Plano ativado</strong>
+      <p id="planoAtivado">Carregando detalhes do pagamento...</p>
+    </div>
+
+    <div class="hero-actions" style="margin-top:24px;">
+      <a class="button" href="/home.html">Ir para meu painel</a>
+      <a class="button-secondary" href="/planos.html">Voltar aos planos</a>
+    </div>
+  </section>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { fetchJson, loadFooter, loadNavbar, requireAuth } = window.FrontendUtils;
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadNavbar();
+  await loadFooter();
+  await confirmarPagamento();
+});
+
+async function confirmarPagamento() {
+  const auth = requireAuth({ redirectTo: "/login.html" });
+  if (!auth) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const paymentId = Number(params.get("payment_id"));
+
+  if (!Number.isInteger(paymentId) || paymentId <= 0) {
+    document.getElementById("statusMensagem").textContent = "Não encontramos um pagamento válido para confirmar.";
+    document.getElementById("planoAtivado").textContent = "Volte aos planos e tente novamente.";
+    return;
+  }
+
+  const result = await fetchJson("/checkout/confirm", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${auth.token}`,
+    },
+    body: JSON.stringify({
+      payment_id: paymentId,
+    }),
+  });
+
+  if (!result.ok || !result.data) {
+    document.getElementById("statusMensagem").textContent =
+      result.error || "Não foi possível confirmar o pagamento agora.";
+    document.getElementById("planoAtivado").textContent = "Seu pagamento pode levar alguns segundos para refletir.";
+    return;
+  }
+
+  const data = result.data;
+  document.getElementById("statusMensagem").textContent =
+    data.mensagem || "Seu plano foi ativado com sucesso.";
+
+  if (data.highlight_until) {
+    document.getElementById("planoAtivado").textContent =
+      `Patrocínio semanal ativo até ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}.`;
+    return;
+  }
+
+  document.getElementById("planoAtivado").textContent =
+    `Plano ${data.assinatura?.plano || "ativado"} pronto para uso no TattooMatch.`;
+}
+</script>
+</body>
+</html>

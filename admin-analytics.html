@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Interno | TattooMatch</title>
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/admin-analytics.css">
+</head>
+<body>
+<div id="navbar"></div>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow">Painel interno</span>
+    <h1>Analytics da plataforma</h1>
+    <p id="statusMensagem">
+      Carregando indicadores de usuarios, tatuadores, agendamentos e visitas de perfil.
+    </p>
+  </section>
+
+  <section class="stats-grid" aria-label="Totais da plataforma">
+    <article class="stat-card">
+      <span class="stat-label">Usuarios</span>
+      <strong id="totalUsuarios">--</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Tatuadores</span>
+      <strong id="totalTatuadores">--</strong>
+    </article>
+    <article class="stat-card">
+      <span class="stat-label">Agendamentos</span>
+      <strong id="totalAgendamentos">--</strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Perfis mais visitados</h2>
+        <p>Ranking simples com base nos eventos internos de visita de perfil.</p>
+      </div>
+    </div>
+
+    <div id="listaPerfis" class="ranking-list"></div>
+    <p id="emptyState" class="empty-state" hidden>Nenhuma visita registrada ainda.</p>
+  </section>
+</main>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+const { buildPublicProfileUrl, fetchJson, loadNavbar, requireAuth, escapeHtml, logout } = window.FrontendUtils;
+
+loadNavbar();
+
+const auth = requireAuth();
+
+if (auth) {
+  carregarAnalytics(auth.token);
+}
+
+async function carregarAnalytics(token) {
+  const result = await fetchJson("/admin/analytics", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (result.status === 401 || result.status === 403) {
+    logout("/login.html");
+    return;
+  }
+
+  if (!result.ok || !result.data) {
+    document.getElementById("statusMensagem").textContent =
+      result.error || "Nao foi possivel carregar os analytics agora.";
+    return;
+  }
+
+  const data = result.data;
+
+  document.getElementById("statusMensagem").textContent =
+    "Resumo atualizado com os principais numeros da plataforma.";
+  document.getElementById("totalUsuarios").textContent = Number(data.totalUsuarios || 0);
+  document.getElementById("totalTatuadores").textContent = Number(data.totalTatuadores || 0);
+  document.getElementById("totalAgendamentos").textContent = Number(data.totalAgendamentos || 0);
+
+  renderPerfis(data.perfisMaisVisitados || []);
+}
+
+function renderPerfis(perfis) {
+  const lista = document.getElementById("listaPerfis");
+  const empty = document.getElementById("emptyState");
+
+  lista.innerHTML = "";
+
+  if (!perfis.length) {
+    empty.hidden = false;
+    return;
+  }
+
+  empty.hidden = true;
+
+  perfis.forEach((perfil, index) => {
+    const item = document.createElement("article");
+    item.className = "ranking-item";
+    item.innerHTML = `
+      <div class="ranking-position">${index + 1}</div>
+      <div class="ranking-copy">
+        <strong>${escapeHtml(perfil.nome_artistico || "Perfil sem nome")}</strong>
+        <span>${Number(perfil.visitas || 0)} visita(s)</span>
+      </div>
+      <a class="ranking-link" href="${buildPublicProfileUrl(perfil)}">Abrir perfil</a>
+    `;
+
+    lista.appendChild(item);
+  });
+}
+</script>
+</body>
+</html>

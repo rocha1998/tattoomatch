@@ -1,362 +1,643 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Perfil do Tatuador</title>
-
-<style>
-body{
-  font-family: Arial;
-  margin:0;
-  background:#111;
-  color:#fff;
-}
-
-.header{
-  display:flex;
-  gap:20px;
-  padding:40px;
-  background:#1c1c1c;
-}
-
-.header img{
-  width:140px;
-  height:140px;
-  border-radius:50%;
-  object-fit:cover;
-}
-
-.portfolio{
-  padding:40px;
-  display:grid;
-  grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
-  gap:20px;
-}
-
-.portfolio div{
-  position:relative;
-}
-
-.portfolio img{
-  width:100%;
-  height:250px;
-  object-fit:cover;
-  border-radius:10px;
-  display:block;
-}
-
-.btn-orcamento{
-  background:#ff4d6d;
-  color:white;
-  border:none;
-  padding:12px 20px;
-  font-size:16px;
-  border-radius:8px;
-  cursor:pointer;
-  margin-top:20px;
-}
-
-.btn-orcamento:hover{
-  background:#ff2e55;
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-}
-
-.modal-content{
-  background:#1c1c1c;
-  padding:30px;
-  width:400px;
-  margin:5% auto;
-  border-radius:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.modal input,
-.modal textarea{
-  padding:10px;
-  border-radius:6px;
-  border:none;
-}
-
-.modal button{
-  padding:10px;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__SEO_TITLE__</title>
+<meta name="description" content="__SEO_DESCRIPTION__">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="__SEO_CANONICAL__">
+<meta property="og:title" content="__SEO_OG_TITLE__">
+<meta property="og:description" content="__SEO_OG_DESCRIPTION__">
+<meta property="og:type" content="profile">
+<meta property="og:url" content="__SEO_CANONICAL__">
+<meta property="og:image" content="__SEO_OG_IMAGE__">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="__SEO_TWITTER_TITLE__">
+<meta name="twitter:description" content="__SEO_TWITTER_DESCRIPTION__">
+<meta name="twitter:image" content="__SEO_TWITTER_IMAGE__">
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/perfil.css">
+<script type="application/ld+json" id="seoJsonLd">__SEO_JSON_LD__</script>
 </head>
 
 <body>
+<div id="navbar"></div>
 
-<div class="header">
-  <img id="fotoPerfil">
-  <div>
-    <h1 id="nome"></h1>
-    <p id="bio"></p>
-    <p>📍 <span id="cidade"></span></p>
-    <p>🎨 <span id="estilos"></span></p>
-    <a id="btnWhatsapp" target="_blank">
-  <button style="padding:12px 20px;background:#25D366;border:none;border-radius:8px;color:white;font-size:16px;cursor:pointer;margin-top:10px;">
-    💬 Agendar pelo WhatsApp
-  </button>
-</a>
+<main>
+  <div class="shell">
+    <section class="hero">
+      <div class="photo-wrap">
+        <img id="fotoPerfil" alt="Foto do tatuador">
+      </div>
 
-<br>
+      <div class="hero-copy">
+        <span class="eyebrow" id="eyebrow">__SEO_EYEBROW__</span>
+        <h1 id="nome">__SEO_H1__</h1>
+        <p id="bio">__SEO_LEAD__</p>
 
-<button class="btn-orcamento" onclick="abrirModalAgendamento()">
-  Solicitar orçamento 💉
-</button>
-</a>
-<div id="uploadArea" style="margin-top:20px; display:none;">
-  <h3>Adicionar nova tatuagem</h3>
-  <input type="file" id="imagemInput"><br><br>
-  <input type="text" id="estiloInput" placeholder="Estilo"><br><br>
-  <input type="text" id="descricaoInput" placeholder="Descrição"><br><br>
-  <button onclick="enviarTatuagem()">Enviar</button>
-</div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Estado</strong>
+            <span id="estado">Não informado</span>
+          </div>
+          <div class="meta-card">
+            <strong>Cidade</strong>
+            <span id="cidade">Não informada</span>
+          </div>
+          <div class="meta-card">
+            <strong>Bairro</strong>
+            <span id="bairro">Não informado</span>
+          </div>
+          <div class="meta-card">
+            <strong>Estilos</strong>
+            <span id="estilos">Não informado</span>
+          </div>
+          <div class="meta-card">
+            <strong>Disponibilidade</strong>
+            <span id="disponibilidade">Carregando...</span>
+          </div>
+          <div class="meta-card">
+            <strong>Plano</strong>
+            <span id="planoPublico">Carregando...</span>
+          </div>
+        </div>
+
+        <p class="status-text" id="views">Carregando visualizações...</p>
+
+        <div class="actions">
+          <a class="button" id="btnWhatsapp" target="_blank" rel="noopener noreferrer">Agendar pelo WhatsApp</a>
+          <button class="button-secondary" id="btnOrcamento" type="button">Solicitar orçamento</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <div class="section-stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Portfólio</h2>
+              <p>Veja os trabalhos publicados por este artista.</p>
+            </div>
+            <div class="portfolio-tabs">
+              <button class="tab-button active" id="tabFotos" type="button">Fotos</button>
+              <button class="tab-button" id="tabVideos" type="button">Vídeos</button>
+            </div>
+          </div>
+
+          <div class="gallery" id="portfolio"></div>
+          <div class="empty-state" id="portfolioEmpty" hidden>Este tatuador ainda não publicou trabalhos neste formato.</div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Avaliações</h2>
+              <p>Feedback real de quem ja passou por este perfil.</p>
+            </div>
+          </div>
+
+          <div class="review-list" id="avaliacoes"></div>
+          <div class="empty-state" id="avaliacoesEmpty" hidden>Ainda não existem avaliações para este artista.</div>
+        </section>
+      </div>
+
+      <div class="section-stack">
+        <section class="panel" id="avaliacaoPanel">
+          <div class="panel-head">
+            <div>
+              <h2>Deixe sua avaliação</h2>
+              <p>Ajude outros clientes a encontrarem o artista ideal.</p>
+            </div>
+          </div>
+
+          <div class="form-stack">
+            <select id="notaInput">
+              <option value="5">5 estrelas</option>
+              <option value="4">4 estrelas</option>
+              <option value="3">3 estrelas</option>
+              <option value="2">2 estrelas</option>
+              <option value="1">1 estrela</option>
+            </select>
+            <textarea id="comentarioInput" placeholder="Conte como foi sua experiência com este artista."></textarea>
+            <button class="button" id="btnAvaliar" type="button">Enviar avaliação</button>
+          </div>
+        </section>
+
+        <section class="panel" id="planoPanel" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Seu plano</h2>
+              <p>Acompanhe os limites atuais do seu portfólio.</p>
+            </div>
+          </div>
+
+          <p><strong>Plano:</strong> <span id="planoNome">...</span></p>
+          <p><strong>Fotos usadas:</strong> <span id="planoFotosUso">...</span></p>
+          <p><strong>Vídeos usados:</strong> <span id="planoVideosUso">...</span></p>
+          <p><strong>Status:</strong> <span id="planoStatus">...</span></p>
+          <p><strong>Patrocínio semanal:</strong> <span id="planoDestaque">...</span></p>
+          <button class="button-secondary" id="btnUpgrade" type="button">Ver planos</button>
+        </section>
+
+        <section class="panel" id="uploadPanel" hidden>
+          <div class="panel-head">
+            <div>
+              <h2>Adicionar ao portfólio</h2>
+              <p>Publique fotos e vídeos respeitando os limites do seu plano.</p>
+            </div>
+          </div>
+
+          <div class="form-stack">
+            <input type="file" id="arquivoInput" accept="image/*,video/mp4,video/webm,video/quicktime">
+            <input type="text" id="estiloInput" placeholder="Estilo">
+            <input type="text" id="descricaoInput" placeholder="Descrição curta">
+            <button class="button" id="btnEnviarTatuagem" type="button">Enviar para o portfólio</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="modal" id="modalAgendamento">
+  <div class="modal-sheet">
+    <h2>Solicitar orçamento</h2>
+    <p class="hint">Envie as informações principais para começar a conversa com o artista.</p>
+
+    <form id="formAgendamento" class="form-stack">
+      <div class="form-grid">
+        <input type="text" id="nomeCliente" placeholder="Seu nome" required>
+        <input type="email" id="emailCliente" placeholder="Seu email" required>
+      </div>
+
+      <div class="form-grid">
+        <input type="text" id="whatsappCliente" placeholder="WhatsApp">
+        <input type="date" id="dataCliente" required>
+      </div>
+
+      <div class="form-grid">
+        <input type="text" id="parte_corpoCliente" placeholder="Parte do corpo">
+        <input type="text" id="tamanhoCliente" placeholder="Tamanho aproximado">
+      </div>
+
+      <input type="file" id="imagemReferenciaCliente" accept="image/png,image/jpeg,image/webp,image/gif">
+      <textarea id="descricaoCliente" placeholder="Descreva a tattoo que você quer fazer" required></textarea>
+
+      <div class="actions">
+        <button class="button" type="submit">Enviar pedido</button>
+        <button class="button-secondary" type="button" onclick="fecharModal()">Cancelar</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<h2 style="padding-left:40px">Portfólio</h2>
-<div class="portfolio" id="portfolio"></div>
+<div id="toast"></div>
+<div id="footer"></div>
 
-<h3>Deixar avaliação</h3>
-
-<select id="notaInput">
-  <option value="5">⭐ 5</option>
-  <option value="4">⭐ 4</option>
-  <option value="3">⭐ 3</option>
-  <option value="2">⭐ 2</option>
-  <option value="1">⭐ 1</option>
-</select>
-
-<br><br>
-
-<input id="comentarioInput" placeholder="Escreva um comentário">
-
-<br><br>
-
-<button onclick="enviarAvaliacao()">Enviar avaliação</button>
-
-<h2 style="padding-left:40px">Avaliações</h2>
-<div id="avaliacoes" style="padding:40px;"></div>
-
-<div id="modalAgendamento" class="modal">
-  <div class="modal-content">
-    <h2>Solicitar orçamento 💉</h2>
-
-    <form id="formAgendamento">
-
-  <input type="text" id="nomeCliente" placeholder="Seu nome" required>
-  <input type="email" id="emailCliente" placeholder="Seu email" required>
-  <input type="text" id="whatsappCliente" placeholder="WhatsApp">
-
-  <textarea id="descricaoCliente" placeholder="Descreva sua tattoo" required></textarea>
-
-  <input type="text" id="parte_corpoCliente" placeholder="Parte do corpo">
-  <input type="text" id="tamanhoCliente" placeholder="Tamanho aproximado">
-
-  <input type="date" id="dataCliente" required>
-
-  <button type="submit">Enviar pedido</button>
-  <button type="button" onclick="fecharModal()">Cancelar</button>
-
-</form>
-  </div>
-</div>
-
+<script src="/scripts/frontend.js"></script>
 <script>
-  let usuarioPerfil = null;
-  
+const { API_BASE, escapeHtml, fetchJson, loadFooter, loadNavbar, logout, parseTokenPayload } = window.FrontendUtils;
+const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'><rect width='600' height='600' fill='%2316161a'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23f5f1e8' font-family='Trebuchet MS, sans-serif' font-size='40'>TattooMatch</text></svg>";
+
+let perfilIdentificador = null;
+let tatuadorId = null;
+let tatuadorUsuario = null;
+let isOwner = false;
+let portfolioCache = [];
+let activePortfolioTab = "foto";
+
 document.addEventListener("DOMContentLoaded", async () => {
+  perfilIdentificador = obterIdentificadorPerfil();
 
-  const token = localStorage.getItem("token")
-  console.log("TOKEN NO PERFIL:", token)
-  
+  if (!perfilIdentificador) {
+    showToast("Perfil inválido.");
+    return;
+  }
 
-if(token){
-  document.getElementById("uploadArea").style.display = "block"
+  await loadNavbar();
+  await loadFooter();
+  await carregarPerfil();
+
+  document.getElementById("btnAvaliar").addEventListener("click", enviarAvaliacao);
+  document.getElementById("btnOrcamento").addEventListener("click", abrirModalAgendamento);
+  document.getElementById("btnEnviarTatuagem").addEventListener("click", enviarTatuagem);
+  document.getElementById("btnUpgrade").addEventListener("click", () => {
+    window.location.href = "/planos.html";
+  });
+  document.getElementById("tabFotos").addEventListener("click", () => mudarAbaPortfolio("foto"));
+  document.getElementById("tabVideos").addEventListener("click", () => mudarAbaPortfolio("video"));
+});
+
+function obterMensagem(data, fallback) {
+  return data?.mensagem || data?.erro || fallback;
 }
 
-  const params = new URLSearchParams(window.location.search)
-  const usuario = params.get("user")
+function formatarData(valor) {
+  if (!valor) {
+    return "Data não disponível";
+  }
 
-  const res = await fetch(`http://localhost:3000/tatuador/${usuario}`)
-const data = await res.json()
+  const data = new Date(valor);
+  if (Number.isNaN(data.getTime())) {
+    return "Data inválida";
+  }
 
-// 🔒 proteção pra evitar erro se API falhar
-if (!data.tatuador) {
-  alert("Tatuador não encontrado")
-  return
+  return data.toLocaleDateString("pt-BR");
 }
 
-const tatuador = data.tatuador
+function normalizarTipoPortfolio(item) {
+  return item?.tipo === "video" ? "video" : "foto";
+}
 
-document.getElementById("nome").innerText = tatuador.nome_artistico
-document.getElementById("bio").innerText = tatuador.bio
-document.getElementById("cidade").innerText = tatuador.cidade
-document.getElementById("estilos").innerText = tatuador.estilos
+function obterIdentificadorPerfil() {
+  const queryId = new URLSearchParams(window.location.search).get("id");
+  if (queryId) {
+    return queryId;
+  }
 
-document.getElementById("fotoPerfil").src =
-  "http://localhost:3000/uploads/" + tatuador.foto_perfil
+  const match = window.location.pathname.match(/^\/perfil\/([^/]+)$/);
+  return match ? decodeURIComponent(match[1]) : null;
+}
 
-document.getElementById("btnWhatsapp").href =
-  "https://wa.me/" + tatuador.whatsapps
+async function carregarPerfil() {
+  const token = localStorage.getItem("token");
+  const result = await fetchJson(`/tatuador/${encodeURIComponent(perfilIdentificador)}`);
 
-  const divPortfolio = document.getElementById("portfolio")
+  if (!result.ok || !result.data) {
+    showToast(result.error || "Não foi possível carregar este perfil.");
+    return;
+  }
 
-  data.portfolio.forEach(tattoo => {
+  const data = result.data;
 
-    const container = document.createElement("div")
-    container.style.position = "relative"
+  if (!data.tatuador) {
+    showToast("Tatuador não encontrado.");
+    return;
+  }
 
-    const img = document.createElement("img")
-    img.src = "http://localhost:3000/uploads/" + tattoo.imagem
-    img.style.width = "300px"
-    img.style.margin = "10px"
-    container.appendChild(img)
+  const tatuador = data.tatuador;
+  tatuadorId = Number(tatuador.id);
+  tatuadorUsuario = tatuador.usuario;
 
-    if(token){
-      const btn = document.createElement("button")
-      btn.innerText = "🗑️"
-      btn.style.position = "absolute"
-      btn.style.top = "10px"
-      btn.style.right = "10px"
-      btn.style.background = "red"
-      btn.style.color = "white"
-      btn.style.border = "none"
-      btn.style.padding = "5px 10px"
-      btn.style.cursor = "pointer"
+  if (token) {
+    const payload = parseTokenPayload(token);
+    isOwner = Boolean(payload) && Number(payload.id) === Number(tatuador.usuario_id);
+  }
 
-      btn.onclick = async () => {
-        await fetch("http://localhost:3000/tatuagens/" + tattoo.id, {
-          method: "DELETE",
-          headers: { "Authorization": "Bearer " + token }
-        })
-        location.reload()
-      }
+  preencherHero(tatuador, data.views);
+  renderPortfolio(data.portfolio || []);
+  renderAvaliacoes(data.avaliacoes || []);
 
-      container.appendChild(btn)
+  if (isOwner) {
+    document.getElementById("uploadPanel").hidden = false;
+    document.getElementById("planoPanel").hidden = false;
+    document.getElementById("avaliacaoPanel").hidden = true;
+    document.getElementById("btnOrcamento").hidden = true;
+    document.getElementById("btnWhatsapp").hidden = true;
+    await carregarPlano();
+  }
+}
+
+function preencherHero(tatuador, views) {
+  document.getElementById("nome").textContent = tatuador.nome_artistico || "Artista sem nome";
+  document.getElementById("bio").textContent = tatuador.bio || "Este artista ainda não adicionou uma bio.";
+  document.getElementById("estado").textContent = tatuador.estado || "Não informado";
+  document.getElementById("cidade").textContent = tatuador.cidade || "Não informada";
+  document.getElementById("bairro").textContent = tatuador.bairro || tatuador.municipio || "Não informado";
+  document.getElementById("estilos").textContent = tatuador.estilos || "Não informado";
+  document.getElementById("views").textContent = `${Number(views || 0)} visualizações neste perfil`;
+  document.getElementById("disponibilidade").textContent = tatuador.disponivel ? "Disponível para novos projetos" : "Agenda temporariamente fechada";
+  document.getElementById("planoPublico").textContent = tatuador.premium_ativo ? `${tatuador.plano || "Premium"} Premium` : (tatuador.plano || "Sem plano");
+
+  const eyebrow = [];
+  if (tatuador.premium_ativo) {
+    eyebrow.push("Premium");
+  }
+  if (tatuador.destaque_ativo) {
+    eyebrow.push("Patrocinado");
+  }
+  eyebrow.push(tatuador.disponivel ? "Disponível" : "Indisponível");
+  document.getElementById("eyebrow").textContent = eyebrow.join(" - ");
+
+  const foto = tatuador.foto_perfil ? `${API_BASE}/uploads/${encodeURIComponent(tatuador.foto_perfil)}` : fallbackImage;
+  document.getElementById("fotoPerfil").src = foto;
+
+  const btnWhatsapp = document.getElementById("btnWhatsapp");
+  if (tatuador.whatsapp) {
+    btnWhatsapp.href = `https://wa.me/${tatuador.whatsapp}`;
+  } else {
+    btnWhatsapp.removeAttribute("href");
+    btnWhatsapp.classList.add("button-secondary");
+    btnWhatsapp.textContent = "WhatsApp indisponível";
+  }
+}
+
+function renderPortfolio(items) {
+  portfolioCache = Array.isArray(items) ? items : [];
+
+  const possuiFotos = portfolioCache.some((item) => normalizarTipoPortfolio(item) === "foto");
+  const possuiVideos = portfolioCache.some((item) => normalizarTipoPortfolio(item) === "video");
+
+  if (!possuiFotos && possuiVideos) {
+    activePortfolioTab = "video";
+  }
+
+  atualizarTabsPortfolio();
+  renderPortfolioTab();
+}
+
+function mudarAbaPortfolio(tipo) {
+  activePortfolioTab = tipo;
+  atualizarTabsPortfolio();
+  renderPortfolioTab();
+}
+
+function atualizarTabsPortfolio() {
+  document.getElementById("tabFotos").classList.toggle("active", activePortfolioTab === "foto");
+  document.getElementById("tabVideos").classList.toggle("active", activePortfolioTab === "video");
+}
+
+function renderPortfolioTab() {
+  const container = document.getElementById("portfolio");
+  const empty = document.getElementById("portfolioEmpty");
+  container.innerHTML = "";
+
+  const filteredItems = portfolioCache.filter((item) => normalizarTipoPortfolio(item) === activePortfolioTab);
+
+  if (!filteredItems.length) {
+    empty.hidden = false;
+    empty.textContent = activePortfolioTab === "video"
+      ? "Este tatuador ainda não publicou vídeos."
+      : "Este tatuador ainda não publicou fotos.";
+    return;
+  }
+
+  empty.hidden = true;
+
+  filteredItems.forEach((tattoo) => {
+    const card = document.createElement("article");
+    card.className = "gallery-item";
+
+    const arquivo = tattoo.imagem ? `${API_BASE}/uploads/${encodeURIComponent(tattoo.imagem)}` : fallbackImage;
+    const descricao = tattoo.descricao || "Sem descrição informada.";
+    const estilo = tattoo.estilo || "Estilo não informado";
+    const tipo = normalizarTipoPortfolio(tattoo);
+    const media = tipo === "video"
+      ? `<video controls preload="metadata" src="${arquivo}"></video>`
+      : `<img src="${arquivo}" alt="${escapeHtml(descricao)}">`;
+
+    card.innerHTML = `
+      <figure>
+        ${media}
+      </figure>
+      <div class="gallery-copy">
+        <span class="media-kind">${tipo === "video" ? "Vídeo" : "Foto"}</span>
+        <h3>${escapeHtml(estilo)}</h3>
+        <p>${escapeHtml(descricao)}</p>
+      </div>
+      <div class="gallery-actions"></div>
+    `;
+
+    if (isOwner) {
+      const actions = card.querySelector(".gallery-actions");
+      const btnDelete = document.createElement("button");
+      btnDelete.className = "button-danger";
+      btnDelete.type = "button";
+      btnDelete.textContent = "Remover";
+      btnDelete.addEventListener("click", () => deletarTatuagem(tattoo.id));
+      actions.appendChild(btnDelete);
     }
 
-    divPortfolio.appendChild(container)
-  })
+    container.appendChild(card);
+  });
+}
 
-  const divAvaliacoes = document.getElementById("avaliacoes")
+function renderAvaliacoes(items) {
+  const container = document.getElementById("avaliacoes");
+  const empty = document.getElementById("avaliacoesEmpty");
+  container.innerHTML = "";
 
-  data.avaliacoes.forEach(av => {
-    const p = document.createElement("p")
-    p.innerText = `⭐ ${av.nota} - ${av.comentario}`
-    divAvaliacoes.appendChild(p)
-  })
+  if (!items.length) {
+    empty.hidden = false;
+    return;
+  }
 
-})
+  empty.hidden = true;
+
+  items.forEach((avaliacao) => {
+    const card = document.createElement("article");
+    card.className = "review-card";
+    const data = formatarData(avaliacao.created_at);
+
+    card.innerHTML = `
+      <strong>${escapeHtml(avaliacao.nota)} / 5</strong>
+      <p>${escapeHtml(avaliacao.comentario || "Sem comentário.")}</p>
+      <p class="review-date">${data}</p>
+    `;
+    container.appendChild(card);
+  });
+}
+
 async function enviarTatuagem() {
+  const token = localStorage.getItem("token");
+  const arquivo = document.getElementById("arquivoInput").files[0];
+  const estilo = document.getElementById("estiloInput").value.trim();
+  const descricao = document.getElementById("descricaoInput").value.trim();
 
-  const token = localStorage.getItem("token")
+  if (!token || !arquivo) {
+    showToast("Selecione um arquivo e faça login para continuar.");
+    return;
+  }
 
-  const imagem = document.getElementById("imagemInput").files[0]
-  const estilo = document.getElementById("estiloInput").value
-  const descricao = document.getElementById("descricaoInput").value
+  const formData = new FormData();
+  formData.append("arquivo", arquivo);
+  formData.append("estilo", estilo);
+  formData.append("descricao", descricao);
 
-  const formData = new FormData()
-  formData.append("imagem", imagem)
-  formData.append("estilo", estilo)
-  formData.append("descricao", descricao)
-
-  const res = await fetch("http://localhost:3000/tatuagens", {
+  const result = await fetchJson("/tatuagens", {
     method: "POST",
     headers: {
-      "Authorization": "Bearer " + token
+      Authorization: "Bearer " + token,
     },
-    body: formData
-  })
+    body: formData,
+  });
 
-  const data = await res.json()
-  alert(data.mensagem)
+  if (result.status === 401) {
+    logout();
+    return;
+  }
 
-  location.reload()
+  showToast(obterMensagem(result.data || {}, "Não foi possível enviar o item do portfólio."));
+
+  if (result.ok) {
+    location.reload();
+  }
+}
+
+async function deletarTatuagem(id) {
+  const token = localStorage.getItem("token");
+
+  if (!confirm("Remover este item do portfólio?")) {
+    return;
+  }
+
+  const result = await fetchJson(`/tatuagens/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  showToast(obterMensagem(result.data || {}, "Não foi possível remover o item do portfólio."));
+
+  if (result.ok) {
+    location.reload();
+  }
 }
 
 async function enviarAvaliacao() {
-
-  const nota = document.getElementById("notaInput").value
-  const comentario = document.getElementById("comentarioInput").value
-
-  const res = await fetch("http://localhost:3000/avaliar/" + tatuadorId, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nota: nota,
-      comentario: comentario
-    })
-  })
-
-  const data = await res.json()
-  alert(data.mensagem)
-
-  location.reload()
-}
-
-function abrirModalAgendamento(){
-  document.getElementById("modalAgendamento").style.display="block";
-}
-
-function fecharModal(){
-  document.getElementById("modalAgendamento").style.display="none";
-}
-
-// 🔥 ENVIO DO FORM DE AGENDAMENTO
-// 🔥 ENVIO DO FORM DE AGENDAMENTO (CORRIGIDO)
-document.getElementById("formAgendamento")
-.addEventListener("submit", async (e) => {
-
-  e.preventDefault()
-
-  const params = new URLSearchParams(window.location.search)
-  const usuario = params.get("user")
-
-  const dados = {
-    cliente_nome: document.getElementById("nomeCliente").value,
-    cliente_email: document.getElementById("emailCliente").value,
-    cliente_whatsapp: document.getElementById("whatsappCliente").value,
-    descricao: document.getElementById("descricaoCliente").value,
-    parte_corpo: document.getElementById("parte_corpoCliente").value,
-    tamanho: document.getElementById("tamanhoCliente").value,
-    data_solicitada: document.getElementById("dataCliente").value,
-    tatuador_id: usuario
+  if (isOwner) {
+    showToast("Você não pode avaliar o próprio perfil.");
+    return;
   }
 
-  const res = await fetch("http://localhost:3000/agendamentos", {
+  if (!tatuadorUsuario) {
+    showToast("Perfil ainda não carregado.");
+    return;
+  }
+
+  const nota = document.getElementById("notaInput").value;
+  const comentario = document.getElementById("comentarioInput").value.trim();
+
+  const result = await fetchJson(`/avaliar/${encodeURIComponent(tatuadorUsuario)}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(dados)
-  })
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ nota, comentario }),
+  });
 
-  const resposta = await res.json()
+  showToast(obterMensagem(result.data || {}, "Não foi possível enviar a avaliação."));
 
-  alert("Agendamento enviado com sucesso 💉")
+  if (result.ok) {
+    location.reload();
+  }
+}
 
-  fecharModal()
-})
+function abrirModalAgendamento() {
+  const token = localStorage.getItem("token");
 
+  if (!token) {
+    showToast("Faça login para solicitar um orçamento.");
+    return;
+  }
 
+  if (isOwner) {
+    showToast("Você não pode solicitar orçamento para o próprio perfil.");
+    return;
+  }
+
+  document.getElementById("modalAgendamento").classList.add("open");
+}
+
+function fecharModal() {
+  document.getElementById("modalAgendamento").classList.remove("open");
+}
+
+document.getElementById("formAgendamento").addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const token = localStorage.getItem("token");
+
+  if (!token || !Number.isInteger(tatuadorId) || tatuadorId <= 0) {
+    showToast("Você precisa estar logado para enviar um pedido.");
+    return;
+  }
+
+  if (isOwner) {
+    showToast("Você não pode solicitar orçamento para o próprio perfil.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("cliente_nome", document.getElementById("nomeCliente").value.trim());
+  formData.append("cliente_email", document.getElementById("emailCliente").value.trim());
+  formData.append("cliente_whatsapp", document.getElementById("whatsappCliente").value.trim());
+  formData.append("descricao", document.getElementById("descricaoCliente").value.trim());
+  formData.append("parte_corpo", document.getElementById("parte_corpoCliente").value.trim());
+  formData.append("tamanho", document.getElementById("tamanhoCliente").value.trim());
+  formData.append("data_solicitada", document.getElementById("dataCliente").value);
+  formData.append("tatuador_id", String(tatuadorId));
+
+  const imagemReferencia = document.getElementById("imagemReferenciaCliente").files[0];
+  if (imagemReferencia) {
+    formData.append("imagem_referencia", imagemReferencia);
+  }
+
+  const result = await fetchJson("/agendamentos", {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+    body: formData,
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  showToast(obterMensagem(result.data || {}, "Pedido enviado."));
+
+  if (result.ok) {
+    fecharModal();
+    event.target.reset();
+  }
+});
+
+async function carregarPlano() {
+  const token = localStorage.getItem("token");
+  const result = await fetchJson("/meu-plano", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (result.status === 401) {
+    logout();
+    return;
+  }
+
+  const data = result.data || {};
+  document.getElementById("planoNome").textContent = data.plano || "Indisponível";
+  document.getElementById("planoFotosUso").textContent =
+    `${Number(data.usadas_fotos || 0)} / ${data.limite_fotos === null ? "Ilimitado" : Number(data.limite_fotos || 0)}`;
+  document.getElementById("planoVideosUso").textContent =
+    `${Number(data.usados_videos || 0)} / ${data.limite_videos === null ? "Ilimitado" : Number(data.limite_videos || 0)}`;
+  document.getElementById("planoStatus").textContent = data.status_assinatura || "ativa";
+  document.getElementById("planoDestaque").textContent = data.destaque_ativo ? "Ativo" : "Não";
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(showToast.timeoutId);
+  showToast.timeoutId = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3200);
+}
 </script>
-
 </body>
 </html>
+
+
+

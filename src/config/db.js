@@ -1,11 +1,7 @@
-const { Pool } = require('pg')
+const { Pool } = require("pg");
 
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'meusistema',
-    password: '221994',
-    port: 5432,
-})
+const env = require("./env");
 
-module.exports = pool
+const pool = new Pool(env.db);
+
+module.exports = pool;

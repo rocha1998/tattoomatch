@@ -1,36 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Frontend JWT</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TattooMatch | Encontre seu proximo tatuador</title>
+<meta name="description" content="TattooMatch conecta clientes e tatuadores com busca por cidade, estilo, portfolio e reputacao.">
+<link rel="stylesheet" href="/styles/theme.css">
+<link rel="stylesheet" href="/styles/pages/index.css">
 </head>
+
 <body>
-    <h1>Frontend simples para JWT</h1>
+<div id="navbar"></div>
 
-    <h2>Cadastro</h2>
-    <input type="text" id="regUsuario" placeholder="Usuário">
-    <input type="password" id="regSenha" placeholder="Senha">
-    <button onclick="cadastrar()">Cadastrar</button>
-    <p id="regMsg"></p>
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Brasil inteiro, do seu jeito</span>
+      <h1>Encontre o tatuador ideal em minutos, não em semanas.</h1>
+      <p>
+        Compare portfólios, veja avaliações reais e fale direto com o tatuador antes de fechar.
+      </p>
 
-    <h2>Login</h2>
-    <input type="text" id="logUsuario" placeholder="Usuário">
-    <input type="password" id="logSenha" placeholder="Senha">
-    <button onclick="logar()">Login</button>
-    <p id="logMsg"></p>
+      <div class="hero-actions">
+        <a class="button" href="/tatuadores.html">Encontrar tatuador agora</a>
+        <a class="button-secondary" href="/tatuadores.html">Ver tatuadores em destaque</a>
+      </div>
 
-    <h2>Perfil</h2>
-    <button onclick="verPerfil()">Ver Perfil</button>
-    <button onclick="deletarPerfil()">Deletar Perfil</button>
+      <div class="hero-stats">
+        <div>
+          <strong>Busca local</strong>
+          <span>Filtre por cidade, municipio e estilo.</span>
+        </div>
+        <div>
+          <strong>Prova social</strong>
+          <span>Veja avaliacoes, portfolio e destaque por plano.</span>
+        </div>
+        <div>
+          <strong>Contato rapido</strong>
+          <span>Peca orcamento e agende com mais clareza.</span>
+        </div>
+      </div>
+    </div>
 
-    <p id="perfilMsg"></p>
-    <button onclick="logout()">Logout</button>
-    
-    <h3>Atualizar Perfil</h3>
-<input id="novoUsuario" placeholder="Novo usuário">
-<input id="novaSenha" type="password" placeholder="Nova senha">
-<button onclick="atualizarPerfil()">Atualizar</button>
+    <div class="hero-panel">
+      <div class="hero-card">
+        <strong>O problema hoje</strong>
+        <p>
+          Hoje, achar um bom tatuador ainda leva tempo demais e pouca clareza na decisão.
+        </p>
+      </div>
 
-    <script src="app.js"></script>
+      <div class="hero-card">
+        <strong>A proposta</strong>
+        <p>
+          Um marketplace focado em descoberta, confianca e conversao para quem quer
+          tatuar e para quem vive de tatuagem.
+        </p>
+      </div>
+
+      <div class="hero-card">
+        <h2>E tatuador?</h2>
+        <p>Ganhe mais visibilidade, atraia clientes certos e transforme perfil em agenda.</p>
+        <ul>
+          <li>Receba contatos com mais intenção de fechar.</li>
+          <li>Mostre seu trabalho de forma profissional.</li>
+          <li>Use destaque e planos para vender mais.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="sections">
+    <div class="section-head">
+      <h2>Construido para descoberta e confianca</h2>
+      <p>
+        A experiencia foi pensada para ajudar o cliente a decidir melhor e o
+        tatuador a se apresentar de forma mais forte.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <article class="feature">
+        <h3>Busca por afinidade</h3>
+        <p>Encontre artistas por localizacao, estilo e presenca na plataforma.</p>
+      </article>
+
+      <article class="feature">
+        <h3>Perfis com mais contexto</h3>
+        <p>Portfolio, avaliacoes, bio e canais de contato ajudam na decisao.</p>
+      </article>
+
+      <article class="feature">
+        <h3>Monetizacao clara</h3>
+        <p>Planos e patrocinado criam valor real para artistas que querem crescer.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="sections">
+    <div class="section-head">
+      <h2>Duas jornadas, uma plataforma</h2>
+      <p>
+        O marketplace precisa ser bom para quem procura e indispensavel para quem vende.
+      </p>
+    </div>
+
+    <div class="audience-grid">
+      <article class="audience-card">
+        <h3>Para clientes</h3>
+        <p>Mais clareza para encontrar alguem confiavel sem depender de sorte.</p>
+        <ul>
+          <li>Descubra tatuadores na sua regiao.</li>
+          <li>Compare estilos e portfolios.</li>
+          <li>Solicite orcamento com menos atrito.</li>
+        </ul>
+      </article>
+
+      <article class="audience-card">
+        <h3>Para tatuadores</h3>
+        <p>Um espaco que funciona como vitrine, canal de aquisicao e reputacao.</p>
+        <ul>
+          <li>Ganhe visibilidade nas buscas.</li>
+          <li>Organize pedidos e agendamentos.</li>
+          <li>Use o perfil para converter mais clientes.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+</main>
+
+<div id="footer"></div>
+
+<script src="/scripts/frontend.js"></script>
+<script>
+window.FrontendUtils.loadNavbar();
+window.FrontendUtils.loadFooter();
+</script>
 </body>
 </html>
