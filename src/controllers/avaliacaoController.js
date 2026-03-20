@@ -2,10 +2,16 @@ const pool = require("../config/db");
 
 async function avaliarTatuador(req, res) {
   const { usuario } = req.params;
-  const { nota, comentario } = req.body;
+  const autorId = req.usuario.id;
+  const nota = Number(req.body.nota);
+  const comentario = String(req.body.comentario ?? "").trim();
 
-  if (!nota) {
-    return res.status(400).json({ mensagem: "Nota obrigatória" });
+  if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+    return res.status(400).json({ mensagem: "Nota obrigatoria entre 1 e 5" });
+  }
+
+  if (comentario.length > 1000) {
+    return res.status(400).json({ mensagem: "Comentario pode ter no maximo 1000 caracteres" });
   }
 
   try {
@@ -18,18 +24,22 @@ async function avaliarTatuador(req, res) {
     );
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ mensagem: "Tatuador não encontrado" });
+      return res.status(404).json({ mensagem: "Tatuador nao encontrado" });
     }
 
     const { usuario_id, tatuador_id } = userResult.rows[0];
 
+    if (autorId === usuario_id) {
+      return res.status(400).json({ mensagem: "Voce nao pode avaliar o proprio perfil" });
+    }
+
     await pool.query(
       `INSERT INTO avaliacoes (usuario_id, tatuador_id, nota, comentario)
        VALUES ($1, $2, $3, $4)`,
-      [usuario_id, tatuador_id, nota, comentario]
+      [autorId, tatuador_id, nota, comentario || null]
     );
 
-    res.status(201).json({ mensagem: "Avaliação enviada com sucesso" });
+    res.status(201).json({ mensagem: "Avaliacao enviada com sucesso" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ mensagem: "Erro ao avaliar" });

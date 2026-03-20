@@ -4,6 +4,7 @@ const path = require("path");
 const rateLimit = require("express-rate-limit");
 
 const env = require("./config/env");
+const { ensureUploadsDir, uploadsDir } = require("./config/upload");
 const authRoutes = require("./routes/authRoutes");
 const perfilRoutes = require("./routes/perfilRoutes");
 const publicRoutes = require("./routes/publicRoutes");
@@ -66,6 +67,7 @@ const publicRootFiles = [
 function prepareApp() {
   if (!prepareAppPromise) {
     prepareAppPromise = Promise.all([
+      Promise.resolve().then(() => ensureUploadsDir()),
       ensureUserSchema(),
       ensureAnalyticsSchema(),
       ensureMarketplaceSchema(),
@@ -132,7 +134,7 @@ app.use(
 app.post("/webhook/payment", express.raw({ type: "application/json" }), webhookPagamento);
 app.use(express.json());
 app.use(limiter);
-app.use("/uploads", express.static(path.join(env.rootDir, "uploads")));
+app.use("/uploads", express.static(uploadsDir));
 app.use("/styles", express.static(path.join(env.rootDir, "styles")));
 app.use("/scripts", express.static(path.join(env.rootDir, "scripts")));
 

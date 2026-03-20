@@ -61,7 +61,15 @@
         throw new Error("Token malformado");
       }
 
-      return JSON.parse(atob(parts[1]));
+      const base64 = parts[1]
+        .replace(/-/g, "+")
+        .replace(/_/g, "/");
+      const padded = base64 + "=".repeat((4 - (base64.length % 4 || 4)) % 4);
+      const binary = atob(padded);
+      const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+      const json = new TextDecoder().decode(bytes);
+
+      return JSON.parse(json);
     } catch (error) {
       clearToken();
       return null;

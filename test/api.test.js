@@ -603,7 +603,10 @@ test("admin pode remover avaliacao e imagem do portfolio", async () => {
 
     const avaliacao = await request("/avaliar/rafael", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminLogin.body.token}`,
+      },
       body: JSON.stringify({ nota: 4, comentario }),
     });
 
@@ -694,25 +697,32 @@ test("rotas sensiveis de agendamento exigem autenticacao e acesso correto", asyn
 });
 
 test("POST /avaliar/:usuario cria avaliacao para o tatuador", async () => {
+  const user = await createAndLoginUser("avaliadorapi");
   const comentario = `teste-aval-${Date.now()}`;
 
   try {
     const result = await request("/avaliar/rafael", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
       body: JSON.stringify({ nota: 5, comentario }),
     });
 
     assert.equal(result.response.status, 201);
 
     const check = await pool.query(
-      "SELECT comentario FROM avaliacoes WHERE comentario = $1",
+      "SELECT comentario, usuario_id FROM avaliacoes WHERE comentario = $1",
       [comentario]
     );
 
     assert.equal(check.rows.length, 1);
+    const userId = await getUserId(user.usuario);
+    assert.equal(check.rows[0].usuario_id, userId);
   } finally {
     await pool.query("DELETE FROM avaliacoes WHERE comentario = $1", [comentario]);
+    await cleanupUserByUsername(user.usuario);
   }
 });
 

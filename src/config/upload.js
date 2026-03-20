@@ -1,7 +1,16 @@
+const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 
 const env = require("./env");
+const uploadsDir = path.join(env.rootDir, "uploads");
+
+function ensureUploadsDir() {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  return uploadsDir;
+}
+
+ensureUploadsDir();
 
 const imageMimeTypes = new Set([
   "image/jpeg",
@@ -18,7 +27,7 @@ const videoMimeTypes = new Set([
 function createUploader({ allowedMimeTypes, errorMessage, fileSize }) {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, path.join(env.rootDir, "uploads"));
+      cb(null, ensureUploadsDir());
     },
     filename: (req, file, cb) => {
       const uniqueName = `${Date.now()}${path.extname(file.originalname).toLowerCase()}`;
@@ -61,3 +70,5 @@ module.exports.imageUpload = imageUpload;
 module.exports.portfolioUpload = portfolioUpload;
 module.exports.imageMimeTypes = imageMimeTypes;
 module.exports.videoMimeTypes = videoMimeTypes;
+module.exports.ensureUploadsDir = ensureUploadsDir;
+module.exports.uploadsDir = uploadsDir;
