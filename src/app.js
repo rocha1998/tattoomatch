@@ -23,6 +23,21 @@ const { ensureUserSchema } = require("./helpers/userSchema");
 const app = express();
 let prepareAppPromise = null;
 const isProduction = process.env.NODE_ENV === "production";
+const renderProductionOrigin = "https://tattoomatch-3.onrender.com";
+
+function normalizeOrigin(origin) {
+  return String(origin || "").trim().replace(/\/+$/, "");
+}
+
+function isLocalDevelopmentOrigin(origin) {
+  return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+}
+
+const allowedOrigins = new Set(
+  [renderProductionOrigin, env.siteUrl, ...env.corsOrigins]
+    .map(normalizeOrigin)
+    .filter(Boolean)
+);
 
 const publicRootFiles = [
   "index.html",
@@ -85,15 +100,27 @@ app.use(
 
       if (!env.corsOrigins.length) {
         if (isProduction) {
-          callback(new Error("CORS_ORIGINS nao configurado em producao"));
+          if (allowedOrigins.has(normalizeOrigin(origin))) {
+            callback(null, true);
+            return;
+          }
+
+          callback(new Error("Origem nao permitida pelo CORS"));
           return;
         }
 
-        callback(null, true);
+        if (isLocalDevelopmentOrigin(normalizeOrigin(origin)) || allowedOrigins.has(normalizeOrigin(origin))) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error("Origem nao permitida pelo CORS"));
         return;
       }
 
-      if (env.corsOrigins.includes(origin)) {
+      const normalizedOrigin = normalizeOrigin(origin);
+
+      if (allowedOrigins.has(normalizedOrigin) || (!isProduction && isLocalDevelopmentOrigin(normalizedOrigin))) {
         callback(null, true);
         return;
       }
