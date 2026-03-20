@@ -163,7 +163,7 @@ function renderSeoListPage({
         .map((tatuador) => {
           const foto = tatuador.foto_perfil
             ? `/uploads/${encodeURIComponent(tatuador.foto_perfil)}`
-            : "/uploads/perfil.jpg";
+            : "/styles/assets/perfil.jpg";
           const badges = [];
 
           if (tatuador.patrocinado) {
@@ -354,8 +354,12 @@ function buildPerfilEyebrow(tatuador) {
 
 function getSocialImageUrl(req, tatuador) {
   const baseUrl = getBaseUrl(req);
-  const imageName = tatuador?.foto_perfil || "perfil.jpg";
-  return `${baseUrl}/uploads/${encodeURIComponent(imageName)}`;
+
+  if (tatuador?.foto_perfil) {
+    return `${baseUrl}/uploads/${encodeURIComponent(tatuador.foto_perfil)}`;
+  }
+
+  return `${baseUrl}/styles/assets/perfil.jpg`;
 }
 
 function sanitizeJsonForScript(value) {
@@ -453,10 +457,10 @@ function renderGenericPerfilPage(req) {
     "__SEO_CANONICAL__": `${baseUrl}/perfil.html`,
     "__SEO_OG_TITLE__": "Perfil de tatuador | TattooMatch",
     "__SEO_OG_DESCRIPTION__": "Veja portfólio, avaliações e peça orçamento para tatuadores no TattooMatch.",
-    "__SEO_OG_IMAGE__": `${baseUrl}/uploads/perfil.jpg`,
+    "__SEO_OG_IMAGE__": `${baseUrl}/styles/assets/perfil.jpg`,
     "__SEO_TWITTER_TITLE__": "Perfil de tatuador | TattooMatch",
     "__SEO_TWITTER_DESCRIPTION__": "Veja portfólio, avaliações e peça orçamento para tatuadores no TattooMatch.",
-    "__SEO_TWITTER_IMAGE__": `${baseUrl}/uploads/perfil.jpg`,
+    "__SEO_TWITTER_IMAGE__": `${baseUrl}/styles/assets/perfil.jpg`,
     "__SEO_JSON_LD__": sanitizeJsonForScript({
       "@context": "https://schema.org",
       "@type": "WebPage",
