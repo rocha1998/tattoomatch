@@ -2,10 +2,20 @@ const jwt = require("jsonwebtoken");
 
 const pool = require("../config/db");
 const env = require("../config/env");
+const { tableExists } = require("./schemaUtils");
 
 let schemaReadyPromise = null;
 
 async function createAnalyticsSchema() {
+  const usuariosExists = await tableExists("usuarios");
+
+  if (!usuariosExists) {
+    console.warn(
+      "Tabela public.usuarios ainda nao existe. Analytics sera pulado no startup ate o schema base estar presente."
+    );
+    return;
+  }
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS analytics_eventos (
       id SERIAL PRIMARY KEY,

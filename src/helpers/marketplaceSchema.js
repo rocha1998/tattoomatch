@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const { generateSlug } = require("./strings");
+const { findMissingTables } = require("./schemaUtils");
 
 async function buildUniqueSlug({ nomeArtistico, cidade, tatuadorId }) {
   const baseSlug = generateSlug(nomeArtistico, cidade);
@@ -26,6 +27,22 @@ async function buildUniqueSlug({ nomeArtistico, cidade, tatuadorId }) {
 }
 
 async function ensureMarketplaceSchema() {
+  const missingTables = await findMissingTables([
+    "usuarios",
+    "tatuadores",
+    "agendamentos",
+    "subscriptions",
+    "plans",
+    "tatuagens",
+  ]);
+
+  if (missingTables.length > 0) {
+    console.warn(
+      `Schema base incompleto no startup. Extensoes de marketplace foram puladas porque faltam: ${missingTables.join(", ")}`
+    );
+    return;
+  }
+
   await pool.query(`
     ALTER TABLE tatuadores
       ADD COLUMN IF NOT EXISTS disponivel BOOLEAN NOT NULL DEFAULT true,

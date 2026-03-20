@@ -1,8 +1,18 @@
 const pool = require("../config/db");
+const { tableExists } = require("./schemaUtils");
 
 let schemaReadyPromise = null;
 
 async function createUserSchemaExtensions() {
+  const usuariosExists = await tableExists("usuarios");
+
+  if (!usuariosExists) {
+    console.warn(
+      "Tabela public.usuarios ainda nao existe. Extensoes de usuarios e password_reset_tokens foram puladas no startup."
+    );
+    return;
+  }
+
   await pool.query(`
     ALTER TABLE usuarios
     ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT false
