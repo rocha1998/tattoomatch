@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">TattooMatch</title>
+  <desc id="desc">Logo do TattooMatch com monograma T em gradiente laranja e nome da marca em branco.</desc>
+  <defs>
+    <linearGradient id="tFill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffd34d"/>
+      <stop offset="42%" stop-color="#ff9e12"/>
+      <stop offset="100%" stop-color="#ff5f1b"/>
+    </linearGradient>
+    <linearGradient id="tEdge" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b42f1b"/>
+      <stop offset="100%" stop-color="#53130d"/>
+    </linearGradient>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="-22" dy="34" stdDeviation="24" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="textShadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="-12" dy="16" stdDeviation="10" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(0 10)">
+    <g filter="url(#softShadow)">
+      <path
+        d="M456 208c47-34 120-36 245-36h124c-16 27-41 50-74 68H621c-65 0-107 4-125 16-10 7-16 16-16 26 0 12 8 22 28 29 22 8 59 12 108 12h108l-120 244c-11 23-25 35-41 35-20 0-29-13-29-37 0-20 7-45 21-74l79-161h70l-54 110 116-132c18-20 32-30 46-30 14 0 24 7 24 20 0 14-10 31-31 53L641 586c-29 33-59 50-88 50-23 0-40-8-49-25-9-15-9-35 0-60 6-18 17-41 35-69l74-118h-17c-74 0-126-7-154-22-26-14-39-35-39-64 0-27 18-50 53-70z"
+        fill="url(#tEdge)"/>
+      <path
+        d="M469 188c44-31 113-33 231-33h154c-11 20-31 38-59 54H633c-53 0-88 4-103 14-10 6-15 14-15 24 0 11 7 19 24 25 19 7 52 10 96 10h143L635 569c-8 15-17 23-27 23-12 0-17-8-17-22 0-15 6-35 19-60l96-195h61l-82 166 143-162c10-12 20-18 30-18 9 0 14 4 14 12 0 9-8 22-25 39L673 558c-30 35-59 53-87 53-17 0-28-6-35-18-6-11-6-26 0-47 5-15 16-37 32-64l92-147h-47c-70 0-119-7-146-20-23-12-35-31-35-56 0-25 14-45 42-61z"
+        fill="url(#tFill)"/>
+    </g>
+
+    <text
+      x="360"
+      y="652"
+      fill="#f7f5f2"
+      font-family="Trebuchet MS, Segoe UI, Arial, sans-serif"
+      font-size="116"
+      font-weight="700"
+      letter-spacing="-4"
+      filter="url(#textShadow)">TattooMatch</text>
+  </g>
+</svg>
