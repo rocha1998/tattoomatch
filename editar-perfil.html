@@ -15,16 +15,16 @@
   <section class="hero">
     <h1>Editar perfil profissional</h1>
     <p>
-      Atualize as informacoes que ajudam clientes a encontrarem voce: nome artistico,
-      bio, localizacao, estilos, contato e foto do perfil.
+      Atualize as informa&ccedil;&otilde;es que ajudam clientes a encontrar voc&ecirc;: nome art&iacute;stico,
+      bio, localiza&ccedil;&atilde;o, estilos, contato e foto de perfil.
     </p>
   </section>
 
   <section class="form-card">
     <div class="form-grid">
       <div class="field">
-        <label for="nome">Nome artistico</label>
-        <input id="nome" placeholder="Seu nome artistico">
+        <label for="nome">Nome art&iacute;stico</label>
+        <input id="nome" placeholder="Seu nome art&iacute;stico">
       </div>
 
       <div class="field">
@@ -44,27 +44,27 @@
 
       <div class="field">
         <label for="bairro">Bairro</label>
-        <input id="bairro" placeholder="Seu bairro">
+        <input id="bairro" placeholder="Ex: Savassi">
       </div>
 
       <div class="field">
-        <label for="municipio">Municipio / regiao</label>
-        <input id="municipio" placeholder="Bairro, regiao ou municipio">
+        <label for="municipio">Regi&atilde;o de atendimento</label>
+        <input id="municipio" placeholder="Ex: Pampulha, Centro-Sul ou Belo Horizonte">
       </div>
 
       <div class="field">
         <label for="logradouro">Rua / avenida</label>
-        <input id="logradouro" placeholder="Somente para uso interno">
+        <input id="logradouro" placeholder="Uso interno para localiza&ccedil;&atilde;o">
       </div>
 
       <div class="field">
-        <label for="numero">Numero</label>
-        <input id="numero" placeholder="Numero">
+        <label for="numero">N&uacute;mero</label>
+        <input id="numero" placeholder="N&uacute;mero">
       </div>
 
       <div class="field">
         <label for="complemento">Complemento</label>
-        <input id="complemento" placeholder="Sala, bloco, referencia">
+        <input id="complemento" placeholder="Sala, bloco, refer&ecirc;ncia">
       </div>
 
       <div class="field">
@@ -78,26 +78,16 @@
       </div>
 
       <div class="field">
-        <label for="disponivel">Disponivel para novos projetos</label>
+        <label for="disponivel">Dispon&iacute;vel para novos projetos</label>
         <select id="disponivel">
           <option value="true">Sim</option>
-          <option value="false">Nao</option>
+          <option value="false">N&atilde;o</option>
         </select>
-      </div>
-
-      <div class="field">
-        <label for="latitude">Latitude</label>
-        <input id="latitude" placeholder="-23.5505">
-      </div>
-
-      <div class="field">
-        <label for="longitude">Longitude</label>
-        <input id="longitude" placeholder="-46.6333">
       </div>
 
       <div class="field-full">
         <label for="bio">Bio</label>
-        <textarea id="bio" placeholder="Conte quem voce e, sua experiencia e o tipo de trabalho que faz."></textarea>
+        <textarea id="bio" placeholder="Conte quem voc&ecirc; &eacute;, sua experi&ecirc;ncia e o tipo de trabalho que faz."></textarea>
       </div>
 
       <div class="field-full">
@@ -120,6 +110,10 @@
 <script src="/scripts/frontend.js"></script>
 <script>
 const { fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const localizacaoTecnica = {
+  latitude: "",
+  longitude: "",
+};
 
 document.addEventListener("DOMContentLoaded", async () => {
   await loadNavbar();
@@ -152,7 +146,7 @@ async function carregarPerfil() {
   const data = result.data || {};
 
   if (!result.ok) {
-    atualizarStatus(data.erro || "Nao foi possivel carregar seu perfil.");
+    atualizarStatus(data.erro || "N\u00e3o foi poss\u00edvel carregar seu perfil.");
     return;
   }
 
@@ -169,10 +163,10 @@ async function carregarPerfil() {
   document.getElementById("estilos").value = data.estilos || "";
   document.getElementById("whatsapp").value = data.whatsapp || "";
   document.getElementById("disponivel").value = data.disponivel === false ? "false" : "true";
-  document.getElementById("latitude").value = data.latitude || "";
-  document.getElementById("longitude").value = data.longitude || "";
+  localizacaoTecnica.latitude = data.latitude ?? "";
+  localizacaoTecnica.longitude = data.longitude ?? "";
 
-  atualizarStatus("Atualize os campos que quiser e salve as mudancas.");
+  atualizarStatus("Atualize os campos que quiser e salve as mudan\u00e7as.");
 }
 
 async function salvar() {
@@ -198,8 +192,8 @@ async function salvar() {
   formData.append("estilos", document.getElementById("estilos").value);
   formData.append("whatsapp", document.getElementById("whatsapp").value);
   formData.append("disponivel", document.getElementById("disponivel").value);
-  formData.append("latitude", document.getElementById("latitude").value);
-  formData.append("longitude", document.getElementById("longitude").value);
+  formData.append("latitude", localizacaoTecnica.latitude);
+  formData.append("longitude", localizacaoTecnica.longitude);
 
   const foto = document.getElementById("foto").files[0];
   if (foto) {
@@ -220,7 +214,7 @@ async function salvar() {
   }
 
   const data = result.data || {};
-  atualizarStatus(data.mensagem || data.erro || "Nao foi possivel salvar o perfil.");
+  atualizarStatus(data.mensagem || data.erro || "N\u00e3o foi poss\u00edvel salvar o perfil.");
 }
 </script>
 </body>
