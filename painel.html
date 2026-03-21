@@ -88,7 +88,7 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { escapeHtml, fetchJson, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const { escapeHtml, fetchAuthJson, fetchJson, loadNavbar, logout, requireAuth } = window.FrontendUtils;
 const auth = requireAuth();
 
 if (!auth) {
@@ -126,9 +126,7 @@ function obterMensagemErro(data, fallback) {
 }
 
 async function carregarAgendamentos() {
-  const perfilRes = await fetchJson("/perfil-profissional", {
-    headers: { Authorization: "Bearer " + token },
-  });
+  const perfilRes = await fetchAuthJson("/perfil-profissional");
 
   if (perfilRes.status === 401) {
     logout();

@@ -43,7 +43,7 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { buildPublicProfileUrl, escapeHtml, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const { buildPublicProfileUrl, escapeHtml, fetchAuthJson, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
 const auth = requireAuth({ redirectTo: "/" });
 
 if (!auth) {
@@ -134,9 +134,7 @@ if (payload.tipo === "tatuador") {
 }
 
 async function carregarHeroTatuador() {
-  const result = await fetchJson("/perfil-profissional", {
-    headers: { Authorization: "Bearer " + token },
-  });
+  const result = await fetchAuthJson("/perfil-profissional");
 
   if (!result.ok || !result.data || !result.data.foto_perfil) {
     return;

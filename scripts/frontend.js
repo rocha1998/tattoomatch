@@ -112,6 +112,20 @@
     };
   }
 
+  async function fetchAuthJson(path, options = {}) {
+    const token = getStoredToken();
+    const headers = new Headers(options.headers || {});
+
+    if (token && !headers.has("Authorization")) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+
+    return fetchJson(path, {
+      ...options,
+      headers,
+    });
+  }
+
   async function loadNavbar() {
     await loadPartial({
       targetId: "navbar",
@@ -194,6 +208,7 @@
     buildPublicProfileUrl,
     clearToken,
     escapeHtml,
+    fetchAuthJson,
     fetchJson,
     getStoredToken,
     loadFooter,

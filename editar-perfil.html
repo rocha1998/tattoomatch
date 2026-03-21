@@ -109,7 +109,7 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const { fetchAuthJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
 const localizacaoTecnica = {
   latitude: "",
   longitude: "",
@@ -131,12 +131,7 @@ async function carregarPerfil() {
     return;
   }
 
-  const { token } = auth;
-  const result = await fetchJson("/perfil-profissional", {
-    headers: {
-      Authorization: "Bearer " + token,
-    },
-  });
+  const result = await fetchAuthJson("/perfil-profissional");
 
   if (result.status === 401) {
     logout();
@@ -175,7 +170,6 @@ async function salvar() {
     return;
   }
 
-  const { token } = auth;
   atualizarStatus("Salvando perfil...");
 
   const formData = new FormData();
@@ -200,11 +194,8 @@ async function salvar() {
     formData.append("foto_perfil", foto);
   }
 
-  const result = await fetchJson("/perfil-profissional", {
+  const result = await fetchAuthJson("/perfil-profissional", {
     method: "PUT",
-    headers: {
-      Authorization: "Bearer " + token,
-    },
     body: formData,
   });
 
