@@ -1,10 +1,9 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const env = require("../config/env");
 const pool = require("../config/db");
 const { getTatuadorIdByUsuarioId } = require("../helpers/tatuador");
-const { imageMimeTypes, videoMimeTypes } = require("../config/upload");
+const { imageMimeTypes, uploadsDir, videoMimeTypes } = require("../config/upload");
 
 async function getPlanoPortfolio(usuarioId, tatuadorId) {
   const planoResult = await pool.query(
@@ -79,7 +78,7 @@ async function removerUploadSeExistir(filename) {
     return;
   }
 
-  const filePath = path.join(env.rootDir, "uploads", filename);
+  const filePath = path.join(uploadsDir, filename);
   await fs.unlink(filePath).catch(() => {});
 }
 

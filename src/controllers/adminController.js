@@ -3,7 +3,7 @@ const path = require("path");
 
 const { obterResumoAnalytics } = require("../helpers/analytics");
 const pool = require("../config/db");
-const env = require("../config/env");
+const { uploadsDir } = require("../config/upload");
 
 async function getDashboard(req, res) {
   try {
@@ -195,7 +195,7 @@ async function removerPortfolio(req, res) {
 
     const imagem = result.rows[0].imagem;
     if (imagem) {
-      const imagePath = path.join(env.rootDir, "uploads", imagem);
+      const imagePath = path.join(uploadsDir, imagem);
       await fs.unlink(imagePath).catch(() => {});
     }
 

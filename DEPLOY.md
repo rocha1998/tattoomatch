@@ -22,12 +22,14 @@ Preencha no Render:
 - `MERCADO_PAGO_ACCESS_TOKEN=...`
 - `MERCADO_PAGO_WEBHOOK_TOKEN=...`
 - `PAYMENT_TEST_MODE=false`
+- `UPLOADS_DIR=/var/data/tattoomatch-uploads`
 
 Observacoes:
 
 - O Render injeta `PORT` automaticamente. Nao fixe porta manualmente em producao.
 - Se houver frontend em outro dominio, adicione esse dominio em `CORS_ORIGINS` separado por virgula.
 - O arquivo [.env.example](/c:/Users/Rafael/backend/.env.example) esta alinhado com essas variaveis.
+- Em producao no Render, `UPLOADS_DIR` deve apontar para a pasta montada em um Persistent Disk.
 
 ## Banco
 
@@ -55,6 +57,15 @@ Observacoes:
 
 - O Express serve apenas os HTMLs publicos conhecidos e os diretorios `uploads`, `styles` e `scripts`.
 - A raiz inteira do projeto nao e publicada.
+- Em producao, o endpoint `/uploads` passa a servir o conteudo do diretorio definido em `UPLOADS_DIR`.
+
+## Uploads persistentes no Render
+
+- O filesystem padrao do web service do Render e efemero. Sem disco persistente, fotos de perfil, portfolio e imagens de referencia podem sumir apos restart ou novo deploy.
+- Crie um Persistent Disk no servico e monte, por exemplo, em `/var/data/tattoomatch-uploads`.
+- Configure `UPLOADS_DIR=/var/data/tattoomatch-uploads`.
+- O app cria essa pasta automaticamente no startup, grava os uploads nela e continua servindo tudo em `/uploads/...`.
+- Localmente, se `UPLOADS_DIR` nao for definido, o projeto continua usando a pasta `uploads/` na raiz.
 
 ## Comandos sugeridos no Render
 
@@ -64,6 +75,7 @@ Observacoes:
 ## Checklist antes de publicar
 
 - `npm start` sobe localmente sem erro
+- `UPLOADS_DIR` aponta para um Persistent Disk no Render
 - `SITE_URL` aponta para a URL publica correta
 - `CORS_ORIGINS` inclui todos os dominios reais do frontend
 - `PAYMENT_TEST_MODE=false` em producao

@@ -3,7 +3,7 @@ const multer = require("multer");
 const path = require("path");
 
 const env = require("./env");
-const uploadsDir = path.join(env.rootDir, "uploads");
+const uploadsDir = env.uploadsDir;
 
 function ensureUploadsDir() {
   fs.mkdirSync(uploadsDir, { recursive: true });

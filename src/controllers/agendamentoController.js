@@ -1,8 +1,8 @@
 const fs = require("fs/promises");
 const path = require("path");
 
-const env = require("../config/env");
 const pool = require("../config/db");
+const { uploadsDir } = require("../config/upload");
 const { getTatuadorIdByUsuarioId } = require("../helpers/tatuador");
 const { getPaginaFromRequest, registrarEvento } = require("../helpers/analytics");
 
@@ -139,7 +139,7 @@ async function removerUploadSeExistir(filename) {
     return;
   }
 
-  await fs.unlink(path.join(env.rootDir, "uploads", filename)).catch(() => {});
+  await fs.unlink(path.join(uploadsDir, filename)).catch(() => {});
 }
 
 function resolverParticipacao(agendamento, usuarioId) {

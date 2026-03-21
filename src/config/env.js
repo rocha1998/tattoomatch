@@ -75,6 +75,9 @@ function requireEnv(name) {
 
 module.exports = {
   rootDir,
+  uploadsDir: process.env.UPLOADS_DIR
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(rootDir, "uploads"),
   port: toNumber(process.env.PORT, 3000),
   siteUrl: process.env.SITE_URL || "",
   mercadoPagoAccessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN || "",
