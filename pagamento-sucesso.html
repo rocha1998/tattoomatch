@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pagamento confirmado | TattooMatch</title>
-<meta name="description" content="Seu pagamento foi confirmado e o plano do TattooMatch está sendo ativado.">
+<meta name="description" content="Seu pagamento foi confirmado e o plano do TattooMatch est&aacute; sendo ativado.">
 <link rel="stylesheet" href="/styles/theme.css">
 </head>
 <body>
@@ -14,7 +14,7 @@
   <section class="hero" style="max-width:760px;margin:48px auto;padding:0 20px;">
     <span class="eyebrow">Pagamento confirmado</span>
     <h1>Seu pagamento foi aprovado</h1>
-    <p id="statusMensagem">Estamos confirmando sua assinatura e ativando tudo para você.</p>
+    <p id="statusMensagem">Estamos confirmando sua assinatura e ativando tudo para voc&ecirc;.</p>
 
     <div class="hero-panel" style="margin-top:20px;">
       <strong>Plano ativado</strong>
@@ -50,7 +50,7 @@ async function confirmarPagamento() {
   const paymentId = Number(params.get("payment_id"));
 
   if (!Number.isInteger(paymentId) || paymentId <= 0) {
-    document.getElementById("statusMensagem").textContent = "Não encontramos um pagamento válido para confirmar.";
+    document.getElementById("statusMensagem").textContent = "N\u00e3o encontramos um pagamento v\u00e1lido para confirmar.";
     document.getElementById("planoAtivado").textContent = "Volte aos planos e tente novamente.";
     return;
   }
@@ -68,8 +68,8 @@ async function confirmarPagamento() {
 
   if (!result.ok || !result.data) {
     document.getElementById("statusMensagem").textContent =
-      result.error || "Não foi possível confirmar o pagamento agora.";
-    document.getElementById("planoAtivado").textContent = "Seu pagamento pode levar alguns segundos para refletir.";
+      result.error || "N\u00e3o foi poss\u00edvel confirmar o pagamento agora.";
+    document.getElementById("planoAtivado").textContent = "Seu pagamento pode levar alguns segundos para aparecer na conta.";
     return;
   }
 
@@ -79,7 +79,7 @@ async function confirmarPagamento() {
 
   if (data.highlight_until) {
     document.getElementById("planoAtivado").textContent =
-      `Patrocínio semanal ativo até ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}.`;
+      `Patroc\u00ednio semanal ativo at\u00e9 ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}.`;
     return;
   }
 

@@ -80,6 +80,12 @@ function prepareApp() {
   return prepareAppPromise;
 }
 
+if (isProduction && !process.env.UPLOADS_DIR) {
+  console.warn(
+    "UPLOADS_DIR nao esta configurado em producao. Os arquivos enviados podem sumir apos restart, novo deploy ou roteamento para outra instancia no Render."
+  );
+}
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,

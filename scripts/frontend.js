@@ -31,6 +31,14 @@
     return `/perfil.html?id=${encodeURIComponent(tatuador?.id ?? "")}`;
   }
 
+  function buildUploadUrl(filename) {
+    if (!filename) {
+      return "";
+    }
+
+    return `${API_BASE}/uploads/${encodeURIComponent(filename)}`;
+  }
+
   async function loadPartial({ targetId, path, stylesheetHref, datasetKey }) {
     const target = document.getElementById(targetId);
     if (!target) {
@@ -87,7 +95,7 @@
         ok: false,
         status: 0,
         data: null,
-        error: "Não foi possível conectar ao servidor.",
+        error: "N\u00e3o foi poss\u00edvel conectar ao servidor.",
       };
     }
 
@@ -108,7 +116,7 @@
       data,
       error:
         (data && typeof data === "object" && (data.erro || data.mensagem)) ||
-        (!response.ok ? "Não foi possível concluir a requisição." : null),
+        (!response.ok ? "N\u00e3o foi poss\u00edvel concluir a requisi\u00e7\u00e3o." : null),
     };
   }
 
@@ -206,6 +214,7 @@
   window.FrontendUtils = {
     API_BASE,
     buildPublicProfileUrl,
+    buildUploadUrl,
     clearToken,
     escapeHtml,
     fetchAuthJson,

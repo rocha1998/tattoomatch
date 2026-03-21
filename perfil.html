@@ -94,7 +94,7 @@
           <div class="panel-head">
             <div>
               <h2>Avaliações</h2>
-              <p>Feedback real de quem ja passou por este perfil.</p>
+              <p>Feedback real de quem já passou por este perfil.</p>
             </div>
           </div>
 
@@ -169,7 +169,7 @@
     <form id="formAgendamento" class="form-stack">
       <div class="form-grid">
         <input type="text" id="nomeCliente" placeholder="Seu nome" required>
-        <input type="email" id="emailCliente" placeholder="Seu email" required>
+        <input type="email" id="emailCliente" placeholder="Seu e-mail" required>
       </div>
 
       <div class="form-grid">
@@ -183,7 +183,7 @@
       </div>
 
       <input type="file" id="imagemReferenciaCliente" accept="image/png,image/jpeg,image/webp,image/gif">
-      <textarea id="descricaoCliente" placeholder="Descreva a tattoo que você quer fazer" required></textarea>
+      <textarea id="descricaoCliente" placeholder="Descreva a tatuagem que você quer fazer" required></textarea>
 
       <div class="actions">
         <button class="button" type="submit">Enviar pedido</button>
@@ -198,7 +198,7 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { API_BASE, escapeHtml, fetchJson, loadFooter, loadNavbar, logout, parseTokenPayload } = window.FrontendUtils;
+const { API_BASE, buildUploadUrl, escapeHtml, fetchJson, loadFooter, loadNavbar, logout, parseTokenPayload } = window.FrontendUtils;
 const fallbackImage = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 600'><rect width='600' height='600' fill='%2316161a'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23f5f1e8' font-family='Trebuchet MS, sans-serif' font-size='40'>TattooMatch</text></svg>";
 
 let perfilIdentificador = null;
@@ -321,7 +321,7 @@ function preencherHero(tatuador, views) {
   eyebrow.push(tatuador.disponivel ? "Disponível" : "Indisponível");
   document.getElementById("eyebrow").textContent = eyebrow.join(" - ");
 
-  const foto = tatuador.foto_perfil ? `${API_BASE}/uploads/${encodeURIComponent(tatuador.foto_perfil)}` : fallbackImage;
+  const foto = tatuador.foto_perfil ? buildUploadUrl(tatuador.foto_perfil) : fallbackImage;
   document.getElementById("fotoPerfil").src = foto;
 
   const btnWhatsapp = document.getElementById("btnWhatsapp");
@@ -380,7 +380,7 @@ function renderPortfolioTab() {
     const card = document.createElement("article");
     card.className = "gallery-item";
 
-    const arquivo = tattoo.imagem ? `${API_BASE}/uploads/${encodeURIComponent(tattoo.imagem)}` : fallbackImage;
+    const arquivo = tattoo.imagem ? buildUploadUrl(tattoo.imagem) : fallbackImage;
     const descricao = tattoo.descricao || "Sem descrição informada.";
     const estilo = tattoo.estilo || "Estilo não informado";
     const tipo = normalizarTipoPortfolio(tattoo);

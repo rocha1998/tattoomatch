@@ -15,7 +15,7 @@
   <section class="hero">
     <h1>Ranking de tatuadores</h1>
     <p>
-      Veja os artistas mais bem posicionados com base em avaliacoes e prioridade
+      Veja os artistas mais bem posicionados com base em avaliações e prioridade
       de plano dentro da plataforma.
     </p>
   </section>
@@ -42,7 +42,7 @@ async function carregarRanking() {
 
   if (!result.ok || !Array.isArray(result.data)) {
     empty.hidden = false;
-    empty.textContent = result.error || "Nao foi possivel carregar o ranking agora.";
+    empty.textContent = result.error || "Não foi possível carregar o ranking agora.";
     return;
   }
 
@@ -62,12 +62,12 @@ async function carregarRanking() {
       <div class="position">#${index + 1}</div>
       <div class="info">
         <h2>${escapeHtml(t.nome_artistico || "Artista sem nome")}</h2>
-        <p>${escapeHtml(t.cidade || "Cidade nao informada")} • ${escapeHtml(t.plano || "Sem plano")}</p>
-        <p>${Number(t.total_avaliacoes || 0)} avaliacao(oes) registradas</p>
+        <p>${escapeHtml(t.cidade || "Cidade não informada")} • ${escapeHtml(t.plano || "Sem plano")}</p>
+        <p>${Number(t.total_avaliacoes || 0)} avaliação(ões) registradas</p>
       </div>
       <div class="score">
         <strong>${Number(t.media || 0).toFixed(1)}</strong>
-        <span>Media geral</span>
+        <span>Média geral</span>
       </div>
     `;
 

@@ -195,7 +195,7 @@ async function carregarChat() {
   lista.innerHTML = "";
 
   if (!mensagens.length) {
-    lista.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Use este espaco para alinhar detalhes com o tatuador.</div>';
+    lista.innerHTML = '<div class="chat-empty">Nenhuma mensagem ainda. Use este espaço para alinhar detalhes com o tatuador.</div>';
   } else {
     mensagens.forEach((item) => {
       const bubble = document.createElement("article");
@@ -240,9 +240,9 @@ document.getElementById("formChat").addEventListener("submit", async (event) => 
   }
 
   if (!result.ok) {
-    document.getElementById("chatResumo").textContent = result.error || "Nao foi possivel enviar a mensagem.";
-  return;
-}
+    document.getElementById("chatResumo").textContent = result.error || "Não foi possível enviar a mensagem.";
+    return;
+  }
 
   document.getElementById("chatMensagem").value = "";
   await carregarChat();

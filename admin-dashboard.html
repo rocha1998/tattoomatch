@@ -12,20 +12,20 @@
 
 <main>
   <section class="hero">
-    <span class="eyebrow">Moderacao administrativa</span>
+    <span class="eyebrow">Modera&ccedil;&atilde;o administrativa</span>
     <h1>Dashboard do TattooMatch</h1>
     <p id="statusMensagem">
       Carregando os principais indicadores operacionais da plataforma.
     </p>
     <div class="hero-actions">
-      <a class="link-button" href="/admin-usuarios.html">Gerenciar usuarios</a>
+      <a class="link-button" href="/admin-usuarios.html">Gerenciar usu&aacute;rios</a>
       <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
     </div>
   </section>
 
   <section class="stats-grid" aria-label="Indicadores administrativos">
     <article class="stat-card">
-      <span class="stat-label">Usuarios</span>
+      <span class="stat-label">Usu&aacute;rios</span>
       <strong id="totalUsuarios">--</strong>
     </article>
     <article class="stat-card">
@@ -37,7 +37,7 @@
       <strong id="totalAgendamentos">--</strong>
     </article>
     <article class="stat-card">
-      <span class="stat-label">Avaliacoes</span>
+      <span class="stat-label">Avalia&ccedil;&otilde;es</span>
       <strong id="totalAvaliacoes">--</strong>
     </article>
   </section>
@@ -52,7 +52,7 @@ loadNavbar();
 const auth = requireAuth();
 
 if (!auth) {
-  throw new Error("Autenticacao obrigatoria");
+  throw new Error("Autentica\u00e7\u00e3o obrigat\u00f3ria");
 }
 
 if (auth.payload.is_admin !== true) {
@@ -75,13 +75,13 @@ async function carregarDashboard() {
 
   if (!result.ok || !result.data) {
     document.getElementById("statusMensagem").textContent =
-      result.error || "Nao foi possivel carregar o dashboard agora.";
+      result.error || "N\u00e3o foi poss\u00edvel carregar o dashboard agora.";
     return;
   }
 
   const data = result.data;
   document.getElementById("statusMensagem").textContent =
-    "Resumo rapido da operacao, com foco em usuarios, tatuadores, agendamentos e avaliacoes.";
+    "Resumo r\u00e1pido da opera\u00e7\u00e3o, com foco em usu\u00e1rios, tatuadores, agendamentos e avalia\u00e7\u00f5es.";
   document.getElementById("totalUsuarios").textContent = Number(data.totalUsuarios || 0);
   document.getElementById("totalTatuadores").textContent = Number(data.totalTatuadores || 0);
   document.getElementById("totalAgendamentos").textContent = Number(data.totalAgendamentos || 0);

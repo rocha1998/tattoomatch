@@ -12,17 +12,17 @@
 
 <main>
   <section class="hero">
-    <span class="eyebrow">Administracao</span>
+    <span class="eyebrow">Administra&ccedil;&atilde;o</span>
     <h1>Gerenciar acesso administrativo</h1>
     <p id="statusMensagem">
-      Carregando usuarios da plataforma para promover ou rebaixar administradores.
+      Carregando usu&aacute;rios da plataforma para promover ou rebaixar administradores.
     </p>
   </section>
 
   <section class="panel">
     <div class="panel-head">
       <div>
-        <h2>Usuarios</h2>
+        <h2>Usu&aacute;rios</h2>
         <p>Somente administradores podem alterar esse controle.</p>
       </div>
     </div>
@@ -30,7 +30,7 @@
     <div class="filters">
       <label class="field">
         <span>Buscar</span>
-        <input id="buscaInput" type="search" placeholder="Nome de usuario ou email">
+        <input id="buscaInput" type="search" placeholder="Nome de usu&aacute;rio ou e-mail">
       </label>
 
       <label class="field">
@@ -47,15 +47,15 @@
         <select id="adminFiltro">
           <option value="todos">Todos</option>
           <option value="admins">Admins</option>
-          <option value="nao-admins">Nao admins</option>
+          <option value="nao-admins">N&atilde;o admins</option>
         </select>
       </label>
     </div>
 
-    <p id="contadorResultados" class="results-copy">Carregando usuarios...</p>
+    <p id="contadorResultados" class="results-copy">Carregando usu&aacute;rios...</p>
 
     <div id="listaUsuarios" class="user-list"></div>
-    <p id="emptyState" class="empty-state" hidden>Nenhum usuario encontrado.</p>
+    <p id="emptyState" class="empty-state" hidden>Nenhum usu&aacute;rio encontrado.</p>
   </section>
 </main>
 
@@ -68,7 +68,7 @@ loadNavbar();
 const auth = requireAuth();
 
 if (!auth) {
-  throw new Error("Autenticacao obrigatoria");
+  throw new Error("Autentica\u00e7\u00e3o obrigat\u00f3ria");
 }
 
 if (auth.payload.is_admin !== true) {
@@ -97,12 +97,12 @@ async function carregarUsuarios() {
 
   if (!result.ok || !Array.isArray(result.data)) {
     document.getElementById("statusMensagem").textContent =
-      result.error || "Nao foi possivel carregar os usuarios agora.";
+      result.error || "N\u00e3o foi poss\u00edvel carregar os usu\u00e1rios agora.";
     return;
   }
 
   document.getElementById("statusMensagem").textContent =
-    "Acesse os usuarios da plataforma e ajuste quem pode operar as areas administrativas.";
+    "Acesse os usu\u00e1rios da plataforma e ajuste quem pode operar as \u00e1reas administrativas.";
 
   usuariosCache = result.data;
   aplicarFiltros();
@@ -133,16 +133,16 @@ function atualizarContador(totalFiltrado, totalGeral) {
   const contador = document.getElementById("contadorResultados");
 
   if (!totalGeral) {
-    contador.textContent = "Nenhum usuario cadastrado ainda.";
+    contador.textContent = "Nenhum usu\u00e1rio cadastrado ainda.";
     return;
   }
 
   if (totalFiltrado === totalGeral) {
-    contador.textContent = `${totalGeral} usuario(s) exibido(s).`;
+    contador.textContent = `${totalGeral} usu\u00e1rio(s) exibido(s).`;
     return;
   }
 
-  contador.textContent = `${totalFiltrado} de ${totalGeral} usuario(s) exibido(s).`;
+  contador.textContent = `${totalFiltrado} de ${totalGeral} usu\u00e1rio(s) exibido(s).`;
 }
 
 function renderUsuarios(usuarios) {
@@ -174,10 +174,10 @@ function renderUsuarios(usuarios) {
         <div class="user-top">
           <h2>${escapeHtml(item.usuario)}</h2>
           <div class="badge-row">
-            <span class="${badgeClass}">${item.is_admin ? "Administrador" : "Usuario"}</span>
+            <span class="${badgeClass}">${item.is_admin ? "Administrador" : "Usu\u00e1rio"}</span>
             <span class="${tipoClass}">${escapeHtml(item.tipo)}</span>
             ${item.is_blocked ? '<span class="badge blocked">Bloqueado</span>' : ""}
-            ${isSelf ? '<span class="badge neutral">Voce</span>' : ""}
+            ${isSelf ? '<span class="badge neutral">Voc\u00ea</span>' : ""}
           </div>
         </div>
         <p>${escapeHtml(item.email)}</p>
@@ -227,11 +227,11 @@ async function atualizarAdmin(item) {
   }
 
   if (!result.ok) {
-    alert(result.error || "Nao foi possivel atualizar a permissao.");
+    alert(result.error || "N\u00e3o foi poss\u00edvel atualizar a permiss\u00e3o.");
     return;
   }
 
-  alert((result.data && result.data.mensagem) || "Permissao atualizada.");
+  alert((result.data && result.data.mensagem) || "Permiss\u00e3o atualizada.");
   carregarUsuarios();
 }
 
@@ -255,11 +255,11 @@ async function bloquearUsuario(item) {
   }
 
   if (!result.ok) {
-    alert(result.error || "Nao foi possivel bloquear o usuario.");
+    alert(result.error || "N\u00e3o foi poss\u00edvel bloquear o usu\u00e1rio.");
     return;
   }
 
-  alert((result.data && result.data.mensagem) || "Usuario bloqueado.");
+  alert((result.data && result.data.mensagem) || "Usu\u00e1rio bloqueado.");
   carregarUsuarios();
 }
 </script>

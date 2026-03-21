@@ -92,7 +92,7 @@ const { escapeHtml, fetchAuthJson, fetchJson, loadNavbar, logout, requireAuth } 
 const auth = requireAuth();
 
 if (!auth) {
-  throw new Error("Autenticacao obrigatoria");
+  throw new Error("Autenticação obrigatória");
 }
 
 const { token } = auth;

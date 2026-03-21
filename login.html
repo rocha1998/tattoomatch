@@ -12,30 +12,30 @@
 <div class="shell">
   <section class="panel">
     <span class="eyebrow">Acesse sua conta</span>
-    <h1>Seu próximo cliente ou artista pode estar aqui.</h1>
+    <h1>Seu pr&oacute;ximo cliente ou artista pode estar aqui.</h1>
     <p>
-      Entre para acompanhar pedidos, editar seu perfil, ver agendamentos ou começar
-      sua presença como tatuador dentro da plataforma.
+      Entre para acompanhar pedidos, editar seu perfil, ver agendamentos ou fortalecer
+      sua presen&ccedil;a como tatuador dentro da plataforma.
     </p>
 
     <ul>
       <li>Clientes acompanham pedidos e encontram artistas com mais clareza.</li>
-      <li>Tatuadores organizam portfólio, reputação e destaque.</li>
-      <li>O mesmo login acompanha sua evolução dentro do marketplace.</li>
+      <li>Tatuadores organizam portf&oacute;lio, reputa&ccedil;&atilde;o e destaque.</li>
+      <li>O mesmo login acompanha sua evolu&ccedil;&atilde;o dentro do marketplace.</li>
     </ul>
   </section>
 
   <section class="card">
     <h2 id="titulo">Entrar</h2>
-    <p id="subtitulo">Use sua conta para acessar sua área no TattooMatch.</p>
+    <p id="subtitulo">Use sua conta para acessar sua &aacute;rea no TattooMatch.</p>
 
     <div class="field">
-      <label for="usuario">Usuário</label>
-      <input id="usuario" placeholder="Seu usuário">
+      <label for="usuario">Usu&aacute;rio</label>
+      <input id="usuario" placeholder="Seu usu&aacute;rio">
     </div>
 
     <div class="field" id="emailField" hidden>
-      <label for="email">Email</label>
+      <label for="email">E-mail</label>
       <input id="email" type="email" placeholder="seuemail@exemplo.com">
     </div>
 
@@ -80,14 +80,14 @@ function alternar() {
     modo = "registro";
     emailField.hidden = false;
     titulo.innerText = "Criar conta";
-    subtitulo.innerText = "Cadastre-se para começar a usar a plataforma.";
+    subtitulo.innerText = "Cadastre-se para come\u00e7ar a usar a plataforma.";
     btn.innerText = "Cadastrar";
-    switchTxt.innerText = "Já tenho conta";
+    switchTxt.innerText = "J\u00e1 tenho conta";
   } else {
     modo = "login";
     emailField.hidden = true;
     titulo.innerText = "Entrar";
-    subtitulo.innerText = "Use sua conta para acessar sua área no TattooMatch.";
+    subtitulo.innerText = "Use sua conta para acessar sua \u00e1rea no TattooMatch.";
     btn.innerText = "Entrar";
     switchTxt.innerText = "Criar conta";
   }
@@ -130,15 +130,15 @@ async function acao() {
     }
 
     if (result.ok && modo === "registro") {
-      msg.textContent = "Conta criada com sucesso. Agora faça login.";
+      msg.textContent = "Conta criada com sucesso. Agora fa\u00e7a login.";
       alternar();
       document.getElementById("senha").value = "";
       return;
     }
 
-    msg.textContent = data.mensagem || data.erro || "Não foi possível concluir a ação.";
+    msg.textContent = data.mensagem || data.erro || "N\u00e3o foi poss\u00edvel concluir a a\u00e7\u00e3o.";
   } catch (error) {
-    msg.textContent = "Não foi possível conectar ao servidor.";
+    msg.textContent = "N\u00e3o foi poss\u00edvel conectar ao servidor.";
   }
 }
 </script>

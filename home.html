@@ -17,9 +17,9 @@
       <div class="painel-hero" id="painelHero">
         <div class="painel-hero-content">
           <span class="eyebrow" id="eyebrow">Minha conta</span>
-          <h1 id="headline">Sua area no TattooMatch</h1>
+          <h1 id="headline">Sua &aacute;rea no TattooMatch</h1>
           <p id="lead">
-            Acompanhe seus proximos passos dentro da plataforma e use sua conta para
+            Acompanhe seus pr&oacute;ximos passos dentro da plataforma e use sua conta para
             transformar descoberta em contato real.
           </p>
 
@@ -43,11 +43,11 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { buildPublicProfileUrl, escapeHtml, fetchAuthJson, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const { buildPublicProfileUrl, buildUploadUrl, escapeHtml, fetchAuthJson, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
 const auth = requireAuth({ redirectTo: "/" });
 
 if (!auth) {
-  throw new Error("Autenticacao obrigatoria");
+  throw new Error("Autentica\u00e7\u00e3o obrigat\u00f3ria");
 }
 
 const { token, payload } = auth;
@@ -66,7 +66,7 @@ if (payload.tipo === "cliente") {
   area.innerHTML = `
     <article class="card">
       <h2>Descobrir tatuadores</h2>
-      <p>Encontre artistas por cidade, municipio, estilo e destaque dentro da plataforma.</p>
+      <p>Encontre artistas por cidade, munic&iacute;pio, estilo e destaque dentro da plataforma.</p>
       <div class="card-actions">
         <a class="link-button" href="/tatuadores.html">Buscar tatuadores</a>
       </div>
@@ -74,7 +74,7 @@ if (payload.tipo === "cliente") {
 
     <article class="card">
       <h2>Meus pedidos</h2>
-      <p>Acompanhe seus agendamentos e veja o andamento dos seus pedidos.</p>
+      <p>Acompanhe seus agendamentos e veja a evolu&ccedil;&atilde;o de cada pedido.</p>
       <div class="card-actions">
         <a class="link-button secondary" href="/meus-agendamentos.html">Ver agendamentos</a>
       </div>
@@ -82,7 +82,7 @@ if (payload.tipo === "cliente") {
 
     <article class="card">
       <h2>Quero ser tatuador</h2>
-      <p>Crie seu perfil profissional, entre nas buscas da plataforma e comece a receber contatos.</p>
+      <p>Crie seu perfil profissional, apare\u00e7a nas buscas e comece a receber contatos.</p>
       <div class="card-actions">
         <button onclick="confirmarTatuador()">Criar perfil de tatuador</button>
       </div>
@@ -94,14 +94,14 @@ if (payload.tipo === "tatuador") {
   eyebrow.textContent = "Conta de tatuador";
   headline.textContent = `Painel do artista ${payload.usuario}`;
   lead.textContent =
-    "Gerencie sua presenca profissional e acompanhe tambem os pedidos que voce faz como cliente em outros perfis.";
+    "Gerencie sua presen\u00e7a profissional e acompanhe tamb\u00e9m os pedidos que voc\u00ea faz como cliente em outros perfis.";
 
   carregarHeroTatuador();
 
   area.innerHTML = `
     <article class="card">
       <h2>Painel profissional</h2>
-      <p>Veja pedidos recebidos, aprove solicitacoes e acompanhe o fluxo de atendimento como tatuador.</p>
+      <p>Veja pedidos recebidos, aprove solicita\u00e7\u00f5es e acompanhe o fluxo de atendimento como tatuador.</p>
       <div class="card-actions">
         <a class="link-button" href="/painel.html">Abrir pedidos recebidos</a>
       </div>
@@ -109,7 +109,7 @@ if (payload.tipo === "tatuador") {
 
     <article class="card">
       <h2>Painel pessoal</h2>
-      <p>Acompanhe os pedidos que voce mesmo enviou para outros tatuadores, com status e conversa.</p>
+      <p>Acompanhe os pedidos que voc\u00ea enviou para outros tatuadores, com status e conversa.</p>
       <div class="card-actions">
         <a class="link-button secondary" href="/meus-agendamentos.html">Abrir pedidos enviados</a>
       </div>
@@ -117,7 +117,7 @@ if (payload.tipo === "tatuador") {
 
     <article class="card">
       <h2>Meu perfil profissional</h2>
-      <p>Atualize bio, cidade, estilos, foto e fortaleça sua presença na busca.</p>
+      <p>Atualize bio, cidade, estilos e foto para fortalecer sua presen\u00e7a na busca.</p>
       <div class="card-actions">
         <a class="link-button secondary" href="/editar-perfil.html">Editar perfil</a>
       </div>
@@ -125,7 +125,7 @@ if (payload.tipo === "tatuador") {
 
     <article class="card">
       <h2>Marketplace</h2>
-      <p>Acompanhe como outros artistas aparecem na plataforma e inspire melhorias no seu perfil.</p>
+      <p>Veja como outros artistas aparecem na plataforma e identifique oportunidades para melhorar seu perfil.</p>
       <div class="card-actions">
         <a class="link-button secondary" href="/tatuadores.html">Ver listagem</a>
       </div>
@@ -140,7 +140,7 @@ async function carregarHeroTatuador() {
     return;
   }
 
-  const fotoPerfil = `${window.FrontendUtils.API_BASE}/uploads/${encodeURIComponent(result.data.foto_perfil)}`;
+  const fotoPerfil = buildUploadUrl(result.data.foto_perfil);
   painelHero.style.backgroundImage =
     `linear-gradient(135deg, rgba(8, 8, 10, 0.8), rgba(8, 8, 10, 0.52)), url("${fotoPerfil}")`;
   painelHero.classList.add("has-cover");
@@ -151,12 +151,12 @@ if (payload.is_admin === true) {
     "beforeend",
     `
       <article class="card admin-card">
-        <h2>Administracao interna</h2>
+        <h2>Administra\u00e7\u00e3o interna</h2>
         <p>Acompanhe o dashboard, os analytics da plataforma e controle quem possui acesso administrativo.</p>
         <div class="card-actions">
           <a class="link-button" href="/admin-dashboard.html">Abrir dashboard</a>
           <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
-          <a class="link-button secondary" href="/admin-usuarios.html">Gerenciar admins</a>
+          <a class="link-button secondary" href="/admin-usuarios.html">Gerenciar administradores</a>
         </div>
       </article>
     `
@@ -165,7 +165,7 @@ if (payload.is_admin === true) {
 
 async function confirmarTatuador() {
   const confirmar = confirm(
-    `Criar perfil de tatuador?\n\nCom um perfil voce podera:\n\n- Mostrar seu portfolio\n- Receber pedidos de orcamento\n- Aparecer nas buscas da sua cidade\n- Receber avaliacoes de clientes`
+    `Criar perfil de tatuador?\n\nCom um perfil profissional voc\u00ea poder\u00e1:\n\n- Mostrar seu portf\u00f3lio\n- Receber pedidos de or\u00e7amento\n- Aparecer nas buscas da sua cidade\n- Receber avalia\u00e7\u00f5es de clientes`
   );
 
   if (!confirmar) {
@@ -192,7 +192,7 @@ async function virarTatuador() {
     localStorage.setItem("token", data.token);
   }
 
-  alert(data.mensagem || data.erro || "Nao foi possivel criar seu perfil de tatuador.");
+  alert(data.mensagem || data.erro || "N\u00e3o foi poss\u00edvel criar seu perfil de tatuador.");
 
   if (result.ok) {
     location.reload();
@@ -206,8 +206,8 @@ async function carregarDestaques() {
     document.getElementById("destaques").innerHTML = `
       <article class="highlight">
         <small>Destaque da plataforma</small>
-        <h2>Indisponivel agora</h2>
-        <p>Nao foi possivel carregar os artistas em destaque neste momento.</p>
+        <h2>Indispon\u00edvel no momento</h2>
+        <p>N\u00e3o foi poss\u00edvel carregar os artistas em destaque agora.</p>
       </article>
     `;
     return;
@@ -222,8 +222,8 @@ async function carregarDestaques() {
     div.innerHTML = `
       <article class="highlight">
         <small>Destaque da plataforma</small>
-        <h2>Nenhum destaque ainda</h2>
-        <p>Assim que houver artistas em destaque, eles vao aparecer aqui.</p>
+        <h2>Nenhum destaque por enquanto</h2>
+        <p>Assim que houver artistas em destaque, eles v\u00e3o aparecer aqui.</p>
       </article>
     `;
     return;
@@ -235,7 +235,7 @@ async function carregarDestaques() {
     card.innerHTML = `
       <small>Destaque da plataforma</small>
       <h2>${escapeHtml(t.nome_artistico || "Artista sem nome")}</h2>
-      <p>${escapeHtml(t.cidade || "Cidade nao informada")} - ${escapeHtml(t.plano || "Sem plano")}</p>
+      <p>${escapeHtml(t.cidade || "Cidade n\u00e3o informada")} - ${escapeHtml(t.plano || "Sem plano")}</p>
       <a class="link-button secondary" href="${buildPublicProfileUrl(t)}">Ver perfil</a>
     `;
     div.appendChild(card);
