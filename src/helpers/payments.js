@@ -70,7 +70,12 @@ async function createMercadoPagoPreference({
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Nao foi possivel criar o checkout Mercado Pago");
+    const apiMessage =
+      data?.message ||
+      data?.error ||
+      data?.cause?.[0]?.description ||
+      "Nao foi possivel criar o checkout Mercado Pago";
+    throw new Error(`Mercado Pago checkout/preferences (${response.status}): ${apiMessage}`);
   }
 
   return data;
@@ -89,7 +94,12 @@ async function findMercadoPagoApprovedPayment(paymentId) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Nao foi possivel validar o pagamento Mercado Pago");
+    const apiMessage =
+      data?.message ||
+      data?.error ||
+      data?.cause?.[0]?.description ||
+      "Nao foi possivel validar o pagamento Mercado Pago";
+    throw new Error(`Mercado Pago payments/search (${response.status}): ${apiMessage}`);
   }
 
   const results = Array.isArray(data?.results) ? data.results : [];
@@ -109,7 +119,12 @@ async function fetchMercadoPagoPaymentById(paymentGatewayId) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.message || "Nao foi possivel buscar o pagamento Mercado Pago");
+    const apiMessage =
+      data?.message ||
+      data?.error ||
+      data?.cause?.[0]?.description ||
+      "Nao foi possivel buscar o pagamento Mercado Pago";
+    throw new Error(`Mercado Pago payments/{id} (${response.status}): ${apiMessage}`);
   }
 
   return data;

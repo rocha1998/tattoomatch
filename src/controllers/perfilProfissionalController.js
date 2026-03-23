@@ -596,6 +596,12 @@ async function criarCheckoutPagamento(req, res) {
       const mode = env.paymentTestMode ? "test" : "live";
 
       if (mode === "live" && !isMercadoPagoConfigured()) {
+        console.error("[checkout] Mercado Pago nao configurado para checkout ao vivo", {
+          usuarioId,
+          tatuadorId,
+          paymentKind: "highlight",
+          mode,
+        });
         return res.status(500).json({ erro: "Mercado Pago nao configurado neste ambiente" });
       }
 
@@ -631,6 +637,15 @@ async function criarCheckoutPagamento(req, res) {
         external_reference: String(payment.id),
       });
 
+      console.info("[checkout] Checkout criado", {
+        paymentId: payment.id,
+        usuarioId,
+        tatuadorId,
+        provider,
+        paymentKind: "highlight",
+        mode,
+      });
+
       return res.json({
         mensagem: mode === "test"
           ? "Checkout de patrocinio criado em modo teste."
@@ -660,6 +675,13 @@ async function criarCheckoutPagamento(req, res) {
     const mode = env.paymentTestMode ? "test" : "live";
 
     if (mode === "live" && !isMercadoPagoConfigured()) {
+      console.error("[checkout] Mercado Pago nao configurado para checkout ao vivo", {
+        usuarioId,
+        tatuadorId,
+        planId,
+        paymentKind: "plan",
+        mode,
+      });
       return res.status(500).json({ erro: "Mercado Pago nao configurado neste ambiente" });
     }
 
@@ -696,6 +718,16 @@ async function criarCheckoutPagamento(req, res) {
       external_reference: String(payment.id),
     });
 
+    console.info("[checkout] Checkout criado", {
+      paymentId: payment.id,
+      usuarioId,
+      tatuadorId,
+      provider,
+      paymentKind: "plan",
+      planId,
+      mode,
+    });
+
     res.json({
       mensagem: mode === "test"
         ? "Checkout Mercado Pago criado em modo teste."
@@ -706,8 +738,17 @@ async function criarCheckoutPagamento(req, res) {
       mode,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: "Erro ao criar checkout" });
+    console.error("[checkout] Falha ao criar checkout Mercado Pago", {
+      usuarioId,
+      planId,
+      highlight,
+      provider,
+      error: error.message,
+    });
+    res.status(500).json({
+      erro: "Nao foi possivel iniciar o checkout do Mercado Pago",
+      detalhe: error.message,
+    });
   }
 }
 
@@ -731,6 +772,10 @@ async function confirmarCheckoutPagamento(req, res) {
     );
 
     if (paymentResult.rows.length === 0) {
+      console.warn("[checkout] Tentativa de confirmar sessao inexistente", {
+        paymentId,
+        usuarioId,
+      });
       return res.status(404).json({ erro: "Pagamento nao encontrado" });
     }
 
@@ -757,6 +802,12 @@ async function confirmarCheckoutPagamento(req, res) {
     }
 
     if (!aprovado) {
+      console.warn("[checkout] Pagamento ainda nao aprovado na confirmacao", {
+        paymentId: payment.id,
+        usuarioId,
+        provider: payment.provider,
+        mode: payment.mode,
+      });
       return res.status(400).json({ erro: "Pagamento ainda nao foi aprovado" });
     }
 
@@ -768,6 +819,14 @@ async function confirmarCheckoutPagamento(req, res) {
 
     await markPaymentSessionConfirmed(payment.id, externalId);
 
+    console.info("[checkout] Pagamento confirmado", {
+      paymentId: payment.id,
+      usuarioId,
+      provider: payment.provider,
+      mode: payment.mode,
+      externalId,
+    });
+
     res.json({
       ...resultado,
       payment_id: payment.id,
@@ -775,8 +834,15 @@ async function confirmarCheckoutPagamento(req, res) {
       mode: payment.mode,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: "Erro ao confirmar pagamento" });
+    console.error("[checkout] Falha ao confirmar pagamento", {
+      paymentId,
+      usuarioId,
+      error: error.message,
+    });
+    res.status(500).json({
+      erro: "Nao foi possivel confirmar o pagamento",
+      detalhe: error.message,
+    });
   }
 }
 
@@ -789,6 +855,9 @@ async function webhookPagamento(req, res) {
       const payment = await getPaymentSessionById(paymentId);
 
       if (!payment) {
+        console.warn("[webhook] Sessao de pagamento de teste nao encontrada", {
+          paymentId,
+        });
         return res.status(404).json({ erro: "Sessao de pagamento nao encontrada" });
       }
 
@@ -799,28 +868,46 @@ async function webhookPagamento(req, res) {
       }
 
       await markPaymentSessionConfirmed(payment.id, parsedBody.external_id || "test-webhook");
+      console.info("[webhook] Pagamento de teste confirmado", {
+        paymentId: payment.id,
+        provider: payment.provider,
+      });
       return res.json({ ok: true, provider: payment.provider, payment_id: payment.id, mode: "test" });
     }
 
     const provider = String(req.query.provider || parsedBody.provider || "").trim().toLowerCase();
 
     if (provider !== "mercado_pago") {
+      console.warn("[webhook] Provider nao suportado", {
+        provider,
+      });
       return res.status(400).json({ erro: "Provider de webhook nao suportado" });
     }
 
     if (!env.mercadoPagoWebhookToken || String(req.query.token || "") !== env.mercadoPagoWebhookToken) {
+      console.warn("[webhook] Webhook Mercado Pago nao autorizado", {
+        provider,
+      });
       return res.status(401).json({ erro: "Webhook Mercado Pago nao autorizado" });
     }
 
     const paymentGatewayId = parsedBody?.data?.id || req.query["data.id"] || req.query.id;
 
     if (!paymentGatewayId) {
+      console.info("[webhook] Evento ignorado sem payment gateway id", {
+        provider,
+      });
       return res.json({ ok: true, ignored: true });
     }
 
     const mpPayment = await fetchMercadoPagoPaymentById(paymentGatewayId);
 
     if (mpPayment?.status !== "approved") {
+      console.info("[webhook] Pagamento ainda nao aprovado", {
+        provider,
+        paymentGatewayId,
+        status: mpPayment?.status || null,
+      });
       return res.json({ ok: true, ignored: true });
     }
 
@@ -828,6 +915,11 @@ async function webhookPagamento(req, res) {
     const payment = await getPaymentSessionById(paymentId);
 
     if (!payment) {
+      console.warn("[webhook] Sessao local nao encontrada para pagamento aprovado", {
+        provider,
+        paymentGatewayId,
+        paymentId,
+      });
       return res.status(404).json({ erro: "Sessao de pagamento nao encontrada" });
     }
 
@@ -838,10 +930,22 @@ async function webhookPagamento(req, res) {
     }
 
     await markPaymentSessionConfirmed(payment.id, paymentGatewayId);
+    console.info("[webhook] Pagamento confirmado com sucesso", {
+      provider,
+      paymentGatewayId,
+      paymentId: payment.id,
+    });
     return res.json({ ok: true, provider: "mercado_pago", payment_id: payment.id });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: "Erro ao processar webhook de pagamento" });
+    console.error("[webhook] Falha ao processar webhook Mercado Pago", {
+      provider: String(req.query.provider || "").trim().toLowerCase() || null,
+      queryPaymentId: req.query.payment_id || req.query["data.id"] || req.query.id || null,
+      error: error.message,
+    });
+    res.status(500).json({
+      erro: "Erro ao processar webhook de pagamento",
+      detalhe: error.message,
+    });
   }
 }
 
