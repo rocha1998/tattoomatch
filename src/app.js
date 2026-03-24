@@ -41,6 +41,9 @@ const allowedOrigins = new Set(
 );
 
 const publicRootFiles = [
+  "favicon.ico",
+  "favicon-32x32.png",
+  "favicon-16x16.png",
   "index.html",
   "login.html",
   "forgot-password.html",
