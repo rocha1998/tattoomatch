@@ -29,7 +29,7 @@
   <section class="filters">
     <input id="estadoInput" placeholder="Estado">
     <input id="cidadeInput" placeholder="Cidade">
-    <input id="municipioInput" placeholder="Munic&iacute;pio">
+    <input id="bairroInput" placeholder="Bairro">
     <input id="estiloInput" placeholder="Estilo">
     <button onclick="buscar()">Buscar</button>
   </section>
@@ -284,12 +284,12 @@ function buscar() {
   const params = new URLSearchParams();
   const estado = document.getElementById("estadoInput").value.trim();
   const cidade = document.getElementById("cidadeInput").value.trim();
-  const municipio = document.getElementById("municipioInput").value.trim();
+  const bairro = document.getElementById("bairroInput").value.trim();
   const estilo = document.getElementById("estiloInput").value.trim();
 
   if (estado) params.append("estado", estado);
   if (cidade) params.append("cidade", cidade);
-  if (municipio) params.append("municipio", municipio);
+  if (bairro) params.append("municipio", bairro);
   if (estilo) params.append("estilo", estilo);
 
   const url = `${API_BASE}/tatuadores?${params.toString()}`;
