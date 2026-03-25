@@ -14,7 +14,7 @@ async function autenticarToken(req, res, next) {
   try {
     const usuario = jwt.verify(token, env.jwtSecret);
     const result = await pool.query(
-      "SELECT is_blocked FROM usuarios WHERE id = $1",
+      "SELECT usuario, email, is_admin, is_blocked FROM usuarios WHERE id = $1",
       [usuario.id]
     );
 
@@ -28,6 +28,9 @@ async function autenticarToken(req, res, next) {
 
     req.usuario = {
       ...usuario,
+      usuario: result.rows[0].usuario || usuario.usuario,
+      email: result.rows[0].email || usuario.email,
+      is_admin: result.rows[0].is_admin === true,
       is_blocked: result.rows[0].is_blocked === true,
     };
     next();

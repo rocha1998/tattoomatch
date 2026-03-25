@@ -46,7 +46,7 @@
 
 <script src="/scripts/frontend.js"></script>
 <script>
-const { buildPublicProfileUrl, buildUploadUrl, escapeHtml, fetchAuthJson, fetchJson, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
+const { buildPublicProfileUrl, buildUploadUrl, escapeHtml, fetchAuthJson, fetchJson, getSessionProfile, loadFooter, loadNavbar, logout, requireAuth } = window.FrontendUtils;
 const auth = requireAuth({ redirectTo: "/" });
 
 if (!auth) {
@@ -149,22 +149,7 @@ async function carregarHeroTatuador() {
   painelHero.classList.add("has-cover");
 }
 
-if (payload.is_admin === true) {
-  area.insertAdjacentHTML(
-    "beforeend",
-    `
-      <article class="card admin-card">
-        <h2>Administra\u00e7\u00e3o interna</h2>
-        <p>Acompanhe o dashboard, os analytics da plataforma e controle quem possui acesso administrativo.</p>
-        <div class="card-actions">
-          <a class="link-button" href="/admin-dashboard.html">Abrir dashboard</a>
-          <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
-          <a class="link-button secondary" href="/admin-usuarios.html">Gerenciar administradores</a>
-        </div>
-      </article>
-    `
-  );
-}
+carregarCardAdmin();
 
 async function confirmarTatuador() {
   const confirmar = confirm(
@@ -248,6 +233,31 @@ async function carregarDestaques() {
 carregarDestaques();
 loadNavbar();
 loadFooter();
+
+async function carregarCardAdmin() {
+  const result = await getSessionProfile();
+
+  if (!result.ok || !result.data || result.data.is_admin !== true) {
+    return;
+  }
+
+  area.insertAdjacentHTML(
+    "beforeend",
+    `
+      <article class="card admin-card">
+        <h2>Administra\u00e7\u00e3o interna</h2>
+        <p>Acompanhe o dashboard, os analytics da plataforma e controle quem possui acesso administrativo.</p>
+        <div class="card-actions">
+          <a class="link-button" href="/admin-dashboard.html">Abrir dashboard</a>
+          <a class="link-button secondary" href="/admin-tatuadores.html">Gerenciar tatuadores</a>
+          <a class="link-button secondary" href="/admin-assinaturas.html">Ver assinaturas</a>
+          <a class="link-button secondary" href="/admin-analytics.html">Ver analytics</a>
+          <a class="link-button secondary" href="/admin-usuarios.html">Gerenciar usu\u00e1rios</a>
+        </div>
+      </article>
+    `
+  );
+}
 </script>
 </body>
 </html>

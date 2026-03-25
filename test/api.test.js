@@ -331,6 +331,16 @@ test("fluxo de agendamento funciona por token e por email", async () => {
   const user = await createAndLoginUser("agendaapi");
 
   try {
+    const tatuadorResult = await pool.query(
+      "SELECT id FROM tatuadores ORDER BY id ASC LIMIT 1"
+    );
+
+    assert.ok(tatuadorResult.rows.length > 0);
+    const tatuadorId = Number(tatuadorResult.rows[0].id);
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10);
+
     const payload = {
       cliente_nome: "Teste Agenda",
       cliente_email: user.email,
@@ -338,8 +348,8 @@ test("fluxo de agendamento funciona por token e por email", async () => {
       descricao: "Tattoo teste agenda",
       parte_corpo: "braco",
       tamanho: "medio",
-      data_solicitada: "2026-03-21",
-      tatuador_id: 1,
+      data_solicitada: tomorrow,
+      tatuador_id: tatuadorId,
     };
 
     const create = await request("/agendamentos", {
@@ -352,7 +362,7 @@ test("fluxo de agendamento funciona por token e por email", async () => {
     });
 
     assert.equal(create.response.status, 201);
-    assert.equal(create.body.tatuador_id, 1);
+    assert.equal(create.body.tatuador_id, tatuadorId);
 
     const byToken = await request("/meus-agendamentos", {
       headers: { Authorization: `Bearer ${user.token}` },
@@ -538,10 +548,14 @@ test("dashboard administrativo retorna totais da plataforma", async () => {
     });
 
     assert.equal(dashboard.response.status, 200);
-    assert.equal(typeof dashboard.body.totalUsuarios, "number");
-    assert.equal(typeof dashboard.body.totalTatuadores, "number");
-    assert.equal(typeof dashboard.body.totalAgendamentos, "number");
-    assert.equal(typeof dashboard.body.totalAvaliacoes, "number");
+    assert.equal(typeof dashboard.body.resumo.totalUsuarios, "number");
+    assert.equal(typeof dashboard.body.resumo.totalTatuadores, "number");
+    assert.equal(typeof dashboard.body.resumo.assinaturasAtivas, "number");
+    assert.equal(typeof dashboard.body.resumo.premiumAtivos, "number");
+    assert.equal(typeof dashboard.body.resumo.patrocinadosAtivos, "number");
+    assert.equal(typeof dashboard.body.resumo.receitaEstimada, "number");
+    assert.ok(Array.isArray(dashboard.body.recentes.usuarios));
+    assert.ok(Array.isArray(dashboard.body.recentes.tatuadores));
   } finally {
     await cleanupUserByUsername(admin.usuario);
   }
@@ -585,6 +599,112 @@ test("admin pode bloquear usuario e impedir login e acesso autenticado", async (
   } finally {
     await cleanupUserByUsername(admin.usuario);
     await cleanupUserByUsername(alvo.usuario);
+  }
+});
+
+test("admin pode desbloquear usuario pela rota nova de bloqueio", async () => {
+  const admin = await createAndLoginUser("adminunlock");
+  const alvo = await createAndLoginUser("unlocktarget");
+
+  try {
+    await promoteUserToAdmin(admin.usuario);
+    const alvoId = await getUserId(alvo.usuario);
+
+    const adminLogin = await request("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario: admin.usuario, senha: admin.senha }),
+    });
+
+    const block = await request(`/admin/usuarios/${alvoId}/bloqueio`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminLogin.body.token}`,
+      },
+      body: JSON.stringify({ is_blocked: true }),
+    });
+
+    assert.equal(block.response.status, 200);
+    assert.equal(block.body.usuario.is_blocked, true);
+
+    const unblock = await request(`/admin/usuarios/${alvoId}/bloqueio`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${adminLogin.body.token}`,
+      },
+      body: JSON.stringify({ is_blocked: false }),
+    });
+
+    assert.equal(unblock.response.status, 200);
+    assert.equal(unblock.body.usuario.is_blocked, false);
+
+    const login = await request("/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usuario: alvo.usuario, senha: alvo.senha }),
+    });
+
+    assert.equal(login.response.status, 200);
+  } finally {
+    await cleanupUserByUsername(admin.usuario);
+    await cleanupUserByUsername(alvo.usuario);
+  }
+});
+
+test("admin usa o banco como fonte de verdade para is_admin e acessa novas rotas", async () => {
+  const admin = await createAndLoginUser("adminfreshdb");
+  const artista = await createAndLoginUser("admintattooer");
+
+  try {
+    const tornarTatuador = await request("/tornar-tatuador", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${artista.token}` },
+    });
+
+    assert.equal(tornarTatuador.response.status, 200);
+
+    await promoteUserToAdmin(admin.usuario);
+
+    const tatuadorDb = await pool.query(
+      `SELECT t.id
+       FROM tatuadores t
+       JOIN usuarios u ON u.id = t.usuario_id
+       WHERE u.usuario = $1`,
+      [artista.usuario]
+    );
+
+    const tattooers = await request("/admin/tatuadores", {
+      headers: { Authorization: `Bearer ${admin.token}` },
+    });
+
+    assert.equal(tattooers.response.status, 200);
+    assert.ok(Array.isArray(tattooers.body));
+    assert.ok(tattooers.body.some((item) => item.usuario === artista.usuario));
+
+    const highlight = await request(`/admin/tatuadores/${tatuadorDb.rows[0].id}/destaque`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${admin.token}`,
+      },
+      body: JSON.stringify({ active: true }),
+    });
+
+    assert.equal(highlight.response.status, 200);
+    assert.equal(highlight.body.tatuador.patrocinado_ativo, true);
+
+    const subscriptions = await request("/admin/assinaturas", {
+      headers: { Authorization: `Bearer ${admin.token}` },
+    });
+
+    assert.equal(subscriptions.response.status, 200);
+    assert.ok(Array.isArray(subscriptions.body));
+    assert.ok(subscriptions.body.some((item) => item.usuario === artista.usuario));
+  } finally {
+    await cleanupUserByUsername(admin.usuario);
+    await cleanupUserByUsername(artista.usuario);
   }
 });
 

@@ -134,6 +134,32 @@
     });
   }
 
+  async function getSessionProfile() {
+    const token = getStoredToken();
+    const payload = parseTokenPayload(token);
+
+    if (!token || !payload) {
+      return {
+        ok: false,
+        status: 401,
+        data: null,
+        error: "Sessao ausente",
+      };
+    }
+
+    const result = await fetchAuthJson("/perfil");
+
+    if (result.ok && result.data) {
+      return result;
+    }
+
+    if (result.status === 401 || result.status === 403) {
+      clearToken();
+    }
+
+    return result;
+  }
+
   async function loadNavbar() {
     await loadPartial({
       targetId: "navbar",
@@ -148,9 +174,25 @@
     }
 
     const token = getStoredToken();
-    const payload = parseTokenPayload(token);
+    const tokenPayload = parseTokenPayload(token);
 
-    if (token && payload) {
+    if (token && tokenPayload) {
+      const profileResult = await getSessionProfile();
+
+      if (profileResult.status === 401 || profileResult.status === 403) {
+        menuLogin.innerHTML = `
+          <a href="/login.html">Entrar</a>
+        `;
+        return;
+      }
+
+      const payload = profileResult.ok && profileResult.data
+        ? {
+            ...tokenPayload,
+            ...profileResult.data,
+          }
+        : tokenPayload;
+
       const tatuadorLinks = payload.tipo === "tatuador"
         ? `
             <a href="/painel.html">Pedidos recebidos</a>
@@ -163,8 +205,10 @@
       const adminLinks = payload.is_admin === true
         ? `
             <a href="/admin-dashboard.html">Dashboard</a>
+            <a href="/admin-tatuadores.html">Tatuadores</a>
+            <a href="/admin-assinaturas.html">Assinaturas</a>
             <a href="/admin-analytics.html">Analytics</a>
-            <a href="/admin-usuarios.html">Admins</a>
+            <a href="/admin-usuarios.html">Usuarios</a>
           `
         : "";
 
@@ -219,6 +263,7 @@
     escapeHtml,
     fetchAuthJson,
     fetchJson,
+    getSessionProfile,
     getStoredToken,
     loadFooter,
     loadNavbar,

@@ -24,6 +24,11 @@ async function createUserSchemaExtensions() {
   `);
 
   await pool.query(`
+    ALTER TABLE usuarios
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP NOT NULL DEFAULT NOW()
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS password_reset_tokens (
       id SERIAL PRIMARY KEY,
       usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,

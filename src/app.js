@@ -63,6 +63,8 @@ const publicRootFiles = [
   "admin-dashboard.html",
   "admin-analytics.html",
   "admin-usuarios.html",
+  "admin-tatuadores.html",
+  "admin-assinaturas.html",
   "navbar.html",
   "footer.html",
 ];
