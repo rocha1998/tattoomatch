@@ -1,10 +1,21 @@
-body {
+body.page-tatuadores {
   margin: 0;
   background:
     radial-gradient(circle at top left, rgba(239, 131, 84, 0.18), transparent 28%),
     linear-gradient(180deg, #0b0b0c 0%, #101116 100%);
   color: var(--text);
   font-family: "Trebuchet MS", sans-serif;
+  overflow-x: clip;
+}
+
+html:has(body.page-tatuadores) {
+  overflow-x: clip;
+}
+
+body.page-tatuadores *,
+body.page-tatuadores *::before,
+body.page-tatuadores *::after {
+  box-sizing: border-box;
 }
 
 .seo-header {
@@ -41,26 +52,28 @@ body {
   gap: 14px;
 }
 
-main {
+body.page-tatuadores main {
   max-width: 1240px;
   margin: 0 auto;
   padding: 0 24px 48px;
+  min-width: 0;
 }
 
-.hero,
-.filters,
-.card,
-.section-shell {
+body.page-tatuadores .hero,
+body.page-tatuadores .filters,
+body.page-tatuadores .card,
+body.page-tatuadores .section-shell {
   border: 1px solid var(--line);
   background: rgba(18, 18, 22, 0.84);
   box-shadow: var(--shadow);
 }
 
-.hero {
+body.page-tatuadores .hero {
   display: grid;
   gap: 18px;
   padding: 34px;
   border-radius: 32px;
+  min-width: 0;
 }
 
 .hero h1 {
@@ -78,10 +91,11 @@ main {
   line-height: 1.7;
 }
 
-.hero-actions {
+body.page-tatuadores .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  min-width: 0;
 }
 
 .button,
@@ -109,30 +123,33 @@ main {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.filters {
+body.page-tatuadores .filters {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
   padding: 18px;
   margin-top: 18px;
   border-radius: 26px;
+  min-width: 0;
 }
 
-.filters input,
-.filters button {
+body.page-tatuadores .filters input,
+body.page-tatuadores .filters button {
   min-height: 50px;
   border-radius: 16px;
   font: inherit;
+  width: 100%;
+  min-width: 0;
 }
 
-.filters input {
+body.page-tatuadores .filters input {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   color: var(--text);
   padding: 0 14px;
 }
 
-.filters button {
+body.page-tatuadores .filters button {
   border: none;
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   color: #140f0c;
@@ -145,23 +162,32 @@ main {
   color: var(--muted);
 }
 
-.stack {
+body.page-tatuadores .stack {
   display: grid;
   gap: 22px;
   margin-top: 24px;
+  min-width: 0;
 }
 
-.section-shell {
+body.page-tatuadores .section-shell {
   border-radius: 30px;
   padding: 22px;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.section-head {
+body.page-tatuadores .section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 18px;
+  min-width: 0;
+}
+
+body.page-tatuadores .section-head > div,
+body.page-tatuadores .section-head > span {
+  min-width: 0;
 }
 
 .section-head h2 {
@@ -175,10 +201,12 @@ main {
   line-height: 1.6;
 }
 
-.section-tools {
+body.page-tatuadores .section-tools {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .pill {
@@ -193,15 +221,20 @@ main {
   font-weight: 800;
 }
 
-.carousel-shell {
+body.page-tatuadores .carousel-shell {
   position: relative;
+  min-width: 0;
+  max-width: 100%;
 }
 
-.carousel-track {
+body.page-tatuadores .carousel-track {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(280px, 340px);
   gap: 18px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   padding-bottom: 8px;
   scroll-behavior: smooth;
@@ -218,32 +251,36 @@ main {
   border-radius: 999px;
 }
 
-.container {
+body.page-tatuadores .container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 18px;
+  min-width: 0;
 }
 
-.card {
+body.page-tatuadores .card {
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-radius: 28px;
   min-height: 100%;
+  min-width: 0;
   scroll-snap-align: start;
 }
 
-.card img {
+body.page-tatuadores .card img {
   width: 100%;
+  max-width: 100%;
   height: 220px;
   object-fit: cover;
   background: #1b1d22;
 }
 
-.card-body {
+body.page-tatuadores .card-body {
   display: grid;
   gap: 10px;
   padding: 20px;
+  min-width: 0;
 }
 
 .badge-row {
@@ -310,55 +347,95 @@ main {
   color: var(--muted);
 }
 
-.card a.button-secondary {
+body.page-tatuadores .card a.button-secondary {
   margin-top: 6px;
+  max-width: 100%;
 }
 
 @media (max-width: 980px) {
-  .filters {
+  body.page-tatuadores .filters {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .seo-nav {
+  body.page-tatuadores .seo-nav {
     border-radius: 24px;
     align-items: flex-start;
     flex-direction: column;
   }
 
-  main {
+  body.page-tatuadores main {
     padding: 0 14px 36px;
   }
 
-  .hero,
-  .filters,
-  .card,
-  .section-shell {
+  body.page-tatuadores .hero,
+  body.page-tatuadores .filters,
+  body.page-tatuadores .card,
+  body.page-tatuadores .section-shell {
     border-radius: 24px;
   }
 
-  .hero,
-  .filters,
-  .section-shell {
+  body.page-tatuadores .hero,
+  body.page-tatuadores .filters,
+  body.page-tatuadores .section-shell {
     padding: 18px;
   }
 
-  .filters {
+  body.page-tatuadores .filters {
     grid-template-columns: 1fr;
   }
 
-  .section-head {
+  body.page-tatuadores .section-head {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .section-tools {
+  body.page-tatuadores .section-tools {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 8px;
   }
 
-  .carousel-track {
-    grid-auto-columns: minmax(260px, 86vw);
+  body.page-tatuadores .pill {
+    max-width: 100%;
+  }
+
+  body.page-tatuadores .carousel-track {
+    grid-auto-columns: minmax(248px, calc(100vw - 64px));
+    gap: 14px;
+  }
+
+  body.page-tatuadores .container {
+    grid-template-columns: 1fr;
+  }
+
+  body.page-tatuadores .card-body {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  body.page-tatuadores main {
+    padding: 0 12px 32px;
+  }
+
+  body.page-tatuadores .hero,
+  body.page-tatuadores .filters,
+  body.page-tatuadores .section-shell {
+    padding: 16px;
+  }
+
+  body.page-tatuadores .carousel-track {
+    grid-auto-columns: minmax(232px, calc(100vw - 56px));
+  }
+
+  body.page-tatuadores .section-tools {
+    gap: 6px;
+  }
+
+  body.page-tatuadores .carousel-arrow {
+    min-height: 42px;
+    padding: 0 14px;
   }
 }
