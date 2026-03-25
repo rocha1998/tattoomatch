@@ -1,17 +1,45 @@
-<nav class="navbar">
-  <a class="brand brand-header" href="/index.html">
-    <span class="brand-logo-shell" aria-hidden="true">
-      <img class="brand-logo" src="/styles/assets/logo-tattoomatch.svg" alt="TattooMatch">
-    </span>
-    <span class="brand-copy">
-      <strong>TattooMatch</strong>
-      <small>Marketplace de tatuadores</small>
-    </span>
-  </a>
+<nav class="navbar" aria-label="Navegacao principal">
+  <div class="navbar-bar">
+    <a class="brand brand-header" href="/index.html">
+      <span class="brand-logo-shell" aria-hidden="true">
+        <img class="brand-logo" src="/styles/assets/logo-tattoomatch.svg" alt="TattooMatch">
+      </span>
+      <span class="brand-copy">
+        <strong>TattooMatch</strong>
+        <small>Marketplace de tatuadores</small>
+      </span>
+    </a>
 
-  <div class="menu">
-    <a href="/tatuadores.html">Buscar tatuadores</a>
-    <a href="/planos.html">Planos</a>
-    <span id="menuLogin"></span>
+    <button
+      id="navbarToggle"
+      class="navbar-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="navbarMenu"
+      aria-label="Abrir menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <div id="navbarBackdrop" class="navbar-backdrop" hidden></div>
+
+  <div id="navbarMenu" class="menu" hidden>
+    <div class="menu-branding">
+      <strong>TattooMatch</strong>
+      <small>Navegacao rapida</small>
+    </div>
+
+    <div id="navbarMenuLinks" class="menu-links">
+      <a href="/tatuadores.html">Buscar tatuadores</a>
+      <a href="/planos.html">Planos</a>
+      <span id="menuLogin"></span>
+    </div>
+
+    <div id="navbarMenuFooter" class="menu-footer" hidden>
+      <span id="menuLogout"></span>
+    </div>
   </div>
 </nav>

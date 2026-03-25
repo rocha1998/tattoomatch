@@ -169,6 +169,8 @@
     });
 
     const menuLogin = document.getElementById("menuLogin");
+    const menuLogout = document.getElementById("menuLogout");
+    const menuFooter = document.getElementById("navbarMenuFooter");
     if (!menuLogin) {
       return;
     }
@@ -216,22 +218,132 @@
         <a href="/home.html">Minha conta</a>
         ${tatuadorLinks}
         ${adminLinks}
-        <a href="#" data-logout-link="true">Sair</a>
       `;
-
-      const link = menuLogin.querySelector('[data-logout-link="true"]');
-      if (link) {
-        link.addEventListener("click", (event) => {
-          event.preventDefault();
-          logout();
-        });
+      if (menuLogout) {
+        menuLogout.innerHTML = `<a href="#" data-logout-link="true">Sair</a>`;
       }
+      if (menuFooter) {
+        menuFooter.hidden = false;
+      }
+
+      bindNavbarInteractions();
       return;
     }
 
     menuLogin.innerHTML = `
       <a href="/login.html">Entrar</a>
     `;
+    if (menuLogout) {
+      menuLogout.innerHTML = "";
+    }
+    if (menuFooter) {
+      menuFooter.hidden = true;
+    }
+    bindNavbarInteractions();
+  }
+
+  function bindNavbarInteractions() {
+    const navbar = document.querySelector(".navbar");
+    const toggle = document.getElementById("navbarToggle");
+    const menu = document.getElementById("navbarMenu");
+    const backdrop = document.getElementById("navbarBackdrop");
+    const logoutLink = document.querySelector('[data-logout-link="true"]');
+
+    if (!navbar || !toggle || !menu || !backdrop) {
+      return;
+    }
+
+    const isMobile = () => window.matchMedia("(max-width: 720px)").matches;
+
+    const openMenu = () => {
+      if (!isMobile()) {
+        return;
+      }
+
+      navbar.classList.add("menu-open");
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Fechar menu");
+      menu.hidden = false;
+      backdrop.hidden = false;
+    };
+
+    const closeMenu = () => {
+      navbar.classList.remove("menu-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Abrir menu");
+      menu.hidden = !isMobile();
+      backdrop.hidden = true;
+    };
+
+    closeMenu();
+
+    if (!navbar.dataset.mobileMenuBound) {
+      toggle.addEventListener("click", () => {
+        if (navbar.classList.contains("menu-open")) {
+          closeMenu();
+          return;
+        }
+
+        openMenu();
+      });
+
+      backdrop.addEventListener("click", closeMenu);
+
+      document.addEventListener("click", (event) => {
+        if (!isMobile() || !navbar.classList.contains("menu-open")) {
+          return;
+        }
+
+        if (navbar.contains(event.target)) {
+          return;
+        }
+
+        closeMenu();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          closeMenu();
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (!isMobile()) {
+          navbar.classList.remove("menu-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-label", "Abrir menu");
+          menu.hidden = false;
+          backdrop.hidden = true;
+          return;
+        }
+
+        if (!navbar.classList.contains("menu-open")) {
+          menu.hidden = true;
+          backdrop.hidden = true;
+        }
+      });
+
+      navbar.dataset.mobileMenuBound = "true";
+    }
+
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        if (link.dataset.logoutLink === "true") {
+          return;
+        }
+
+        closeMenu();
+      });
+    });
+
+    if (logoutLink && !logoutLink.dataset.boundLogout) {
+      logoutLink.dataset.boundLogout = "true";
+      logoutLink.addEventListener("click", (event) => {
+        event.preventDefault();
+        closeMenu();
+        logout();
+      });
+    }
   }
 
   async function loadFooter() {
