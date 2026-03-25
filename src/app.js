@@ -24,7 +24,6 @@ const { ensureUserSchema } = require("./helpers/userSchema");
 const app = express();
 let prepareAppPromise = null;
 const isProduction = process.env.NODE_ENV === "production";
-const renderProductionOrigin = "https://tattoomatch-3.onrender.com";
 
 function normalizeOrigin(origin) {
   return String(origin || "").trim().replace(/\/+$/, "");
@@ -35,7 +34,7 @@ function isLocalDevelopmentOrigin(origin) {
 }
 
 const allowedOrigins = new Set(
-  [renderProductionOrigin, env.siteUrl, ...env.corsOrigins]
+  [env.siteUrl, ...env.corsOrigins]
     .map(normalizeOrigin)
     .filter(Boolean)
 );

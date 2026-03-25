@@ -85,7 +85,11 @@
   }
 
   async function fetchJson(path, options = {}) {
-    const url = path.startsWith("http") ? path : `${API_BASE}${path}`;
+    const url = path.startsWith("http")
+      ? path
+      : path.startsWith("/")
+        ? path
+        : `/${String(path || "").replace(/^\/+/, "")}`;
 
     let response;
     try {
