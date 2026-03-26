@@ -9,6 +9,13 @@ function getDebugPreview(value) {
   return String(value || "").slice(0, 200);
 }
 
+function mapLocationResponse(data) {
+  return {
+    cidade: data?.city || null,
+    estado: data?.region || data?.regionName || null,
+  };
+}
+
 async function detectarLocalizacao(req, res) {
   let timeoutId;
 
@@ -31,7 +38,7 @@ async function detectarLocalizacao(req, res) {
     const controller = new AbortController();
     timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    const response = await fetch(`https://ip-api.com/json/${normalizedIp}`, {
+    const response = await fetch(`https://ipwho.is/${normalizedIp}`, {
       signal: controller.signal,
     });
 
@@ -86,9 +93,10 @@ async function detectarLocalizacao(req, res) {
       return;
     }
 
-    if (data?.status && data.status !== "success") {
+    if (data?.success === false || (data?.status && data.status !== "success")) {
       console.error("[localizacao] API externa retornou falha de localizacao", {
         ip: normalizedIp || "(vazio)",
+        providerSuccess: data?.success,
         apiStatus: data.status,
         message: data.message || null,
       });
@@ -96,10 +104,7 @@ async function detectarLocalizacao(req, res) {
       return;
     }
 
-    res.json({
-      cidade: data.city || null,
-      estado: data.regionName || null,
-    });
+    res.json(mapLocationResponse(data));
   } catch (error) {
     console.error("[localizacao] Erro ao detectar localizacao", {
       message: error.message,

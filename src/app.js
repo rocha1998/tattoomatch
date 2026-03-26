@@ -33,11 +33,37 @@ function isLocalDevelopmentOrigin(origin) {
   return /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
 }
 
+function getAllowedOriginsList() {
+  return Array.from(allowedOrigins);
+}
+
+function logCorsDecision({ origin, normalizedOrigin, allowed, reason }) {
+  console.info("[cors] Validacao de origem", {
+    origin: origin || null,
+    normalizedOrigin: normalizedOrigin || null,
+    allowed,
+    reason,
+    siteUrl: env.siteUrl,
+    corsOrigins: env.corsOrigins,
+    allowedOrigins: getAllowedOriginsList(),
+    isProduction,
+  });
+}
+
 const allowedOrigins = new Set(
   [env.siteUrl, ...env.corsOrigins]
     .map(normalizeOrigin)
     .filter(Boolean)
 );
+
+console.info("[cors] Configuracao carregada", {
+  siteUrl: env.siteUrl,
+  normalizedSiteUrl: normalizeOrigin(env.siteUrl),
+  corsOrigins: env.corsOrigins,
+  normalizedCorsOrigins: env.corsOrigins.map(normalizeOrigin),
+  allowedOrigins: getAllowedOriginsList(),
+  isProduction,
+});
 
 const publicRootFiles = [
   "favicon.ico",
@@ -105,38 +131,82 @@ app.set("trust proxy", 1);
 app.use(
   cors({
     origin(origin, callback) {
+      const normalizedOrigin = normalizeOrigin(origin);
+
       if (!origin) {
+        logCorsDecision({
+          origin,
+          normalizedOrigin,
+          allowed: true,
+          reason: "request-sem-origin",
+        });
         callback(null, true);
         return;
       }
 
       if (!env.corsOrigins.length) {
         if (isProduction) {
-          if (allowedOrigins.has(normalizeOrigin(origin))) {
+          if (allowedOrigins.has(normalizedOrigin)) {
+            logCorsDecision({
+              origin,
+              normalizedOrigin,
+              allowed: true,
+              reason: "site-url-match-sem-cors-origins",
+            });
             callback(null, true);
             return;
           }
 
+          logCorsDecision({
+            origin,
+            normalizedOrigin,
+            allowed: false,
+            reason: "origin-bloqueada-sem-cors-origins-em-producao",
+          });
           callback(new Error("Origem nao permitida pelo CORS"));
           return;
         }
 
-        if (isLocalDevelopmentOrigin(normalizeOrigin(origin)) || allowedOrigins.has(normalizeOrigin(origin))) {
+        if (isLocalDevelopmentOrigin(normalizedOrigin) || allowedOrigins.has(normalizedOrigin)) {
+          logCorsDecision({
+            origin,
+            normalizedOrigin,
+            allowed: true,
+            reason: "origem-local-ou-site-url-em-desenvolvimento",
+          });
           callback(null, true);
           return;
         }
 
+        logCorsDecision({
+          origin,
+          normalizedOrigin,
+          allowed: false,
+          reason: "origin-bloqueada-sem-cors-origins",
+        });
         callback(new Error("Origem nao permitida pelo CORS"));
         return;
       }
 
-      const normalizedOrigin = normalizeOrigin(origin);
-
       if (allowedOrigins.has(normalizedOrigin) || (!isProduction && isLocalDevelopmentOrigin(normalizedOrigin))) {
+        logCorsDecision({
+          origin,
+          normalizedOrigin,
+          allowed: true,
+          reason: allowedOrigins.has(normalizedOrigin)
+            ? "origin-presente-em-allowed-origins"
+            : "origin-local-em-desenvolvimento",
+        });
         callback(null, true);
         return;
       }
 
+      logCorsDecision({
+        origin,
+        normalizedOrigin,
+        allowed: false,
+        reason: "origin-bloqueada",
+      });
       callback(new Error("Origem nao permitida pelo CORS"));
     },
   })
