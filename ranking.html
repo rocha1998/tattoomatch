@@ -6,9 +6,22 @@
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<title>Ranking de Tatuadores | TattooMatch</title>
+<title>__SEO_TITLE__</title>
+<meta name="description" content="__SEO_DESCRIPTION__">
+<meta name="robots" content="__SEO_ROBOTS__">
+<link rel="canonical" href="__SEO_CANONICAL__">
+<meta property="og:title" content="__SEO_OG_TITLE__">
+<meta property="og:description" content="__SEO_OG_DESCRIPTION__">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__SEO_CANONICAL__">
+<meta property="og:image" content="__SEO_OG_IMAGE__">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="__SEO_TWITTER_TITLE__">
+<meta name="twitter:description" content="__SEO_TWITTER_DESCRIPTION__">
+<meta name="twitter:image" content="__SEO_TWITTER_IMAGE__">
 <link rel="stylesheet" href="/styles/theme.css">
 <link rel="stylesheet" href="/styles/pages/ranking.css">
+<script type="application/ld+json">__SEO_JSON_LD__</script>
 </head>
 
 <body>
@@ -18,7 +31,7 @@
   <section class="hero">
     <h1>Ranking de tatuadores</h1>
     <p>
-      Veja os artistas mais bem posicionados com base em avaliações e prioridade
+      Veja os artistas mais bem posicionados com base em avaliacoes e prioridade
       de plano dentro da plataforma.
     </p>
   </section>
@@ -45,7 +58,7 @@ async function carregarRanking() {
 
   if (!result.ok || !Array.isArray(result.data)) {
     empty.hidden = false;
-    empty.textContent = result.error || "Não foi possível carregar o ranking agora.";
+    empty.textContent = result.error || "Nao foi possivel carregar o ranking agora.";
     return;
   }
 
@@ -65,12 +78,12 @@ async function carregarRanking() {
       <div class="position">#${index + 1}</div>
       <div class="info">
         <h2>${escapeHtml(t.nome_artistico || "Artista sem nome")}</h2>
-        <p>${escapeHtml(t.cidade || "Cidade não informada")} • ${escapeHtml(t.plano || "Sem plano")}</p>
-        <p>${Number(t.total_avaliacoes || 0)} avaliação(ões) registradas</p>
+        <p>${escapeHtml(t.cidade || "Cidade nao informada")} • ${escapeHtml(t.plano || "Sem plano")}</p>
+        <p>${Number(t.total_avaliacoes || 0)} avaliacao(oes) registradas</p>
       </div>
       <div class="score">
         <strong>${Number(t.media || 0).toFixed(1)}</strong>
-        <span>Média geral</span>
+        <span>Media geral</span>
       </div>
     `;
 

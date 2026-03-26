@@ -6,10 +6,22 @@
 <link rel="icon" href="/favicon.ico" type="image/x-icon">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<title>Tatuadores | TattooMatch</title>
-<meta name="description" content="Busque tatuadores dispon&iacute;veis por cidade, estilo e proximidade no TattooMatch.">
+<title>__SEO_TITLE__</title>
+<meta name="description" content="__SEO_DESCRIPTION__">
+<meta name="robots" content="__SEO_ROBOTS__">
+<link rel="canonical" href="__SEO_CANONICAL__">
+<meta property="og:title" content="__SEO_OG_TITLE__">
+<meta property="og:description" content="__SEO_OG_DESCRIPTION__">
+<meta property="og:type" content="website">
+<meta property="og:url" content="__SEO_CANONICAL__">
+<meta property="og:image" content="__SEO_OG_IMAGE__">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="__SEO_TWITTER_TITLE__">
+<meta name="twitter:description" content="__SEO_TWITTER_DESCRIPTION__">
+<meta name="twitter:image" content="__SEO_TWITTER_IMAGE__">
 <link rel="stylesheet" href="/styles/theme.css">
 <link rel="stylesheet" href="/styles/pages/tatuadores.css">
+<script type="application/ld+json">__SEO_JSON_LD__</script>
 </head>
 
 <body class="page-tatuadores">
@@ -17,10 +29,10 @@
 
 <main>
   <section class="hero">
-    <h1>Descubra tatuadores com mais contexto e mais confiança.</h1>
+    <h1>Descubra tatuadores com mais contexto e mais confianca.</h1>
     <p>
-      Filtre por localização e estilo, veja destaques da plataforma e encontre artistas
-      com portfólio, reputação e presença profissional mais clara.
+      Filtre por localizacao e estilo, veja destaques da plataforma e encontre artistas
+      com portfolio, reputacao e presenca profissional mais clara.
     </p>
 
     <div class="hero-actions">
@@ -44,7 +56,7 @@
       <div class="section-head">
         <div>
           <h2>Patrocinados</h2>
-          <p>Perfis com patroc&iacute;nio semanal ativo aparecem primeiro na vitrine.</p>
+          <p>Perfis com patrocinio semanal ativo aparecem primeiro na vitrine.</p>
         </div>
         <div class="section-tools">
           <span class="pill" id="patrocinadosCount">0 patrocinados</span>
@@ -61,7 +73,7 @@
       <div class="section-head">
         <div>
           <h2>Tatuadores em destaque</h2>
-          <p>Perfis com plano Premium ativo ganham uma vitrine pr&oacute;pria, sem depender de patroc&iacute;nio.</p>
+          <p>Perfis com plano Premium ativo ganham uma vitrine propria, sem depender de patrocinio.</p>
         </div>
         <div class="section-tools">
           <span class="pill">Vitrine da plataforma</span>
@@ -72,14 +84,14 @@
       <div class="carousel-shell">
         <div class="carousel-track" id="destaquesLista"></div>
       </div>
-      <div class="empty-block" id="destaquesEmpty" hidden>Nenhum destaque dispon&iacute;vel neste momento.</div>
+      <div class="empty-block" id="destaquesEmpty" hidden>Nenhum destaque disponivel neste momento.</div>
     </section>
 
     <section class="section-shell">
       <div class="section-head">
         <div>
-          <h2>Tatuadores dispon&iacute;veis</h2>
-          <p>Explore os perfis por localização, estilo, reputação e proximidade.</p>
+          <h2>Tatuadores disponiveis</h2>
+          <p>Explore os perfis por localizacao, estilo, reputacao e proximidade.</p>
         </div>
         <span class="pill" id="geralCount">0 artistas</span>
       </div>
@@ -108,10 +120,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 function formatarDistancia(distanciaKm) {
   const valor = Number(distanciaKm);
   if (!Number.isFinite(valor)) {
-    return "Dist\u00e2ncia indispon\u00edvel";
+    return "Distancia indisponivel";
   }
 
-  return `${valor.toFixed(1)} km de voc\u00ea`;
+  return `${valor.toFixed(1)} km de voce`;
 }
 
 function criarCardTatuador(tatuador, { destaque = false } = {}) {
@@ -153,11 +165,11 @@ function criarCardTatuador(tatuador, { destaque = false } = {}) {
     <div class="card-body">
       <div class="badge-row">${badges.join("")}</div>
       <h2>${escapeHtml(tatuador.nome_artistico || "Artista sem nome")}</h2>
-      <div class="rating">&#9733; ${nota} (${totalAvaliacoes} avalia&ccedil;&otilde;es)</div>
-      <div class="location">${escapeHtml(tatuador.estado || "Estado n&atilde;o informado")} &bull; ${escapeHtml(tatuador.cidade || "Cidade n&atilde;o informada")}</div>
+      <div class="rating">&#9733; ${nota} (${totalAvaliacoes} avaliacoes)</div>
+      <div class="location">${escapeHtml(tatuador.estado || "Estado nao informado")} &bull; ${escapeHtml(tatuador.cidade || "Cidade nao informada")}</div>
       <div class="meta">
-        Bairro: ${escapeHtml(tatuador.bairro || tatuador.municipio || "N&atilde;o informado")}<br>
-        Estilos: ${escapeHtml(tatuador.estilos || "N&atilde;o informado")}
+        Bairro: ${escapeHtml(tatuador.bairro || tatuador.municipio || "Nao informado")}<br>
+        Estilos: ${escapeHtml(tatuador.estilos || "Nao informado")}
       </div>
       ${distancia}
       <a class="button-secondary" href="${buildPublicProfileUrl(tatuador)}">Ver perfil</a>
@@ -224,7 +236,7 @@ async function detectarCidade() {
     document.getElementById("cidadeInput").value = cidade;
     const cidadeEncoded = encodeURIComponent(cidade);
     const url = `${API_BASE}/tatuadores?cidade=${cidadeEncoded}`;
-    carregarTatuadores(url, `Mostrando artistas pr\u00f3ximos de ${cidade}.`);
+    carregarTatuadores(url, `Mostrando artistas proximos de ${cidade}.`);
     return;
   }
 
@@ -252,7 +264,7 @@ async function carregarTatuadores(
   const result = await fetchJson(url.replace(API_BASE, ""));
 
   if (!result.ok || !Array.isArray(result.data)) {
-    status.textContent = result.error || "N\u00e3o foi poss\u00edvel carregar os tatuadores agora.";
+    status.textContent = result.error || "Nao foi possivel carregar os tatuadores agora.";
     geralCount.textContent = "0 artistas";
     patrocinadosCount.textContent = "0 patrocinados";
     return;

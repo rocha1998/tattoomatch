@@ -174,6 +174,30 @@ test("GET /ranking retorna uma lista", async () => {
   assert.ok(Array.isArray(body));
 });
 
+test("pagina inicial entrega SEO tecnico com canonical absoluto", async () => {
+  const { response, body } = await request("/");
+
+  assert.equal(response.status, 200);
+  assert.match(body, /<title>TattooMatch \| Encontre seu proximo tatuador<\/title>/);
+  assert.match(body, /<meta name="description" content="[^"]+">/);
+  assert.match(body, /<meta name="robots" content="index,follow">/);
+  assert.match(body, /<link rel="canonical" href="http:\/\/127\.0\.0\.1:\d+\/">/);
+  assert.match(body, /<meta property="og:title" content="[^"]+">/);
+  assert.match(body, /<meta name="twitter:card" content="summary_large_image">/);
+  assert.match(body, /<script type="application\/ld\+json">/);
+  assert.equal(response.headers.get("x-robots-tag"), "index, follow");
+});
+
+test("robots.txt aponta para sitemap e bloqueia areas privadas", async () => {
+  const { response, body } = await request("/robots.txt");
+
+  assert.equal(response.status, 200);
+  assert.match(body, /User-agent: \*/);
+  assert.match(body, /Disallow: \/admin-dashboard\.html/);
+  assert.match(body, /Disallow: \/home\.html/);
+  assert.match(body, /Sitemap: http:\/\/127\.0\.0\.1:\d+\/sitemap\.xml/);
+});
+
 test("pagina SEO por cidade gera title, description e robots", async () => {
   const cidadeResult = await pool.query(
     "SELECT cidade FROM tatuadores WHERE cidade IS NOT NULL AND cidade <> '' LIMIT 1"
@@ -218,6 +242,18 @@ test("sitemap.xml lista paginas principais e URLs SEO", async () => {
   assert.match(body, /<loc>http:\/\/localhost:3000\/tatuadores\.html<\/loc>|<loc>http:\/\/127\.0\.0\.1:\d+\/tatuadores\.html<\/loc>/);
   assert.match(body, /\/tatuadores\/estilo\//);
   assert.match(body, /\/perfil\//);
+  assert.doesNotMatch(body, /\/index\.html/);
+  assert.doesNotMatch(body, /\/login\.html/);
+});
+
+test("paginas privadas e admin enviam noindex por header", async () => {
+  const privatePage = await request("/home.html");
+  const adminPage = await request("/admin-dashboard.html");
+
+  assert.equal(privatePage.response.status, 200);
+  assert.equal(adminPage.response.status, 200);
+  assert.equal(privatePage.response.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(adminPage.response.headers.get("x-robots-tag"), "noindex, nofollow");
 });
 
 test("GET /tatuador/:id retorna perfil publico completo", async () => {

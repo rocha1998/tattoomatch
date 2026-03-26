@@ -1,3 +1,4 @@
+const fs = require("fs");
 const cors = require("cors");
 const express = require("express");
 const path = require("path");
@@ -24,6 +25,11 @@ const { ensureUserSchema } = require("./helpers/userSchema");
 const app = express();
 let prepareAppPromise = null;
 const isProduction = process.env.NODE_ENV === "production";
+const canonicalSiteUrl = "https://tattoomatch.com.br";
+const canonicalRedirectHosts = new Set([
+  "www.tattoomatch.com.br",
+  "tattoomatch-3.onrender.com",
+]);
 
 function normalizeOrigin(origin) {
   return String(origin || "").trim().replace(/\/+$/, "");
@@ -94,6 +100,154 @@ const publicRootFiles = [
   "footer.html",
 ];
 
+const privateNoIndexPaths = new Set([
+  "/login.html",
+  "/forgot-password.html",
+  "/reset-password.html",
+  "/home.html",
+  "/painel.html",
+  "/editar-perfil.html",
+  "/meus-agendamentos.html",
+  "/pagamento-sucesso.html",
+  "/pagamento-cancelado.html",
+  "/admin-dashboard.html",
+  "/admin-analytics.html",
+  "/admin-usuarios.html",
+  "/admin-tatuadores.html",
+  "/admin-assinaturas.html",
+]);
+
+const seoTemplateCache = new Map();
+
+function getBaseUrl(req) {
+  if (env.siteUrl) {
+    return env.siteUrl.replace(/\/+$/, "");
+  }
+
+  return `${req.protocol}://${req.get("host")}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function sanitizeJsonForScript(value) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
+}
+
+function getSeoTemplate(filename) {
+  if (!seoTemplateCache.has(filename)) {
+    seoTemplateCache.set(filename, fs.readFileSync(path.join(env.rootDir, filename), "utf8"));
+  }
+
+  return seoTemplateCache.get(filename);
+}
+
+function renderSeoFile(filename, replacements) {
+  let html = getSeoTemplate(filename);
+
+  for (const [placeholder, value] of Object.entries(replacements)) {
+    html = html.replaceAll(placeholder, value);
+  }
+
+  return html;
+}
+
+function renderStaticSeoPage(req, filename, seo) {
+  const baseUrl = getBaseUrl(req);
+  const canonicalUrl = `${baseUrl}${seo.canonicalPath}`;
+  const imageUrl = `${baseUrl}${seo.imagePath || "/styles/assets/perfil.jpg"}`;
+  const title = seo.title;
+  const description = seo.description;
+  const robots = seo.robots || "index,follow";
+
+  return renderSeoFile(filename, {
+    "__SEO_TITLE__": escapeHtml(title),
+    "__SEO_DESCRIPTION__": escapeHtml(description),
+    "__SEO_ROBOTS__": robots,
+    "__SEO_CANONICAL__": escapeHtml(canonicalUrl),
+    "__SEO_OG_TITLE__": escapeHtml(seo.ogTitle || title),
+    "__SEO_OG_DESCRIPTION__": escapeHtml(seo.ogDescription || description),
+    "__SEO_OG_IMAGE__": escapeHtml(imageUrl),
+    "__SEO_TWITTER_TITLE__": escapeHtml(seo.twitterTitle || title),
+    "__SEO_TWITTER_DESCRIPTION__": escapeHtml(seo.twitterDescription || description),
+    "__SEO_TWITTER_IMAGE__": escapeHtml(imageUrl),
+    "__SEO_JSON_LD__": sanitizeJsonForScript(
+      seo.jsonLd || {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: title,
+        description,
+        url: canonicalUrl,
+      }
+    ),
+  });
+}
+
+const staticSeoPages = {
+  "index.html": (req) => ({
+    title: "TattooMatch | Encontre seu proximo tatuador",
+    description:
+      "TattooMatch conecta clientes e tatuadores com busca por cidade, estilo, portfolio e reputacao.",
+    canonicalPath: "/",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "TattooMatch",
+      url: `${getBaseUrl(req)}/`,
+      description:
+        "Marketplace para encontrar tatuadores por cidade, estilo, portfolio e reputacao.",
+    },
+  }),
+  "tatuadores.html": (req) => ({
+    title: "Tatuadores | TattooMatch",
+    description:
+      "Busque tatuadores disponiveis por cidade, estilo e proximidade no TattooMatch.",
+    canonicalPath: "/tatuadores.html",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Tatuadores | TattooMatch",
+      description:
+        "Pagina de busca publica para encontrar tatuadores por localizacao e estilo.",
+      url: `${getBaseUrl(req)}/tatuadores.html`,
+    },
+  }),
+  "planos.html": (req) => ({
+    title: "Planos | TattooMatch",
+    description:
+      "Escolha o plano ideal para atrair mais clientes, ganhar visibilidade e pagar com Mercado Pago no TattooMatch.",
+    canonicalPath: "/planos.html",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Planos | TattooMatch",
+      description:
+        "Planos para tatuadores ganharem mais visibilidade dentro do TattooMatch.",
+      url: `${getBaseUrl(req)}/planos.html`,
+    },
+  }),
+  "ranking.html": (req) => ({
+    title: "Ranking de Tatuadores | TattooMatch",
+    description:
+      "Veja os tatuadores mais bem posicionados com base em avaliacoes e prioridade de plano no TattooMatch.",
+    canonicalPath: "/ranking.html",
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Ranking de Tatuadores | TattooMatch",
+      description:
+        "Ranking publico de tatuadores com base em avaliacao e relevancia na plataforma.",
+      url: `${getBaseUrl(req)}/ranking.html`,
+    },
+  }),
+};
+
 function prepareApp() {
   if (!prepareAppPromise) {
     prepareAppPromise = Promise.all([
@@ -127,6 +281,26 @@ const limiter = rateLimit({
 });
 
 app.set("trust proxy", 1);
+
+app.use((req, res, next) => {
+  if (!["GET", "HEAD"].includes(req.method)) {
+    next();
+    return;
+  }
+
+  const hostHeader = String(req.get("host") || "")
+    .trim()
+    .toLowerCase();
+  const hostname = hostHeader.split(":")[0];
+
+  if (!canonicalRedirectHosts.has(hostname)) {
+    next();
+    return;
+  }
+
+  const path = req.originalUrl || req.url || "/";
+  res.redirect(301, `${canonicalSiteUrl}${path}`);
+});
 
 app.use(
   cors({
@@ -214,12 +388,30 @@ app.use(
 app.post("/webhook/payment", express.raw({ type: "application/json" }), webhookPagamento);
 app.use(express.json());
 app.use(limiter);
+app.use((req, res, next) => {
+  if (privateNoIndexPaths.has(req.path)) {
+    res.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
+  next();
+});
 app.use("/uploads", express.static(uploadsDir));
 app.use("/styles", express.static(path.join(env.rootDir, "styles")));
 app.use("/scripts", express.static(path.join(env.rootDir, "scripts")));
 
 for (const filename of publicRootFiles) {
   app.get(`/${filename}`, (req, res) => {
+    if (filename === "index.html") {
+      res.redirect(301, "/");
+      return;
+    }
+
+    if (staticSeoPages[filename]) {
+      res.set("X-Robots-Tag", "index, follow");
+      res.type("html").send(renderStaticSeoPage(req, filename, staticSeoPages[filename](req)));
+      return;
+    }
+
     res.sendFile(path.join(env.rootDir, filename));
   });
 }
@@ -239,7 +431,8 @@ app.use(localizacaoRoutes);
 app.use(adminRoutes);
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(env.rootDir, "index.html"));
+  res.set("X-Robots-Tag", "index, follow");
+  res.type("html").send(renderStaticSeoPage(req, "index.html", staticSeoPages["index.html"](req)));
 });
 
 app.use((error, req, res, next) => {

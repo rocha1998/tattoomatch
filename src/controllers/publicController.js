@@ -151,13 +151,36 @@ function getPerfilPath(tatuador) {
 }
 
 function renderSeoListPage({
+  req,
   title,
   description,
   heading,
   lead,
   canonicalPath,
   tatuadores,
+  robots = "index,follow",
 }) {
+  const baseUrl = getBaseUrl(req);
+  const canonicalUrl = `${baseUrl}${canonicalPath}`;
+  const socialImage = `${baseUrl}/styles/assets/perfil.jpg`;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: title,
+    description,
+    url: canonicalUrl,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: tatuadores.length,
+      itemListElement: tatuadores.slice(0, 12).map((tatuador, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: `${baseUrl}${getPerfilPath(tatuador)}`,
+        name: tatuador.nome_artistico || "Tatuador",
+      })),
+    },
+  };
+
   const cards = tatuadores.length
     ? tatuadores
         .map((tatuador) => {
@@ -214,15 +237,25 @@ function renderSeoListPage({
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="${escapeHtml(canonicalPath)}">
+<meta name="robots" content="${escapeHtml(robots)}">
+<link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+<meta property="og:image" content="${escapeHtml(socialImage)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(title)}">
+<meta name="twitter:description" content="${escapeHtml(description)}">
+<meta name="twitter:image" content="${escapeHtml(socialImage)}">
 <link rel="stylesheet" href="/styles/theme.css">
 <link rel="stylesheet" href="/styles/pages/tatuadores.css">
+<script type="application/ld+json">${sanitizeJsonForScript(jsonLd)}</script>
 </head>
 <body>
 <header class="seo-header">
   <nav class="seo-nav">
-    <a class="seo-brand" href="/index.html">TattooMatch</a>
+    <a class="seo-brand" href="/">TattooMatch</a>
     <div class="seo-links">
       <a href="/tatuadores.html">Explorar</a>
       <a href="/ranking.html">Ranking</a>
@@ -425,6 +458,7 @@ function renderPerfilPageHtml({ req, tatuador, avaliacoes = [] }) {
   const replacements = {
     "__SEO_TITLE__": escapeHtml(title),
     "__SEO_DESCRIPTION__": escapeHtml(description),
+    "__SEO_ROBOTS__": "index,follow",
     "__SEO_CANONICAL__": escapeHtml(canonicalUrl),
     "__SEO_OG_TITLE__": escapeHtml(title),
     "__SEO_OG_DESCRIPTION__": escapeHtml(description),
@@ -454,6 +488,7 @@ function renderGenericPerfilPage(req) {
   const replacements = {
     "__SEO_TITLE__": "Perfil de tatuador | TattooMatch",
     "__SEO_DESCRIPTION__": "Veja portfólio, avaliações e peça orçamento para tatuadores no TattooMatch.",
+    "__SEO_ROBOTS__": "noindex,nofollow",
     "__SEO_CANONICAL__": `${baseUrl}/perfil.html`,
     "__SEO_OG_TITLE__": "Perfil de tatuador | TattooMatch",
     "__SEO_OG_DESCRIPTION__": "Veja portfólio, avaliações e peça orçamento para tatuadores no TattooMatch.",
@@ -652,19 +687,22 @@ async function listarTatuadoresPorCidadeSeo(req, res) {
 
   try {
     const tatuadores = await buscarTatuadoresFiltrados({ cidade });
+    const robots = tatuadores.length ? "index,follow" : "noindex,nofollow";
     const title = `Melhores tatuadores em ${cidadeFormatada} | TattooMatch`;
     const description = `Encontre ${tatuadores.length} tatuador(es) em ${cidadeFormatada}, veja estilos, avaliacoes e escolha o profissional ideal no TattooMatch.`;
     const html = renderSeoListPage({
+      req,
       title,
       description,
       heading: `Melhores tatuadores em ${cidadeFormatada}`,
       lead: `Descubra artistas em ${cidadeFormatada}, compare estilos e encontre o perfil ideal para sua proxima tatuagem.`,
       canonicalPath: `/tatuadores/${req.params.cidade}`,
       tatuadores,
+      robots,
     });
 
-    res.set("X-Robots-Tag", "index, follow");
-    res.type("html").send(html);
+    res.set("X-Robots-Tag", robots === "index,follow" ? "index, follow" : "noindex, nofollow");
+    res.status(tatuadores.length ? 200 : 404).type("html").send(html);
   } catch (error) {
     console.error(error);
     res.status(500).send("Erro ao carregar a pagina de tatuadores por cidade");
@@ -677,19 +715,22 @@ async function listarTatuadoresPorEstiloSeo(req, res) {
 
   try {
     const tatuadores = await buscarTatuadoresFiltrados({ estilo });
+    const robots = tatuadores.length ? "index,follow" : "noindex,nofollow";
     const title = `Tatuadores de ${estiloFormatado} | TattooMatch`;
     const description = `Explore ${tatuadores.length} tatuador(es) especializados em ${estiloFormatado}, veja portfolios e encontre seu proximo artista no TattooMatch.`;
     const html = renderSeoListPage({
+      req,
       title,
       description,
       heading: `Tatuadores de ${estiloFormatado}`,
       lead: `Veja profissionais com foco em ${estiloFormatado}, compare perfis e encontre o estilo que combina com voce.`,
       canonicalPath: `/tatuadores/estilo/${req.params.estilo}`,
       tatuadores,
+      robots,
     });
 
-    res.set("X-Robots-Tag", "index, follow");
-    res.type("html").send(html);
+    res.set("X-Robots-Tag", robots === "index,follow" ? "index, follow" : "noindex, nofollow");
+    res.status(tatuadores.length ? 200 : 404).type("html").send(html);
   } catch (error) {
     console.error(error);
     res.status(500).send("Erro ao carregar a pagina de tatuadores por estilo");
@@ -707,8 +748,6 @@ async function getSitemapXml(req, res) {
 
     [
       ["/", "weekly", "1.0"],
-      ["/index.html", "weekly", "1.0"],
-      ["/login.html", "monthly", "0.5"],
       ["/tatuadores.html", "daily", "0.9"],
       ["/ranking.html", "daily", "0.8"],
       ["/planos.html", "weekly", "0.8"],
@@ -778,7 +817,33 @@ ${Array.from(urls.entries())
   }
 }
 
+function getRobotsTxt(req, res) {
+  const baseUrl = getBaseUrl(req);
+  const lines = [
+    "User-agent: *",
+    "Allow: /",
+    "Disallow: /admin-dashboard.html",
+    "Disallow: /admin-analytics.html",
+    "Disallow: /admin-usuarios.html",
+    "Disallow: /admin-tatuadores.html",
+    "Disallow: /admin-assinaturas.html",
+    "Disallow: /home.html",
+    "Disallow: /painel.html",
+    "Disallow: /editar-perfil.html",
+    "Disallow: /meus-agendamentos.html",
+    "Disallow: /login.html",
+    "Disallow: /forgot-password.html",
+    "Disallow: /reset-password.html",
+    "Disallow: /pagamento-sucesso.html",
+    "Disallow: /pagamento-cancelado.html",
+    `Sitemap: ${baseUrl}/sitemap.xml`,
+  ];
+
+  res.type("text/plain").send(`${lines.join("\n")}\n`);
+}
+
 module.exports = {
+  getRobotsTxt,
   getSitemapXml,
   getPerfilPath,
   getTatuadorPublico,
