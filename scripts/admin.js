@@ -10,7 +10,7 @@
 
   const adminLinks = [
     { key: "dashboard", href: "/admin-dashboard.html", label: "Dashboard" },
-    { key: "usuarios", href: "/admin-usuarios.html", label: "Usuarios" },
+    { key: "usuarios", href: "/admin-usuarios.html", label: "Usu\u00e1rios" },
     { key: "tatuadores", href: "/admin-tatuadores.html", label: "Tatuadores" },
     { key: "assinaturas", href: "/admin-assinaturas.html", label: "Assinaturas" },
     { key: "analytics", href: "/admin-analytics.html", label: "Analytics" },
@@ -98,7 +98,7 @@
     const auth = requireAuth();
 
     if (!auth) {
-      throw new Error("Autenticacao obrigatoria");
+      throw new Error("Autentica\u00e7\u00e3o obrigat\u00f3ria");
     }
 
     const navMarkup = adminLinks
@@ -128,7 +128,7 @@
           </nav>
 
           <div class="admin-sidebar-card">
-            <span class="sidebar-label">Seguranca</span>
+            <span class="sidebar-label">Seguran\u00e7a</span>
             <p>Rotas protegidas por JWT, auth e soAdmin, com o banco como fonte de verdade para is_admin.</p>
           </div>
         </aside>
@@ -136,7 +136,7 @@
         <div class="admin-main">
           <header class="admin-topbar">
             <div>
-              <span class="eyebrow">Operacao TattooMatch</span>
+              <span class="eyebrow">Opera\u00e7\u00e3o TattooMatch</span>
               <h1>${escapeHtml(title)}</h1>
               <p>${escapeHtml(description)}</p>
             </div>
@@ -227,9 +227,9 @@
       const isSelf = Number(item.id) === Number(currentUserId);
       const statusBadges = [
         badge(item.tipo === "tatuador" ? "Tatuador" : "Cliente", item.tipo === "tatuador" ? "success" : "neutral"),
-        item.is_admin ? badge("Admin", "accent") : badge("Padrao", "neutral"),
+        item.is_admin ? badge("Admin", "accent") : badge("Padr\u00e3o", "neutral"),
         item.is_blocked ? badge("Bloqueado", "warning") : badge("Ativo", "success"),
-        isSelf ? badge("Voce", "neutral") : "",
+        isSelf ? badge("Voc\u00ea", "neutral") : "",
       ].join(" ");
 
       return `
@@ -286,15 +286,15 @@
             ${item.premium_ativo ? badge("Premium", "accent") : ""}
             ${item.patrocinado_ativo ? badge("Patrocinado", "warning") : ""}
           </td>
-          <td>${item.disponivel ? badge("Disponivel", "success") : badge("Indisponivel", "warning")}</td>
+          <td>${item.disponivel ? badge("Dispon\u00edvel", "success") : badge("Indispon\u00edvel", "warning")}</td>
           <td>
             <div class="action-row">
-              <a class="table-button link" href="${escapeHtml(profileUrl)}" target="_blank" rel="noreferrer">Perfil publico</a>
+              <a class="table-button link" href="${escapeHtml(profileUrl)}" target="_blank" rel="noreferrer">Perfil p\u00fablico</a>
               <button class="table-button" type="button" data-action="toggle-highlight" data-id="${escapeHtml(String(item.id))}" data-active="${item.patrocinado_ativo ? "true" : "false"}">
                 ${item.patrocinado_ativo ? "Remover destaque" : "Ativar destaque"}
               </button>
               <button class="table-button secondary" type="button" data-action="toggle-user-block" data-user-id="${escapeHtml(String(item.usuario_id))}" data-blocked="${item.is_blocked ? "true" : "false"}">
-                ${item.is_blocked ? "Desbloquear usuario" : "Bloquear usuario"}
+                ${item.is_blocked ? "Desbloquear usu\u00e1rio" : "Bloquear usu\u00e1rio"}
               </button>
             </div>
           </td>
@@ -323,7 +323,7 @@
           <td>${escapeHtml(formatMoney(item.preco))}</td>
           <td>${escapeHtml(formatDateTime(item.highlight_until))}</td>
           <td>
-            ${item.patrocinado ? badge("Patrocinado", "warning") : badge("Sem patrocinio", "neutral")}
+            ${item.patrocinado ? badge("Patrocinado", "warning") : badge("Sem patroc\u00ednio", "neutral")}
             ${item.destaque_ativo ? badge("Destaque ativo", "accent") : ""}
           </td>
           <td>
@@ -350,7 +350,7 @@
           ${item.is_admin ? badge("Admin", "accent") : ""}
           ${item.is_blocked ? badge("Bloqueado", "warning") : badge("Ativo", "success")}
         </td>
-        <td><a class="table-button link" href="/admin-usuarios.html">Abrir gestao</a></td>
+        <td><a class="table-button link" href="/admin-usuarios.html">Abrir gest\u00e3o</a></td>
       </tr>
     `);
   }
@@ -369,10 +369,10 @@
           ${badge(item.plano || "Sem plano", item.premium_ativo ? "accent" : "neutral")}
           ${item.patrocinado_ativo ? badge("Patrocinado", "warning") : ""}
         </td>
-        <td>${item.disponivel ? badge("Disponivel", "success") : badge("Indisponivel", "warning")}</td>
+        <td>${item.disponivel ? badge("Dispon\u00edvel", "success") : badge("Indispon\u00edvel", "warning")}</td>
         <td>
           <a class="table-button link" href="${escapeHtml(buildPublicProfileUrl({ id: item.id, slug: item.slug }))}" target="_blank" rel="noreferrer">
-            Perfil publico
+            Perfil p\u00fablico
           </a>
         </td>
       </tr>
@@ -401,7 +401,7 @@
     renderShell({
       pageKey: "dashboard",
       title: "Dashboard administrativo",
-      description: "Resumo operacional, moderacao e saude comercial com dados reais da plataforma.",
+      description: "Resumo operacional, modera\u00e7\u00e3o e sa\u00fade comercial com dados reais da plataforma.",
     });
 
     const content = document.getElementById("adminContent");
@@ -413,7 +413,7 @@
     }
 
     if (!result.ok || !result.data) {
-      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "Nao foi possivel carregar o dashboard.")}</div>`;
+      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "N\u00e3o foi poss\u00edvel carregar o dashboard.")}</div>`;
       return;
     }
 
@@ -421,7 +421,7 @@
 
     content.innerHTML = `
       ${renderMetricGrid([
-        { label: "Total de usuarios", value: resumo.totalUsuarios, help: "Base completa cadastrada no TattooMatch." },
+        { label: "Total de usu\u00e1rios", value: resumo.totalUsu\u00e1rios, help: "Base completa cadastrada no TattooMatch." },
         { label: "Total de tatuadores", value: resumo.totalTatuadores, help: "Perfis profissionais encontrados no schema atual." },
         { label: "Assinaturas ativas", value: resumo.assinaturasAtivas, help: "Subscriptions com status ativo." },
         { label: "Premium ativos", value: resumo.premiumAtivos, help: "Planos com prioridade alta e status ativo." },
@@ -431,16 +431,16 @@
 
       <section class="admin-grid two-columns">
         ${renderPanel({
-          title: "Moderacao",
-          description: "Visao pronta para evoluir com mais automacoes depois.",
+          title: "Modera\u00e7\u00e3o",
+          description: "Vis\u00e3o pronta para evoluir com mais automa\u00e7\u00f5es depois.",
           content: `
             <div class="moderation-grid">
               <article class="moderation-card">
-                <span>Usuarios bloqueados</span>
+                <span>Usu\u00e1rios bloqueados</span>
                 <strong>${escapeHtml(String(moderacao.usuariosBloqueados || 0))}</strong>
               </article>
               <article class="moderation-card">
-                <span>Usuarios ativos (30 dias)</span>
+                <span>Usu\u00e1rios ativos nos &uacute;ltimos 30 dias</span>
                 <strong>${escapeHtml(String(resumo.usuariosAtivos || 0))}</strong>
               </article>
             </div>
@@ -448,10 +448,10 @@
         })}
         ${renderPanel({
           title: "Atalhos",
-          description: "Acesso rapido para as areas mais operacionais.",
+          description: "Acesso r\u00e1pido para as \u00e1reas mais operacionais.",
           content: `
             <div class="quick-links">
-              <a class="admin-link-button" href="/admin-usuarios.html">Gerenciar usuarios</a>
+              <a class="admin-link-button" href="/admin-usuarios.html">Gerenciar usu\u00e1rios</a>
               <a class="admin-link-button secondary" href="/admin-tatuadores.html">Gerenciar tatuadores</a>
               <a class="admin-link-button secondary" href="/admin-assinaturas.html">Ver assinaturas</a>
               <a class="admin-link-button secondary" href="/admin-analytics.html">Abrir analytics</a>
@@ -462,9 +462,9 @@
 
       ${renderPanel({
         title: "Cadastros recentes",
-        description: "Ultimos usuarios que entraram na plataforma.",
+        description: "\u00daltimos usu\u00e1rios cadastrados na plataforma.",
         content: renderTable({
-          columns: ["ID", "Nome", "Email", "Status", "Acoes"],
+          columns: ["ID", "Nome", "Email", "Status", "A\u00e7\u00f5es"],
           rows: renderDashboardUserRows(recentes.usuarios || []),
           emptyMessage: "Nenhum cadastro recente encontrado.",
         }),
@@ -474,7 +474,7 @@
         title: "Tatuadores recentes",
         description: "Perfis profissionais mais recentes com plano e destaque.",
         content: renderTable({
-          columns: ["Artista", "Cidade / Bairro", "Plano", "Disponibilidade", "Acoes"],
+          columns: ["Artista", "Cidade / Bairro", "Plano", "Disponibilidade", "A\u00e7\u00f5es"],
           rows: renderDashboardTattooerRows(recentes.tatuadores || []),
           emptyMessage: "Nenhum tatuador recente encontrado.",
         }),
@@ -485,8 +485,8 @@
   async function initUsersPage() {
     const auth = renderShell({
       pageKey: "usuarios",
-      title: "Gestao de usuarios",
-      description: "Controle de acesso, bloqueio e privilegios administrativos em um unico lugar.",
+      title: "Gest\u00e3o de usu\u00e1rios",
+      description: "Controle de acesso, bloqueio e privil\u00e9gios administrativos em um s\u00f3 lugar.",
     });
 
     const content = document.getElementById("adminContent");
@@ -494,8 +494,8 @@
       <section class="admin-panel">
         <div class="panel-head">
           <div>
-            <h2>Usuarios da plataforma</h2>
-            <p>Filtre, promova, bloqueie e acompanhe o status real de cada conta.</p>
+            <h2>Usu\u00e1rios da plataforma</h2>
+            <p>Filtre, promova, bloqueie e acompanhe o status de cada conta.</p>
           </div>
         </div>
 
@@ -513,7 +513,7 @@
           </select>
         </div>
 
-        <p id="userCounter" class="panel-copy">Carregando usuarios...</p>
+        <p id="userCounter" class="panel-copy">Carregando usu\u00e1rios...</p>
         <div id="usersTableHolder"></div>
       </section>
     `;
@@ -525,7 +525,7 @@
 
     if (!result.ok || !Array.isArray(result.data)) {
       document.getElementById("usersTableHolder").innerHTML =
-        `<div class="empty-state">${escapeHtml(result.error || "Nao foi possivel carregar os usuarios.")}</div>`;
+        `<div class="empty-state">${escapeHtml(result.error || "N\u00e3o foi poss\u00edvel carregar os usu\u00e1rios.")}</div>`;
       return;
     }
 
@@ -548,11 +548,11 @@
         return matchesSearch && matchesType && matchesAdmin;
       });
 
-      counter.textContent = `${filtered.length} de ${users.length} usuario(s) exibido(s).`;
+      counter.textContent = `${filtered.length} de ${users.length} usu\u00e1rio(s) exibido(s).`;
       tableHolder.innerHTML = renderTable({
-        columns: ["ID", "Nome", "Email", "Tipo / Status", "Acoes"],
+        columns: ["ID", "Nome", "Email", "Tipo / Status", "A\u00e7\u00f5es"],
         rows: renderUserRows(filtered, auth.payload.id),
-        emptyMessage: "Nenhum usuario corresponde aos filtros atuais.",
+        emptyMessage: "Nenhum usu\u00e1rio corresponde aos filtros atuais.",
       });
 
       attachTableAction(tableHolder, '[data-action="toggle-admin"]', async (button) => {
@@ -584,12 +584,12 @@
         }
 
         if (!updateResult.ok) {
-          showFlash(updateResult.error || "Nao foi possivel atualizar o acesso administrativo.", "error");
+          showFlash(updateResult.error || "N\u00e3o foi poss\u00edvel atualizar o acesso administrativo.", "error");
           return;
         }
 
         target.is_admin = promote;
-        showFlash(updateResult.data?.mensagem || "Permissao atualizada com sucesso.", "success");
+        showFlash(updateResult.data?.mensagem || "Permiss\u00e3o atualizada com sucesso.", "success");
         render();
       });
 
@@ -622,7 +622,7 @@
         }
 
         if (!updateResult.ok) {
-          showFlash(updateResult.error || "Nao foi possivel atualizar o bloqueio.", "error");
+          showFlash(updateResult.error || "N\u00e3o foi poss\u00edvel atualizar o bloqueio.", "error");
           return;
         }
 
@@ -641,8 +641,8 @@
   async function initTattooersPage() {
     renderShell({
       pageKey: "tatuadores",
-      title: "Gestao de tatuadores",
-      description: "Perfis profissionais, destaque comercial e moderacao operacional.",
+      title: "Gest\u00e3o de tatuadores",
+      description: "Perfis profissionais, destaque comercial e modera\u00e7\u00e3o operacional.",
     });
 
     const content = document.getElementById("adminContent");
@@ -651,12 +651,12 @@
         <div class="panel-head">
           <div>
             <h2>Tatuadores cadastrados</h2>
-            <p>Veja plano, localizacao, disponibilidade e destaque do perfil publico.</p>
+            <p>Veja plano, localiza\u00e7\u00e3o, disponibilidade e destaque de cada perfil p\u00fablico.</p>
           </div>
         </div>
 
         <div class="toolbar">
-          <input id="artistSearch" class="toolbar-input" type="search" placeholder="Buscar por artista, usuario, cidade ou email">
+          <input id="artistSearch" class="toolbar-input" type="search" placeholder="Buscar por artista, usu\u00e1rio, cidade ou e-mail">
           <select id="artistPlanFilter" class="toolbar-select">
             <option value="todos">Todos os planos</option>
             <option value="premium">Premium</option>
@@ -666,7 +666,7 @@
           <select id="artistHighlightFilter" class="toolbar-select">
             <option value="todos">Com ou sem destaque</option>
             <option value="sim">Somente patrocinados</option>
-            <option value="nao">Sem patrocinio</option>
+            <option value="nao">Sem patroc\u00ednio</option>
           </select>
         </div>
 
@@ -682,7 +682,7 @@
 
     if (!result.ok || !Array.isArray(result.data)) {
       document.getElementById("artistTableHolder").innerHTML =
-        `<div class="empty-state">${escapeHtml(result.error || "Nao foi possivel carregar os tatuadores.")}</div>`;
+        `<div class="empty-state">${escapeHtml(result.error || "N\u00e3o foi poss\u00edvel carregar os tatuadores.")}</div>`;
       return;
     }
 
@@ -709,7 +709,7 @@
 
       counter.textContent = `${filtered.length} de ${artists.length} tatuador(es) exibido(s).`;
       tableHolder.innerHTML = renderTable({
-        columns: ["Artista", "Cidade / Bairro", "Plano", "Disponibilidade", "Acoes"],
+        columns: ["Artista", "Cidade / Bairro", "Plano", "Disponibilidade", "A\u00e7\u00f5es"],
         rows: renderTattooerRows(filtered),
         emptyMessage: "Nenhum tatuador corresponde aos filtros atuais.",
       });
@@ -724,8 +724,8 @@
 
         const confirmed = window.confirm(
           active
-            ? `Ativar destaque/patrocinio para ${artist.nome_artistico || artist.usuario}?`
-            : `Remover destaque/patrocinio de ${artist.nome_artistico || artist.usuario}?`
+            ? `Ativar destaque/patroc\u00ednio para ${artist.nome_artistico || artist.usuario}?`
+            : `Remover destaque/patroc\u00ednio de ${artist.nome_artistico || artist.usuario}?`
         );
 
         if (!confirmed) {
@@ -743,7 +743,7 @@
         }
 
         if (!updateResult.ok) {
-          showFlash(updateResult.error || "Nao foi possivel atualizar o destaque.", "error");
+          showFlash(updateResult.error || "N\u00e3o foi poss\u00edvel atualizar o destaque.", "error");
           return;
         }
 
@@ -763,8 +763,8 @@
         const nextBlocked = button.dataset.blocked !== "true";
         const confirmed = window.confirm(
           nextBlocked
-            ? `Bloquear o usuario relacionado a ${artist.nome_artistico || artist.usuario}?`
-            : `Desbloquear o usuario relacionado a ${artist.nome_artistico || artist.usuario}?`
+            ? `Bloquear o usu\u00e1rio relacionado a ${artist.nome_artistico || artist.usuario}?`
+            : `Desbloquear o usu\u00e1rio relacionado a ${artist.nome_artistico || artist.usuario}?`
         );
 
         if (!confirmed) {
@@ -782,12 +782,12 @@
         }
 
         if (!updateResult.ok) {
-          showFlash(updateResult.error || "Nao foi possivel atualizar o bloqueio do usuario.", "error");
+          showFlash(updateResult.error || "N\u00e3o foi poss\u00edvel atualizar o bloqueio do usu\u00e1rio.", "error");
           return;
         }
 
         artist.is_blocked = nextBlocked;
-        showFlash(updateResult.data?.mensagem || "Usuario atualizado com sucesso.", "success");
+        showFlash(updateResult.data?.mensagem || "Usu\u00e1rio atualizado com sucesso.", "success");
         render();
       });
     };
@@ -801,8 +801,8 @@
   async function initSubscriptionsPage() {
     renderShell({
       pageKey: "assinaturas",
-      title: "Gestao de assinaturas",
-      description: "Planos ativos, patrocinio e sinais comerciais com base na estrutura real do banco.",
+      title: "Gest\u00e3o de assinaturas",
+      description: "Planos ativos, patroc\u00ednio e sinais comerciais com base na estrutura real do banco.",
     });
 
     const content = document.getElementById("adminContent");
@@ -814,7 +814,7 @@
     }
 
     if (!result.ok || !Array.isArray(result.data)) {
-      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "Nao foi possivel carregar as assinaturas.")}</div>`;
+      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "N\u00e3o foi poss\u00edvel carregar as assinaturas.")}</div>`;
       return;
     }
 
@@ -830,9 +830,9 @@
 
       ${renderPanel({
         title: "Assinaturas",
-        description: "Como o schema atual nao possui coluna de vencimento mensal, o painel exibe highlight_until quando existir.",
+        description: "Como o schema atual n\u00e3o possui coluna de vencimento mensal, o painel exibe highlight_until quando existir.",
         content: renderTable({
-          columns: ["Tatuador", "Plano", "Status", "Preco", "Highlight ate", "Patrocinio", "Perfil"],
+          columns: ["Tatuador", "Plano", "Status", "Pre\u00e7o", "Highlight at\u00e9", "Patroc\u00ednio", "Perfil"],
           rows: renderSubscriptionRows(result.data),
           emptyMessage: "Nenhuma assinatura encontrada.",
         }),
@@ -843,7 +843,7 @@
   async function initAnalyticsPage() {
     renderShell({
       pageKey: "analytics",
-      title: "Analytics basico",
+      title: "Analytics b\u00e1sico",
       description: "Leitura executiva de crescimento, atividade e receita com os dados reais do TattooMatch.",
     });
 
@@ -856,7 +856,7 @@
     }
 
     if (!result.ok || !result.data) {
-      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "Nao foi possivel carregar os analytics.")}</div>`;
+      content.innerHTML = `<div class="empty-state">${escapeHtml(result.error || "N\u00e3o foi poss\u00edvel carregar os analytics.")}</div>`;
       return;
     }
 
@@ -896,11 +896,11 @@
 
     content.innerHTML = `
       ${renderMetricGrid([
-        { label: "Cadastros recentes", value: data.cadastrosRecentes, help: "Usuarios criados nos ultimos 7 dias." },
-        { label: "Tatuadores recentes", value: data.tatuadoresRecentes, help: "Tatuadores inferidos via usuarios recentes no schema atual." },
-        { label: "Usuarios ativos", value: data.usuariosAtivos, help: "Usuarios distintos com eventos nos ultimos 30 dias." },
-        { label: "Receita estimada", value: formatMoney(data.receitaEstimada), help: "Planos ativos + patrocinio semanal em vigor." },
-        { label: "Receita confirmada no mes", value: formatMoney(data.receitaConfirmadaMes), help: "Soma real de payment_sessions confirmadas no mes atual." },
+        { label: "Cadastros recentes", value: data.cadastrosRecentes, help: "Usu\u00e1rios criados nos \u00faltimos 7 dias." },
+        { label: "Tatuadores recentes", value: data.tatuadoresRecentes, help: "Tatuadores inferidos via usu\u00e1rios recentes no schema atual." },
+        { label: "Usu\u00e1rios ativos", value: data.usuariosAtivos, help: "Usu\u00e1rios distintos com eventos nos \u00faltimos 30 dias." },
+        { label: "Receita estimada", value: formatMoney(data.receitaEstimada), help: "Planos ativos + patroc\u00ednio semanal em vigor." },
+        { label: "Receita confirmada no m\u00eas", value: formatMoney(data.receitaConfirmadaMes), help: "Soma real de payment_sessions confirmadas no m\u00eas atual." },
         { label: "Agendamentos", value: data.totalAgendamentos, help: "Volume acumulado de pedidos registrados." },
       ])}
 
@@ -912,9 +912,9 @@
         })}
         ${renderPanel({
           title: "Cadastros recentes",
-          description: "Ultimos acessos e novos registros observados no banco.",
+          description: "\u00daltimos acessos e novos registros observados no banco.",
           content: renderTable({
-            columns: ["ID", "Usuario", "Email", "Tipo", "Criado em"],
+            columns: ["ID", "Usu\u00e1rio", "Email", "Tipo", "Criado em"],
             rows: recentRows,
             emptyMessage: "Nenhum cadastro recente encontrado.",
           }),

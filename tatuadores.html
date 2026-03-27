@@ -29,10 +29,10 @@
 
 <main>
   <section class="hero">
-    <h1>Descubra tatuadores com mais contexto e mais confianca.</h1>
+    <h1>Descubra tatuadores com mais contexto e mais confian&ccedil;a.</h1>
     <p>
-      Filtre por localizacao e estilo, veja destaques da plataforma e encontre artistas
-      com portfolio, reputacao e presenca profissional mais clara.
+      Filtre por localiza&ccedil;&atilde;o e estilo, veja destaques da plataforma e encontre artistas
+      com portf&oacute;lio, reputa&ccedil;&atilde;o e presen&ccedil;a profissional mais clara.
     </p>
 
     <div class="hero-actions">
@@ -56,7 +56,7 @@
       <div class="section-head">
         <div>
           <h2>Patrocinados</h2>
-          <p>Perfis com patrocinio semanal ativo aparecem primeiro na vitrine.</p>
+          <p>Perfis com patroc&iacute;nio semanal ativo aparecem primeiro na vitrine.</p>
         </div>
         <div class="section-tools">
           <span class="pill" id="patrocinadosCount">0 patrocinados</span>
@@ -73,7 +73,7 @@
       <div class="section-head">
         <div>
           <h2>Tatuadores em destaque</h2>
-          <p>Perfis com plano Premium ativo ganham uma vitrine propria, sem depender de patrocinio.</p>
+          <p>Perfis com plano Premium ativo ganham uma vitrine pr&oacute;pria, sem depender de patroc&iacute;nio.</p>
         </div>
         <div class="section-tools">
           <span class="pill">Vitrine da plataforma</span>
@@ -84,14 +84,14 @@
       <div class="carousel-shell">
         <div class="carousel-track" id="destaquesLista"></div>
       </div>
-      <div class="empty-block" id="destaquesEmpty" hidden>Nenhum destaque disponivel neste momento.</div>
+      <div class="empty-block" id="destaquesEmpty" hidden>Nenhum destaque dispon&iacute;vel neste momento.</div>
     </section>
 
     <section class="section-shell">
       <div class="section-head">
         <div>
           <h2>Tatuadores disponiveis</h2>
-          <p>Explore os perfis por localizacao, estilo, reputacao e proximidade.</p>
+          <p>Explore os perfis por localiza&ccedil;&atilde;o, estilo, reputa&ccedil;&atilde;o e proximidade.</p>
         </div>
         <span class="pill" id="geralCount">0 artistas</span>
       </div>
@@ -120,10 +120,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 function formatarDistancia(distanciaKm) {
   const valor = Number(distanciaKm);
   if (!Number.isFinite(valor)) {
-    return "Distancia indisponivel";
+    return "Dist\u00e2ncia indispon\u00edvel";
   }
 
-  return `${valor.toFixed(1)} km de voce`;
+  return `${valor.toFixed(1)} km de voc\u00ea`;
 }
 
 function criarCardTatuador(tatuador, { destaque = false } = {}) {
@@ -165,11 +165,11 @@ function criarCardTatuador(tatuador, { destaque = false } = {}) {
     <div class="card-body">
       <div class="badge-row">${badges.join("")}</div>
       <h2>${escapeHtml(tatuador.nome_artistico || "Artista sem nome")}</h2>
-      <div class="rating">&#9733; ${nota} (${totalAvaliacoes} avaliacoes)</div>
-      <div class="location">${escapeHtml(tatuador.estado || "Estado nao informado")} &bull; ${escapeHtml(tatuador.cidade || "Cidade nao informada")}</div>
+      <div class="rating">&#9733; ${nota} (${totalAvaliacoes} avalia&ccedil;&otilde;es)</div>
+      <div class="location">${escapeHtml(tatuador.estado || "Estado n\u00e3o informado")} &bull; ${escapeHtml(tatuador.cidade || "Cidade n\u00e3o informada")}</div>
       <div class="meta">
-        Bairro: ${escapeHtml(tatuador.bairro || tatuador.municipio || "Nao informado")}<br>
-        Estilos: ${escapeHtml(tatuador.estilos || "Nao informado")}
+        Bairro: ${escapeHtml(tatuador.bairro || tatuador.municipio || "N\u00e3o informado")}<br>
+        Estilos: ${escapeHtml(tatuador.estilos || "N\u00e3o informado")}
       </div>
       ${distancia}
       <a class="button-secondary" href="${buildPublicProfileUrl(tatuador)}">Ver perfil</a>
@@ -236,7 +236,7 @@ async function detectarCidade() {
     document.getElementById("cidadeInput").value = cidade;
     const cidadeEncoded = encodeURIComponent(cidade);
     const url = `${API_BASE}/tatuadores?cidade=${cidadeEncoded}`;
-    carregarTatuadores(url, `Mostrando artistas proximos de ${cidade}.`);
+    carregarTatuadores(url, `Mostrando artistas pr\u00f3ximos de ${cidade}.`);
     return;
   }
 
@@ -264,7 +264,7 @@ async function carregarTatuadores(
   const result = await fetchJson(url.replace(API_BASE, ""));
 
   if (!result.ok || !Array.isArray(result.data)) {
-    status.textContent = result.error || "Nao foi possivel carregar os tatuadores agora.";
+    status.textContent = result.error || "N\u00e3o foi poss\u00edvel carregar os tatuadores agora.";
     geralCount.textContent = "0 artistas";
     patrocinadosCount.textContent = "0 patrocinados";
     return;

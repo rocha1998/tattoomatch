@@ -147,7 +147,7 @@
         ok: false,
         status: 401,
         data: null,
-        error: "Sessao ausente",
+        error: "Sess\u00e3o ausente",
       };
     }
 
@@ -214,7 +214,7 @@
             <a href="/admin-tatuadores.html">Tatuadores</a>
             <a href="/admin-assinaturas.html">Assinaturas</a>
             <a href="/admin-analytics.html">Analytics</a>
-            <a href="/admin-usuarios.html">Usuarios</a>
+            <a href="/admin-usuarios.html">Usu&aacute;rios</a>
           `
         : "";
 

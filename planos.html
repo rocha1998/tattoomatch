@@ -33,39 +33,39 @@
       <span class="eyebrow">Planos para tatuadores</span>
       <h1>Escolha o plano para atrair mais clientes</h1>
       <p>
-        Comece gratis e evolua conforme quiser mais visibilidade na plataforma.
+        Comece gr&aacute;tis e evolua conforme quiser mais visibilidade na plataforma.
       </p>
     </div>
     <div class="hero-panel" id="planoAtual">
       <strong>Seu plano atual</strong>
-      <p id="planoAtualTexto">Faca login como tatuador para ver sua assinatura.</p>
+      <p id="planoAtualTexto">Fa&ccedil;a login como tatuador para ver sua assinatura.</p>
     </div>
   </section>
 
   <section class="plans-grid">
     <article class="plan-card">
-      <span class="plan-tag">Para comecar</span>
-      <h2>Para comecar</h2>
+      <span class="plan-tag">Para come&ccedil;ar</span>
+      <h2>Para come&ccedil;ar</h2>
       <p class="price">R$0</p>
-      <p class="copy">Entre na vitrine da plataforma, publique seus primeiros trabalhos e comece a receber descobertas locais.</p>
+      <p class="copy">Entre na vitrine da plataforma, publique seus primeiros trabalhos e comece a receber novas descobertas locais.</p>
       <ul>
-        <li>7 fotos para montar seu portfolio inicial</li>
-        <li>1 video para mostrar seu processo ou resultado</li>
-        <li>Perfil publico ativo e presenca normal na busca</li>
+        <li>7 fotos para montar seu portf&oacute;lio inicial</li>
+        <li>1 v&iacute;deo para mostrar seu processo ou resultado</li>
+        <li>Perfil p&uacute;blico ativo e presen&ccedil;a normal na busca</li>
       </ul>
-      <button class="button-secondary" type="button" onclick="ativarPlanoGratis(event)">Comecar agora</button>
+      <button class="button-secondary" type="button" onclick="ativarPlanoGratis(event)">Come&ccedil;ar agora</button>
     </article>
 
     <article class="plan-card featured">
       <span class="plan-tag">Para crescer</span>
       <h2>Para crescer</h2>
       <p class="price">R$39,90</p>
-      <p class="copy">Ganhe mais espaco para mostrar seu estilo com profundidade e apareca melhor para quem ja esta pronto para tatuar.</p>
+      <p class="copy">Ganhe mais espa&ccedil;o para mostrar seu estilo com profundidade e apare&ccedil;a melhor para quem j&aacute; est&aacute; pronto para tatuar.</p>
       <ul>
         <li>20 fotos para ampliar a prova visual do seu trabalho</li>
-        <li>7 videos para reforcar confianca e autoridade</li>
-        <li>Badge Pro e prioridade leve na busca</li>
-        <li>Pagamento via Mercado Pago com Pix, cartao ou boleto</li>
+        <li>7 v&iacute;deos para refor&ccedil;ar confian&ccedil;a e autoridade</li>
+        <li>Selo Pro e prioridade leve na busca</li>
+        <li>Pagamento via Mercado Pago com Pix, cart&atilde;o ou boleto</li>
       </ul>
       <button class="button" type="button" onclick="iniciarCheckoutPlano(event, 2)">Ativar plano</button>
     </article>
@@ -74,32 +74,32 @@
       <span class="plan-tag">Para dominar</span>
       <h2>Para dominar</h2>
       <p class="price">R$79,90</p>
-      <p class="copy">Transforme seu perfil em vitrine principal da plataforma, fortaleça sua marca e mostre volume sem limite para converter mais.</p>
+      <p class="copy">Transforme seu perfil na vitrine principal da plataforma, fortale&ccedil;a sua marca e mostre volume sem limite para converter mais.</p>
       <ul>
         <li>Fotos ilimitadas</li>
-        <li>Videos ilimitados</li>
-        <li>Badge verificado e destaque de autoridade</li>
-        <li>Presenca na secao Tatuadores em destaque</li>
+        <li>V&iacute;deos ilimitados</li>
+        <li>Selo verificado e destaque de autoridade</li>
+        <li>Presen&ccedil;a na se&ccedil;&atilde;o Tatuadores em destaque</li>
       </ul>
       <button class="button-secondary" type="button" onclick="iniciarCheckoutPlano(event, 3)">Ativar plano</button>
     </article>
 
     <article class="plan-card spotlight">
       <span class="plan-tag">Para aparecer no topo</span>
-      <h2>Patrocinio semanal</h2>
+      <h2>Patroc&iacute;nio semanal</h2>
       <p class="price">R$25</p>
-      <p class="copy">Use quando quiser abrir agenda, lancar uma campanha ou acelerar sua visibilidade maxima por alguns dias sem trocar de plano.</p>
+      <p class="copy">Use quando quiser abrir agenda, lan&ccedil;ar uma campanha ou acelerar sua visibilidade m&aacute;xima por alguns dias sem trocar de plano.</p>
       <ul>
-        <li>Aparece na secao Patrocinados</li>
+        <li>Aparece na se&ccedil;&atilde;o Patrocinados</li>
         <li>Fica no topo da busca por 7 dias</li>
-        <li>Prioridade maxima sem depender do Premium</li>
-        <li>Pagamento via Mercado Pago com Pix, cartao ou boleto</li>
+        <li>Prioridade m&aacute;xima sem depender do Premium</li>
+        <li>Pagamento via Mercado Pago com Pix, cart&atilde;o ou boleto</li>
       </ul>
       <button class="button-secondary" type="button" onclick="iniciarCheckoutPatrocinio(event)">Ativar plano</button>
     </article>
   </section>
 
-  <p class="status" id="statusPlanos">Escolha o plano ideal para o seu momento e conclua o pagamento com seguranca.</p>
+  <p class="status" id="statusPlanos">Escolha o plano ideal para o seu momento e conclua o pagamento com seguran&ccedil;a.</p>
 </main>
 
 <div id="footer"></div>
@@ -126,22 +126,22 @@ async function carregarMeuPlano() {
 
   if (!result.ok || !result.data) {
     document.getElementById("planoAtualTexto").textContent =
-      result.error || "Nao foi possivel carregar sua assinatura agora.";
+      result.error || "N\u00e3o foi poss\u00edvel carregar sua assinatura agora.";
     return;
   }
 
   const data = result.data;
   const limiteFotos = data.limite_fotos == null ? "ilimitadas" : `${Number(data.limite_fotos || 0)} foto(s)`;
-  const limiteVideos = data.limite_videos == null ? "ilimitados" : `${Number(data.limite_videos || 0)} video(s)`;
+  const limiteVideos = data.limite_videos == null ? "ilimitados" : `${Number(data.limite_videos || 0)} v\u00eddeo(s)`;
   const usadasFotos = Number(data.usadas_fotos || 0);
   const usadosVideos = Number(data.usados_videos || 0);
   const destaque = data.destaque_ativo ? "com destaque semanal ativo" : "sem destaque ativo";
   const validadeDestaque = data.highlight_until
-    ? ` ate ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}`
+    ? ` at\u00e9 ${new Date(data.highlight_until).toLocaleDateString("pt-BR")}`
     : "";
 
   document.getElementById("planoAtualTexto").textContent =
-    `${data.plano || "Plano"} - ${usadasFotos} foto(s) usadas de ${limiteFotos} - ${usadosVideos} video(s) usados de ${limiteVideos} - assinatura ${data.status_assinatura || "ativa"} - ${destaque}${validadeDestaque}`;
+    `${data.plano || "Plano"} - ${usadasFotos} foto(s) usadas de ${limiteFotos} - ${usadosVideos} v\u00eddeo(s) usados de ${limiteVideos} - assinatura ${data.status_assinatura || "ativa"} - ${destaque}${validadeDestaque}`;
 }
 
 async function ativarPlanoGratis(event) {
@@ -193,7 +193,7 @@ async function iniciarCheckoutPlano(event, planId) {
   setButtonLoading(button, false);
 
   if (!result.ok || !result.data?.checkout_url) {
-    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "Nao foi possivel iniciar o pagamento.");
+    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "N\u00e3o foi poss\u00edvel iniciar o pagamento.");
     return;
   }
 
@@ -209,7 +209,7 @@ async function iniciarCheckoutPatrocinio(event) {
 
   const button = event?.currentTarget;
   setButtonLoading(button, true, "Criando checkout...");
-  atualizarStatus("Preparando o pagamento do patrocinio no Mercado Pago...");
+  atualizarStatus("Preparando o pagamento do patroc\u00ednio no Mercado Pago...");
 
   const result = await fetchJson("/checkout/plan", {
     method: "POST",
@@ -223,7 +223,7 @@ async function iniciarCheckoutPatrocinio(event) {
   setButtonLoading(button, false);
 
   if (!result.ok || !result.data?.checkout_url) {
-    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "Nao foi possivel iniciar o pagamento.");
+    atualizarStatus((result.data && (result.data.mensagem || result.data.erro)) || "N\u00e3o foi poss\u00edvel iniciar o pagamento.");
     return;
   }
 
