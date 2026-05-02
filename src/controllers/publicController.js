@@ -251,6 +251,7 @@ function renderSeoListPage({
 <link rel="stylesheet" href="/styles/theme.css">
 <link rel="stylesheet" href="/styles/pages/tatuadores.css">
 <script type="application/ld+json">${sanitizeJsonForScript(jsonLd)}</script>
+<script src="/scripts/google-ads-tag.js"></script>
 </head>
 <body>
 <header class="seo-header">
