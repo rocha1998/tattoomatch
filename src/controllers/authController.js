@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const pool = require("../config/db");
 const { createAccessToken } = require("../helpers/auth");
 const { getPaginaFromRequest, registrarEvento } = require("../helpers/analytics");
+const { sendPasswordResetEmail } = require("../helpers/email");
 const { ensureUserSchema } = require("../helpers/userSchema");
 
 async function register(req, res) {
@@ -21,16 +22,18 @@ async function register(req, res) {
     return res.status(400).json({ erro: "Email invalido" });
   }
 
-  if (senha.length < 6) {
-    return res.status(400).json({ erro: "Senha precisa ter 6+ caracteres" });
+  if (senha.length < 8) {
+    return res.status(400).json({ erro: "Senha precisa ter 8+ caracteres" });
   }
 
   try {
     await ensureUserSchema();
 
+    const normalizedEmail = email.toLowerCase();
+
     const existeEmail = await pool.query(
-      "SELECT id FROM usuarios WHERE email = $1",
-      [email]
+      "SELECT id FROM usuarios WHERE LOWER(email) = $1",
+      [normalizedEmail]
     );
 
     if (existeEmail.rows.length > 0) {
@@ -52,7 +55,7 @@ async function register(req, res) {
       `INSERT INTO usuarios (usuario, email, senha)
        VALUES ($1, $2, $3)
        RETURNING id`,
-      [usuario, email, senhaCriptografada]
+      [usuario, normalizedEmail, senhaCriptografada]
     );
 
     await registrarEvento({
@@ -181,11 +184,23 @@ async function forgotPassword(req, res) {
       );
 
       const resetUrl = `${getBaseUrl(req)}/reset-password.html?token=${encodeURIComponent(token)}`;
-      console.log(`Link de recuperacao para ${usuario.email}: ${resetUrl}`);
-
       const response = {
-        mensagem: "Se o email existir, enviamos as instrucoes de recuperacao.",
+        mensagem: "Se o e-mail estiver cadastrado, enviaremos instrucoes para redefinir sua senha.",
       };
+
+      try {
+        const mailResult = await sendPasswordResetEmail({
+          to: usuario.email,
+          resetUrl,
+        });
+
+        if (!mailResult.sent) {
+          console.warn(`Envio de email indisponivel. Link de recuperacao para ${usuario.email}: ${resetUrl}`);
+        }
+      } catch (mailError) {
+        console.error("Falha ao enviar email de recuperacao:", mailError);
+        return res.status(500).json({ erro: "Erro ao iniciar recuperacao de senha" });
+      }
 
       if (process.env.NODE_ENV !== "production") {
         response.preview_url = resetUrl;
@@ -195,7 +210,7 @@ async function forgotPassword(req, res) {
     }
 
     return res.json({
-      mensagem: "Se o email existir, enviamos as instrucoes de recuperacao.",
+      mensagem: "Se o e-mail estiver cadastrado, enviaremos instrucoes para redefinir sua senha.",
     });
   } catch (error) {
     console.error(error);
@@ -242,8 +257,8 @@ async function resetPassword(req, res) {
     return res.status(400).json({ erro: "Token ausente" });
   }
 
-  if (novaSenha.length < 6) {
-    return res.status(400).json({ erro: "Senha precisa ter 6+ caracteres" });
+  if (novaSenha.length < 8) {
+    return res.status(400).json({ erro: "Senha precisa ter 8+ caracteres" });
   }
 
   try {

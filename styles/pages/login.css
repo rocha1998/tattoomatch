@@ -97,6 +97,29 @@ body {
   font: inherit;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-right: 104px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
 .field input:focus {
   outline: none;
   border-color: rgba(239, 131, 84, 0.5);

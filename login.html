@@ -45,7 +45,30 @@
 
     <div class="field">
       <label for="senha">Senha</label>
-      <input id="senha" type="password" placeholder="Sua senha">
+      <div class="password-field">
+        <input id="senha" type="password" placeholder="Sua senha">
+        <button
+          class="password-toggle"
+          type="button"
+          data-toggle-target="senha"
+          aria-label="Mostrar senha"
+          aria-pressed="false"
+        >Mostrar</button>
+      </div>
+    </div>
+
+    <div class="field" id="confirmarSenhaField" hidden>
+      <label for="confirmarSenha">Confirmar senha</label>
+      <div class="password-field">
+        <input id="confirmarSenha" type="password" placeholder="Confirme sua senha">
+        <button
+          class="password-toggle"
+          type="button"
+          data-toggle-target="confirmarSenha"
+          aria-label="Mostrar confirmacao de senha"
+          aria-pressed="false"
+        >Mostrar</button>
+      </div>
     </div>
 
     <div class="actions">
@@ -72,6 +95,7 @@ loadFooter();
 
 function alternar() {
   const emailField = document.getElementById("emailField");
+  const confirmarSenhaField = document.getElementById("confirmarSenhaField");
   const titulo = document.getElementById("titulo");
   const subtitulo = document.getElementById("subtitulo");
   const btn = document.getElementById("btn");
@@ -83,6 +107,7 @@ function alternar() {
   if (modo === "login") {
     modo = "registro";
     emailField.hidden = false;
+    confirmarSenhaField.hidden = false;
     titulo.innerText = "Criar conta";
     subtitulo.innerText = "Cadastre-se para come\u00e7ar a usar a plataforma.";
     btn.innerText = "Cadastrar";
@@ -90,6 +115,7 @@ function alternar() {
   } else {
     modo = "login";
     emailField.hidden = true;
+    confirmarSenhaField.hidden = true;
     titulo.innerText = "Entrar";
     subtitulo.innerText = "Use sua conta para acessar sua \u00e1rea no TattooMatch.";
     btn.innerText = "Entrar";
@@ -97,21 +123,44 @@ function alternar() {
   }
 }
 
+document.querySelectorAll(".password-toggle").forEach((button) => {
+  button.addEventListener("click", () => {
+    const target = document.getElementById(button.dataset.toggleTarget);
+    const shouldShow = target.type === "password";
+
+    target.type = shouldShow ? "text" : "password";
+    button.textContent = shouldShow ? "Ocultar" : "Mostrar";
+    button.setAttribute("aria-label", shouldShow ? "Ocultar senha" : "Mostrar senha");
+    button.setAttribute("aria-pressed", shouldShow ? "true" : "false");
+  });
+});
+
 async function acao() {
   const usuario = document.getElementById("usuario").value.trim();
   const email = document.getElementById("email").value.trim();
   const senha = document.getElementById("senha").value;
+  const confirmarSenha = document.getElementById("confirmarSenha").value;
   const msg = document.getElementById("msg");
-
-  msg.textContent = "Carregando...";
 
   let url = "";
   let body = {};
 
   if (modo === "login") {
+    msg.textContent = "Carregando...";
     url = `${API_BASE}/login`;
     body = { usuario, senha };
   } else {
+    if (senha.length < 8) {
+      msg.textContent = "Sua senha precisa ter no minimo 8 caracteres.";
+      return;
+    }
+
+    if (senha !== confirmarSenha) {
+      msg.textContent = "Senha e confirmacao precisam ser iguais.";
+      return;
+    }
+
+    msg.textContent = "Carregando...";
     url = `${API_BASE}/register`;
     body = { usuario, email, senha };
   }
@@ -137,6 +186,7 @@ async function acao() {
       msg.textContent = "Conta criada com sucesso. Agora, fa\u00e7a login.";
       alternar();
       document.getElementById("senha").value = "";
+      document.getElementById("confirmarSenha").value = "";
       return;
     }
 

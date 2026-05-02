@@ -93,7 +93,7 @@ async function createAndLoginUser(prefix) {
   const suffix = Date.now();
   const usuario = `${prefix}${suffix}`;
   const email = `${prefix}${suffix}@example.com`;
-  const senha = "123456";
+  const senha = "12345678";
 
   await cleanupUserByUsername(usuario);
 
@@ -905,7 +905,7 @@ test("fluxo de recuperacao de senha gera token e redefine acesso", async () => {
     const reset = await request("/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, nova_senha: "654321" }),
+      body: JSON.stringify({ token, nova_senha: "87654321" }),
     });
 
     assert.equal(reset.response.status, 200);
@@ -913,7 +913,7 @@ test("fluxo de recuperacao de senha gera token e redefine acesso", async () => {
     const login = await request("/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usuario: user.usuario, senha: "654321" }),
+      body: JSON.stringify({ usuario: user.usuario, senha: "87654321" }),
     });
 
     assert.equal(login.response.status, 200);
