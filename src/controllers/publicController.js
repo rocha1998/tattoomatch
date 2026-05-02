@@ -819,7 +819,6 @@ ${Array.from(urls.entries())
 }
 
 function getRobotsTxt(req, res) {
-  const baseUrl = getBaseUrl(req);
   const lines = [
     "User-agent: *",
     "Allow: /",
@@ -828,7 +827,6 @@ function getRobotsTxt(req, res) {
     "Disallow: /admin-usuarios.html",
     "Disallow: /admin-tatuadores.html",
     "Disallow: /admin-assinaturas.html",
-    "Disallow: /home.html",
     "Disallow: /painel.html",
     "Disallow: /editar-perfil.html",
     "Disallow: /meus-agendamentos.html",
@@ -837,7 +835,7 @@ function getRobotsTxt(req, res) {
     "Disallow: /reset-password.html",
     "Disallow: /pagamento-sucesso.html",
     "Disallow: /pagamento-cancelado.html",
-    `Sitemap: ${baseUrl}/sitemap.xml`,
+    "Sitemap: https://tattoomatch.com.br/sitemap.xml",
   ];
 
   res.type("text/plain").send(`${lines.join("\n")}\n`);
